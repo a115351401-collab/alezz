@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
   <meta charset="UTF-8" />
@@ -430,8 +430,126 @@
       clip-path: polygon(0 0, 100% 0, 100% 60%, 0 100%);
     }
 
-    /* ── Saving calculator ── */
-    .calc-input:focus { outline: none; border-color: #C9A84C; box-shadow: 0 0 0 3px rgba(201,168,76,0.2); }
+    /* ── Saving calculator (Modern Design) ── */
+    .calculator-container {
+      background: rgba(9, 10, 20, 0.70);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+      border-radius: 24px;
+      padding: 2.25rem;
+      max-width: 52rem;
+      margin: 0 auto;
+      box-shadow: 0 20px 50px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.05);
+    }
+    .slider-card {
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      border-radius: 16px;
+      padding: 1.25rem;
+      transition: border-color 0.3s ease, background 0.3s ease, box-shadow 0.3s ease;
+    }
+    .slider-card:hover {
+      border-color: rgba(91, 155, 245, 0.2);
+      background: rgba(255, 255, 255, 0.03);
+      box-shadow: 0 4px 20px rgba(91, 155, 245, 0.03);
+    }
+    input.custom-range {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 100%;
+      height: 4px;
+      border-radius: 999px;
+      outline: none;
+      cursor: pointer;
+      background: rgba(255, 255, 255, 0.08);
+      transition: background 0.3s;
+    }
+    input.custom-range::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: #FFFFFF;
+      border: 3px solid #5B9BF5;
+      cursor: grab;
+      box-shadow: 0 0 10px rgba(91, 155, 245, 0.5);
+      transition: transform 0.1s, background-color 0.2s;
+    }
+    input.custom-range::-webkit-slider-thumb:active {
+      cursor: grabbing;
+      transform: scale(1.2);
+      background: #5B9BF5;
+    }
+    input.custom-range::-moz-range-thumb {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: #FFFFFF;
+      border: 3px solid #5B9BF5;
+      cursor: grab;
+      box-shadow: 0 0 10px rgba(91, 155, 245, 0.5);
+    }
+    .calculator-result-card {
+      background: linear-gradient(135deg, rgba(15, 17, 37, 0.9) 0%, rgba(9, 9, 15, 0.95) 100%);
+      border: 1px solid rgba(91, 155, 245, 0.15);
+      border-radius: 20px;
+      padding: 1.75rem;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+      position: relative;
+      overflow: hidden;
+    }
+    .calculator-result-card::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      right: -50%;
+      width: 200%;
+      height: 200%;
+      background: radial-gradient(circle, rgba(91, 155, 245, 0.05) 0%, transparent 70%);
+      pointer-events: none;
+      z-index: 0;
+    }
+    .result-comparison-item {
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      border-radius: 12px;
+      padding: 0.75rem 1rem;
+      text-align: center;
+    }
+    .result-comparison-item.savings-badge {
+      background: rgba(16, 185, 129, 0.06);
+      border-color: rgba(16, 185, 129, 0.15);
+    }
+    .comparison-label {
+      font-family: 'Tajawal', sans-serif;
+      font-size: 0.75rem;
+      color: rgba(200, 216, 240, 0.55);
+      margin-bottom: 2px;
+    }
+    .comparison-val {
+      font-family: 'Cairo', sans-serif;
+      font-weight: 800;
+      font-size: 1.15rem;
+    }
+    .progress-bar-track {
+      height: 6px;
+      background: rgba(255, 255, 255, 0.08);
+      border-radius: 999px;
+      overflow: hidden;
+    }
+    .progress-bar-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #1A4DB8, #34d399);
+      border-radius: 999px;
+      transition: width 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+      width: 0%;
+    }
 
     /* ── WhatsApp float button ── */
     .wa-float {
@@ -514,8 +632,32 @@
         height: 55rem !important;
       }
       #s3-card {
-        height: 18rem !important;
+        height: auto !important;
+        aspect-ratio: 16 / 9 !important;
         margin-top: -1.5rem !important;
+      }
+      .s3-stats-strip {
+        padding: 1rem 1rem 0.75rem !important;
+        gap: 0.5rem !important;
+      }
+      .s3-stats-strip > div {
+        gap: 1rem !important;
+      }
+      .s3-stats-strip p {
+        font-size: 1.1rem !important;
+      }
+      .s3-stats-strip p + p {
+        font-size: 0.62rem !important;
+        margin-top: 0px !important;
+      }
+      .s3-stats-strip a {
+        font-size: 0.72rem !important;
+        padding: 0.4rem 1rem !important;
+      }
+      /* ── Prevent cropping of photo cards on mobile ── */
+      .car-photo-card {
+        height: auto !important;
+        aspect-ratio: 16 / 9 !important;
       }
 
       /* ── Hero canvas content: smaller padding ── */
@@ -572,7 +714,7 @@
     /* ── Extra small (< 375px) ── */
     @media (max-width: 374px) {
       #s3-container { height: 45rem !important; }
-      #s3-card      { height: 14rem !important; }
+      #s3-card      { height: auto !important; aspect-ratio: 16 / 9 !important; }
     }
   </style>
 </head>
@@ -902,7 +1044,7 @@
           />
 
           <!-- Overlay stats strip at bottom -->
-          <div style="
+          <div class="s3-stats-strip" style="
             position: absolute;
             bottom: 0; left: 0; right: 0;
             background: linear-gradient(to top, rgba(0,0,0,0.85) 0%, transparent 100%);
@@ -1388,131 +1530,129 @@
     </div>
 
     <!-- ══ INTERACTIVE SAVINGS CALCULATOR — Slider Edition ══ -->
-    <div style="
-      background: rgba(5,5,12,0.80);
-      border: 1px solid rgba(201,168,76,0.2);
-      backdrop-filter: blur(20px);
-      -webkit-backdrop-filter: blur(20px);
-      border-radius: 28px;
-      padding: 2.5rem;
-      max-width: 52rem;
-      margin: 0 auto;
-      box-shadow: 0 0 60px rgba(26,75,184,0.2), inset 0 1px 0 rgba(255,255,255,0.05);
-    ">
+    <!-- ══ INTERACTIVE SAVINGS CALCULATOR — Dashboard Edition ══ -->
+    <div class="calculator-container">
       <!-- Header -->
       <div class="text-center mb-8">
-        <div style="display:inline-flex;align-items:center;gap:8px;background:rgba(201,168,76,0.12);border:1px solid rgba(201,168,76,0.3);border-radius:999px;padding:6px 16px;margin-bottom:12px;">
-          <svg viewBox="0 0 24 24" fill="#F0D98A" width="16" height="16"><path d="M11.8 10.9c-2.27-.59-3-1.2-3-2.15 0-1.09 1.01-1.85 2.7-1.85 1.78 0 2.44.85 2.5 2.1h2.21c-.07-1.72-1.12-3.3-3.21-3.81V3h-3v2.16c-1.94.42-3.5 1.68-3.5 3.61 0 2.31 1.91 3.46 4.7 4.13 2.5.6 3 1.48 3 2.41 0 .69-.49 1.79-2.7 1.79-2.06 0-2.87-.92-2.98-2.1h-2.2c.12 2.19 1.76 3.42 3.68 3.83V21h3v-2.15c1.95-.37 3.5-1.5 3.5-3.55 0-2.84-2.43-3.81-4.7-4.4z"/></svg>
-          <span class="font-cairo font-700 text-sm" style="color:#F0D98A;">احسب توفيرك الآن</span>
+        <div style="display:inline-flex;align-items:center;gap:8px;background:rgba(91,155,245,0.08);border:1px solid rgba(91,155,245,0.15);border-radius:999px;padding:6px 16px;margin-bottom:12px;">
+          <svg viewBox="0 0 24 24" fill="#5B9BF5" width="14" height="14"><path d="M11.8 10.9c-2.27-.59-3-1.2-3-2.15 0-1.09 1.01-1.85 2.7-1.85 1.78 0 2.44.85 2.5 2.1h2.21c-.07-1.72-1.12-3.3-3.21-3.81V3h-3v2.16c-1.94.42-3.5 1.68-3.5 3.61 0 2.31 1.91 3.46 4.7 4.13 2.5.6 3 1.48 3 2.41 0 .69-.49 1.79-2.7 1.79-2.06 0-2.87-.92-2.98-2.1h-2.2c.12 2.19 1.76 3.42 3.68 3.83V21h3v-2.15c1.95-.37 3.5-1.5 3.5-3.55 0-2.84-2.43-3.81-4.7-4.4z"/></svg>
+          <span class="font-cairo font-700 text-xs" style="color:#5B9BF5;letter-spacing:0.05em;">حساب توفير الاستيراد</span>
         </div>
-        <h3 class="font-cairo font-900 text-white" style="font-size:1.7rem;margin-bottom:4px;">محاكي التوفير التفاعلي</h3>
-        <p class="font-tajawal" style="color:rgba(200,216,240,0.6);font-size:0.9rem;">حرِّك الأشرطة لحساب توفيرك الفعلي مقارنةً بالوكيل المحلي</p>
+        <h3 class="font-cairo font-900 text-white text-2xl mb-2">محاكي التوفير التفاعلي</h3>
+        <p class="font-tajawal text-white/60 text-xs max-w-md mx-auto">قارن تكلفة الاستيراد شاملة الشحن والجمارك مع أسعار السوق المحلي مباشرة</p>
       </div>
 
-      <!-- Sliders -->
-      <div style="display:flex;flex-direction:column;gap:2rem;margin-bottom:2rem;">
+      <!-- Dashboard Grid -->
+      <div class="grid grid-cols-1 md:grid-cols-12 gap-6 items-stretch">
+        
+        <!-- Left: Sliders Form (7 cols) -->
+        <div class="md:col-span-7 flex flex-col gap-5 justify-between">
+          
+          <!-- Slider 1: Car Price -->
+          <div class="slider-card">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+              <span class="font-cairo font-700 text-white/95 text-xs flex items-center gap-1.5">
+                <svg viewBox="0 0 24 24" fill="#5B9BF5" width="14" height="14"><path d="M18.92 5.01C18.72 4.42 18.16 4 17.5 4h-11c-.66 0-1.21.42-1.42 1.01L3 12v8c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1h12v1c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-8l-2.08-6.99zM6.5 15c-.83 0-1.5-.67-1.5-1.5S5.67 12 6.5 12 8 12.67 8 13.5 7.33 15 6.5 15zm11 0c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zM5 10l1.5-4.5h11L19 10H5z"/></svg>
+                سعر السيارة في كوريا
+              </span>
+              <span id="car-price-display" class="font-cairo font-900 text-sm" style="color:#C9A84C;">80,000 ريال</span>
+            </div>
+            <div class="range-wrap">
+              <input id="car-price" class="custom-range" type="range" min="10000" max="300000" step="1000" value="80000" oninput="updateCalc()"/>
+            </div>
+            <div style="display:flex;justify-content:space-between;margin-top:6px;font-size:0.68rem;" class="font-tajawal text-white/30">
+              <span>10,000 ريال</span>
+              <span>300,000 ريال</span>
+            </div>
+          </div>
 
-        <!-- Slider 1: Car Price -->
-        <div>
-          <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:10px;">
-            <label class="font-cairo font-700 text-sm" style="color:rgba(200,216,240,0.8);">
-              <svg viewBox="0 0 24 24" fill="#5B9BF5" width="14" height="14" style="display:inline;margin-left:4px;"><path d="M18.92 5.01C18.72 4.42 18.16 4 17.5 4h-11c-.66 0-1.21.42-1.42 1.01L3 12v8c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1h12v1c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-8l-2.08-6.99zM6.5 15c-.83 0-1.5-.67-1.5-1.5S5.67 12 6.5 12 8 12.67 8 13.5 7.33 15 6.5 15zm11 0c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zM5 10l1.5-4.5h11L19 10H5z"/></svg>
-              سعر السيارة في كوريا
-            </label>
-            <span id="car-price-display" class="font-cairo font-900" style="color:#C9A84C;font-size:1.1rem;">80,000 ريال</span>
+          <!-- Slider 2: Shipping -->
+          <div class="slider-card">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+              <span class="font-cairo font-700 text-white/95 text-xs flex items-center gap-1.5">
+                <svg viewBox="0 0 24 24" fill="#5B9BF5" width="14" height="14"><path d="M20 8h-3V4H3c-1.1 0-2 .9-2 2v11h2c0 1.66 1.34 3 3 3s3-1.34 3-3h6c0 1.66 1.34 3 3 3s3-1.34 3-3h2v-5l-3-4zm-1.5 1.5l1.96 2.5H17V9.5h1.5zM6 18c-.55 0-1-.45-1-1s.45-1 1-1 1 .45 1 1-.45 1-1 1zm2.22-3c-.55-.61-1.33-1-2.22-1s-1.67.39-2.22 1H3V6h12v9H8.22zm9.78 3c-.55 0-1-.45-1-1s.45-1 1-1 1 .45 1 1-.45 1-1 1z"/></svg>
+                تكلفة الشحن البحري والبري
+              </span>
+              <span id="ship-cost-display" class="font-cairo font-900 text-sm" style="color:#C9A84C;">3,000 ريال</span>
+            </div>
+            <div class="range-wrap">
+              <input id="ship-cost" class="custom-range" type="range" min="500" max="10000" step="100" value="3000" oninput="updateCalc()"/>
+            </div>
+            <div style="display:flex;justify-content:space-between;margin-top:6px;font-size:0.68rem;" class="font-tajawal text-white/30">
+              <span>500 ريال</span>
+              <span>10,000 ريال</span>
+            </div>
           </div>
-          <div class="range-wrap">
-            <input id="car-price" class="custom-range" type="range" min="10000" max="300000" step="1000" value="80000" oninput="updateCalc()"/>
+
+          <!-- Slider 3: Customs -->
+          <div class="slider-card">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+              <span class="font-cairo font-700 text-white/95 text-xs flex items-center gap-1.5">
+                <svg viewBox="0 0 24 24" fill="#5B9BF5" width="14" height="14"><path d="M20 4H4c-1.11 0-2 .89-2 2v12c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V6c0-1.11-.89-2-2-2zm0 14H4v-6h16v6zm0-10H4V6h16v2z"/></svg>
+                الجمارك والرسوم الحكومية
+              </span>
+              <span id="customs-display" class="font-cairo font-900 text-sm" style="color:#C9A84C;">5%</span>
+            </div>
+            <div class="range-wrap">
+              <input id="customs" class="custom-range" type="range" min="0" max="25" step="0.5" value="5" oninput="updateCalc()"/>
+            </div>
+            <div style="display:flex;justify-content:space-between;margin-top:6px;font-size:0.68rem;" class="font-tajawal text-white/30">
+              <span>0%</span>
+              <span>25%</span>
+            </div>
           </div>
-          <div style="display:flex;justify-content:space-between;margin-top:4px;">
-            <span class="font-tajawal" style="color:rgba(200,216,240,0.35);font-size:0.7rem;">10,000</span>
-            <span class="font-tajawal" style="color:rgba(200,216,240,0.35);font-size:0.7rem;">300,000 ريال</span>
-          </div>
+
         </div>
 
-        <!-- Slider 2: Shipping -->
-        <div>
-          <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:10px;">
-            <label class="font-cairo font-700 text-sm" style="color:rgba(200,216,240,0.8);">
-              <svg viewBox="0 0 24 24" fill="#5B9BF5" width="14" height="14" style="display:inline;margin-left:4px;"><path d="M20 8h-3V4H3c-1.1 0-2 .9-2 2v11h2c0 1.66 1.34 3 3 3s3-1.34 3-3h6c0 1.66 1.34 3 3 3s3-1.34 3-3h2v-5l-3-4zm-1.5 1.5l1.96 2.5H17V9.5h1.5zM6 18c-.55 0-1-.45-1-1s.45-1 1-1 1 .45 1 1-.45 1-1 1zm2.22-3c-.55-.61-1.33-1-2.22-1s-1.67.39-2.22 1H3V6h12v9H8.22zm9.78 3c-.55 0-1-.45-1-1s.45-1 1-1 1 .45 1 1-.45 1-1 1z"/></svg>
-              تكلفة الشحن
-            </label>
-            <span id="ship-cost-display" class="font-cairo font-900" style="color:#C9A84C;font-size:1.1rem;">3,000 ريال</span>
-          </div>
-          <div class="range-wrap">
-            <input id="ship-cost" class="custom-range" type="range" min="500" max="10000" step="100" value="3000" oninput="updateCalc()"/>
-          </div>
-          <div style="display:flex;justify-content:space-between;margin-top:4px;">
-            <span class="font-tajawal" style="color:rgba(200,216,240,0.35);font-size:0.7rem;">500</span>
-            <span class="font-tajawal" style="color:rgba(200,216,240,0.35);font-size:0.7rem;">10,000 ريال</span>
-          </div>
-        </div>
+        <!-- Right: Dashboard Live Results (5 cols) -->
+        <div class="md:col-span-5">
+          <div id="calc-result" class="calculator-result-card">
+            <!-- Title -->
+            <div style="border-bottom: 1px solid rgba(255,255,255,0.06); padding-bottom: 1rem; margin-bottom: 1rem;">
+              <p class="font-tajawal text-white/50 text-[10px] uppercase tracking-wider mb-0.5">التكلفة التقريبية للاستيراد</p>
+              <h4 class="font-cairo font-800 text-white text-base leading-none">نتائج الحساب المباشرة</h4>
+            </div>
 
-        <!-- Slider 3: Customs -->
-        <div>
-          <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:10px;">
-            <label class="font-cairo font-700 text-sm" style="color:rgba(200,216,240,0.8);">
-              <svg viewBox="0 0 24 24" fill="#5B9BF5" width="14" height="14" style="display:inline;margin-left:4px;"><path d="M20 4H4c-1.11 0-2 .89-2 2v12c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V6c0-1.11-.89-2-2-2zm0 14H4v-6h16v6zm0-10H4V6h16v2z"/></svg>
-              رسوم الجمارك
-            </label>
-            <span id="customs-display" class="font-cairo font-900" style="color:#C9A84C;font-size:1.1rem;">5%</span>
-          </div>
-          <div class="range-wrap">
-            <input id="customs" class="custom-range" type="range" min="0" max="25" step="0.5" value="5" oninput="updateCalc()"/>
-          </div>
-          <div style="display:flex;justify-content:space-between;margin-top:4px;">
-            <span class="font-tajawal" style="color:rgba(200,216,240,0.35);font-size:0.7rem;">0%</span>
-            <span class="font-tajawal" style="color:rgba(200,216,240,0.35);font-size:0.7rem;">25%</span>
-          </div>
-        </div>
-      </div>
+            <!-- Total Cost Block -->
+            <div style="margin-bottom: 1.25rem;">
+              <p class="font-tajawal text-white/40 text-xs mb-1">التكلفة الإجمالية معك</p>
+              <p id="total-cost" class="font-cairo font-900 text-white text-3xl leading-none" style="text-shadow:0 0 20px rgba(91,155,245,0.15);"></p>
+              <p class="font-tajawal text-white/30 text-[9px] mt-1">* تشمل سعر المزاد، الشحن والرسوم</p>
+            </div>
 
-      <!-- Live Results — always visible, updates in real-time -->
-      <div id="calc-result" style="
-        background: rgba(0,0,0,0.4);
-        border: 1px solid rgba(255,255,255,0.08);
-        border-radius: 20px;
-        padding: 1.5rem;
-      ">
-        <!-- Total cost headline -->
-        <div style="text-align:center;margin-bottom:1.25rem;">
-          <p class="font-tajawal" style="color:rgba(200,216,240,0.55);font-size:0.82rem;margin-bottom:2px;">التكلفة الإجمالية معنا (شامل الشحن والجمارك)</p>
-          <p id="total-cost" class="font-cairo font-900 text-white" style="font-size:2.4rem;line-height:1;"></p>
-        </div>
+            <!-- Comparison Row -->
+            <div class="grid grid-cols-2 gap-3 mb-4">
+              <!-- Dealer Price -->
+              <div class="result-comparison-item">
+                <p class="comparison-label">الوكيل المحلي</p>
+                <p id="dealer-price" class="comparison-val line-through text-white/40"></p>
+              </div>
+              <!-- Savings Badge -->
+              <div class="result-comparison-item savings-badge">
+                <p class="comparison-label text-emerald-400">وفرت مع العز</p>
+                <p id="saving-amount" class="comparison-val text-emerald-400"></p>
+              </div>
+            </div>
 
-        <!-- Comparison row -->
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:1.25rem;">
-          <div style="background:rgba(26,75,184,0.2);border:1px solid rgba(91,155,245,0.15);border-radius:14px;padding:14px;text-align:center;">
-            <p class="font-tajawal" style="color:rgba(200,216,240,0.55);font-size:0.75rem;margin-bottom:4px;">سعر الوكيل المحلي (تقديري)</p>
-            <p id="dealer-price" class="font-cairo font-800 text-white" style="font-size:1.2rem;"></p>
-          </div>
-          <div style="background:rgba(16,185,129,0.15);border:1px solid rgba(16,185,129,0.25);border-radius:14px;padding:14px;text-align:center;">
-            <p class="font-tajawal" style="color:rgba(200,216,240,0.55);font-size:0.75rem;margin-bottom:4px;">توفيرك المتوقع 💰</p>
-            <p id="saving-amount" class="font-cairo font-900" style="font-size:1.3rem;color:#34d399;"></p>
-          </div>
-        </div>
+            <!-- Savings Bar -->
+            <div style="margin-bottom: 1.5rem;">
+              <div class="flex justify-between items-baseline mb-1.5">
+                <span class="font-tajawal text-white/50 text-xs">نسبة التوفير التقديرية</span>
+                <span id="saving-pct" class="font-cairo font-800 text-emerald-400 text-xs"></span>
+              </div>
+              <div class="progress-bar-track">
+                <div id="saving-bar" class="progress-bar-fill"></div>
+              </div>
+            </div>
 
-        <!-- Savings progress bar -->
-        <div style="margin-bottom:1.25rem;">
-          <div style="display:flex;justify-content:space-between;margin-bottom:6px;">
-            <span class="font-tajawal" style="color:rgba(200,216,240,0.5);font-size:0.75rem;">نسبة التوفير</span>
-            <span id="saving-pct" class="font-cairo font-700" style="color:#34d399;font-size:0.85rem;"></span>
-          </div>
-          <div style="height:6px;background:rgba(255,255,255,0.06);border-radius:3px;overflow:hidden;">
-            <div id="saving-bar" style="height:100%;background:linear-gradient(90deg,#1A4DB8,#34d399);border-radius:3px;transition:width 0.4s cubic-bezier(0.4,0,0.2,1);width:0%;"></div>
+            <!-- Action Button -->
+            <a href="https://wa.me/966550112411?text=أريد%20الاستفسار%20عن%20تفاصيل%20حساب%20توفير%20الاستيراد"
+               class="btn-gold w-full flex items-center justify-center gap-2 py-3 rounded-xl text-xs font-cairo font-bold transition-all duration-300">
+              <span>ابدأ رحلة الاستيراد والتوفير</span>
+              <svg viewBox="0 0 24 24" fill="white" width="14" height="14"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+            </a>
           </div>
         </div>
-
-        <!-- CTA -->
-        <div style="text-align:center;">
-          <a href="https://wa.me/966550112411?text=أريد%20الاستفسار%20عن%20الاستيراد"
-             class="btn-gold inline-flex items-center gap-2 px-8 py-3 rounded-full text-sm shadow-lg">
-            <span>احجز استشارتك المجانية</span>
-            <svg viewBox="0 0 24 24" fill="white" width="16" height="16"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
-          </a>
-        </div>
-      </div>
-    </div>
 
   </div><!-- /content -->
 </section>
@@ -1548,7 +1688,7 @@
   function updateSliderFill(input) {
     var min = parseFloat(input.min), max = parseFloat(input.max), val = parseFloat(input.value);
     var pct = (val - min) / (max - min) * 100;
-    input.style.background = 'linear-gradient(to left, rgba(255,255,255,0.10) ' + (100-pct) + '%, #C9A84C ' + (100-pct) + '%)';
+    input.style.background = 'linear-gradient(to left, rgba(255,255,255,0.06) ' + (100-pct) + '%, #5B9BF5 ' + (100-pct) + '%)';
   }
 
   window.updateCalc = function() {
@@ -2168,16 +2308,40 @@
     var cW = canvas.width;
     var cH = canvas.height;
 
-    // Scale so image COVERS the canvas — maintains aspect ratio (no stretch)
-    var scale = Math.max(cW / iW, cH / iH);
-    var sW = cW / scale;   // source width  in image pixels
-    var sH = cH / scale;   // source height in image pixels
+    if (IS_MOBILE) {
+      // 1. Draw blurred, darkened background to cover the screen
+      ctx.save();
+      var bgScale = Math.max(cW / iW, cH / iH);
+      var bgSW = cW / bgScale;
+      var bgSH = cH / bgScale;
+      var bgSX = (iW - bgSW) / 2;
+      var bgSY = (iH - bgSH) / 2;
+      ctx.filter = 'blur(10px) brightness(0.35)';
+      ctx.drawImage(img, bgSX, bgSY, bgSW, bgSH, 0, 0, cW, cH);
+      ctx.restore();
 
-    // Centre the crop so car (usually in middle) stays visible
-    var sX = (iW - sW) / 2;
-    var sY = (iH - sH) / 2;
+      // 2. Draw sharp full image contained in the center
+      ctx.save();
+      var fgScale = Math.min(cW / iW, cH / iH);
+      var fgW = iW * fgScale;
+      var fgH = iH * fgScale;
+      var fgX = (cW - fgW) / 2;
+      var fgY = (cH - fgH) / 2;
+      ctx.filter = 'none';
+      ctx.drawImage(img, 0, 0, iW, iH, fgX, fgY, fgW, fgH);
+      ctx.restore();
+    } else {
+      // Scale so image COVERS the canvas — maintains aspect ratio (no stretch)
+      var scale = Math.max(cW / iW, cH / iH);
+      var sW = cW / scale;   // source width  in image pixels
+      var sH = cH / scale;   // source height in image pixels
 
-    ctx.drawImage(img, sX, sY, sW, sH, 0, 0, cW, cH);
+      // Centre the crop so car (usually in middle) stays visible
+      var sX = (iW - sW) / 2;
+      var sY = (iH - sH) / 2;
+
+      ctx.drawImage(img, sX, sY, sW, sH, 0, 0, cW, cH);
+    }
   }
 
   // ── Target index (PIECEWISE — clean boundary at 6000px) ──
