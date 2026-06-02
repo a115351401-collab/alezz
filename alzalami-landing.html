@@ -1,0 +1,2118 @@
+﻿<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>العز العالمي — استيراد سيارات فاخرة من كوريا</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;900&family=Tajawal:wght@300;400;500;700&display=swap" rel="stylesheet" />
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            sky:         '#1A4DB8',      /* deep navy-blue (was bright #1A8FE3) */
+            'sky-light': '#09090F',      /* near-black page bg */
+            'sky-mid':   '#0F1125',      /* dark section bg */
+            'sky-glow':  '#5B9BF5',      /* visible accent blue for text on dark */
+            gold:        '#C9A84C',
+            'gold-light':'#F0D98A',
+            'gold-dark': '#A0802A',
+            ink:         '#C8D8F0',      /* light text on dark bg */
+          },
+          fontFamily: {
+            cairo:   ['Cairo', 'sans-serif'],
+            tajawal: ['Tajawal', 'sans-serif'],
+          },
+        },
+      },
+    }
+  </script>
+
+  <style>
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body { font-family: 'Tajawal', sans-serif; background-color: #09090F; color: #C8D8F0; }
+    h1,h2,h3,h4,h5 { font-family: 'Cairo', sans-serif; }
+
+    /* ══ SECTION TRANSITIONS — scroll reveal ══════════════════ */
+    .reveal {
+      opacity: 0;
+      transform: translateY(28px);
+      transition: opacity 0.75s cubic-bezier(0.22,1,0.36,1),
+                  transform 0.75s cubic-bezier(0.22,1,0.36,1);
+      will-change: opacity, transform;
+    }
+    .reveal.in-view {
+      opacity: 1;
+      transform: none;
+      will-change: auto;      /* release after animation done */
+    }
+    /* stagger children */
+    .reveal-child > * {
+      opacity: 0;
+      transform: translateY(20px);
+      transition: opacity 0.6s cubic-bezier(0.22,1,0.36,1),
+                  transform 0.6s cubic-bezier(0.22,1,0.36,1);
+    }
+    .reveal-child.in-view > *:nth-child(1) { opacity:1; transform:none; transition-delay:0.05s; }
+    .reveal-child.in-view > *:nth-child(2) { opacity:1; transform:none; transition-delay:0.15s; }
+    .reveal-child.in-view > *:nth-child(3) { opacity:1; transform:none; transition-delay:0.25s; }
+    .reveal-child.in-view > *:nth-child(4) { opacity:1; transform:none; transition-delay:0.35s; }
+
+    /* ══ SECTION GRADIENT FADES — blend between dark sections ═ */
+    .section-fade {
+      position: relative;
+    }
+    /* Top fade — blends from body bg (#09090F) to transparent */
+    .section-fade::before {
+      content: '';
+      position: absolute;
+      inset: 0 0 auto 0;
+      height: 80px;
+      background: linear-gradient(to bottom, #09090F 0%, transparent 100%);
+      z-index: 4;
+      pointer-events: none;
+    }
+    /* Bottom fade */
+    .section-fade::after {
+      content: '';
+      position: absolute;
+      inset: auto 0 0 0;
+      height: 80px;
+      background: linear-gradient(to top, #09090F 0%, transparent 100%);
+      z-index: 4;
+      pointer-events: none;
+    }
+
+    /* ══ PERFORMANCE — reduce layout thrashing ═════════════════ */
+    /* Contain paint for heavy sections */
+    #features, #auctions, #faq {
+      contain: paint style;
+    }
+    /* Pause CSS animations when section is off-screen (set by JS) */
+    .paused *,
+    .paused [class*="grad-blob"],
+    .paused [class*="ticker"] {
+      animation-play-state: paused !important;
+    }
+
+    /* ── Global dark-theme overrides ── */
+    /* White cards → dark cards */
+    .bg-white { background-color: #0F1020 !important; }
+    /* sky text → use glow blue so it's visible on dark */
+    .text-sky  { color: #5B9BF5 !important; }
+    /* ink text → light on dark */
+    .text-ink  { color: #C8D8F0 !important; }
+    /* Borders adjustment */
+    .border-sky-mid { border-color: rgba(255,255,255,0.08) !important; }
+    .border-gray-200 { border-color: rgba(255,255,255,0.08) !important; }
+    /* FAQ bg on dark sections */
+    .bg-white\/10 { background-color: rgba(255,255,255,0.06) !important; }
+    .bg-white\/20 { background-color: rgba(255,255,255,0.10) !important; }
+    /* Feature card shadows */
+    .feature-card:hover {
+      box-shadow: 0 20px 50px rgba(91,155,245,0.15), 0 4px 16px rgba(201,168,76,0.2) !important;
+    }
+
+    /* ── Gold gradient text ── */
+    .text-gold-gradient {
+      background: linear-gradient(135deg, #C9A84C 0%, #F0D98A 50%, #A0802A 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    /* ── Animated underline ── */
+    .gold-underline {
+      position: relative;
+      display: inline-block;
+    }
+    .gold-underline::after {
+      content: '';
+      position: absolute;
+      bottom: -6px;
+      right: 0;
+      width: 60%;
+      height: 3px;
+      background: linear-gradient(90deg, transparent, #C9A84C, transparent);
+      border-radius: 2px;
+    }
+
+    /* ── Navbar glass — transparent dark ── */
+    .navbar-glass {
+      background: rgba(9, 9, 15, 0.35);
+      backdrop-filter: blur(20px) saturate(180%);
+      -webkit-backdrop-filter: blur(20px) saturate(180%);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+    }
+
+    /* ══════════════════════════════════════════
+       DUAL CANVAS SEQUENCE SYSTEM
+       One sticky wrapper — 12000px scroll travel
+       S1: scrollY 0→6000  (150 frames)
+       S2: scrollY 6000→12000 (120 frames)
+    ══════════════════════════════════════════ */
+
+    /* Outer wrapper — creates the total scroll distance */
+    #canvas-wrap {
+      position: relative;
+      height: calc(100vh + 12000px);
+    }
+
+    /* Sticky viewport — stays pinned for 12000px of scroll */
+    #canvas-sticky {
+      position: sticky;
+      top: 0;
+      width: 100%;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    /* Canvas — fills the sticky container */
+    #hero-canvas {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+
+    /* Cinematic overlay — always visible */
+    .seq-overlay {
+      position: absolute;
+      inset: 0;
+      background:
+        linear-gradient(to bottom,
+          rgba(10,20,40,0.55) 0%,
+          rgba(10,20,40,0.25) 45%,
+          rgba(10,20,40,0.55) 100%),
+        linear-gradient(to right,
+          rgba(10,20,40,0.40) 0%,
+          transparent 65%);
+      z-index: 1;
+      pointer-events: none;
+    }
+    .seq-overlay::before, .seq-overlay::after {
+      content: '';
+      position: absolute;
+      left: 0; right: 0;
+      height: 60px;
+      background: rgba(0,0,0,0.50);
+    }
+    .seq-overlay::before { top: 0; }
+    .seq-overlay::after  { bottom: 0; }
+
+    /* Film grain */
+    .seq-grain {
+      position: absolute;
+      inset: 0;
+      z-index: 2;
+      opacity: 0.03;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+      background-size: 256px;
+      pointer-events: none;
+    }
+
+    /* Global progress bar */
+    #video-progress {
+      position: absolute;
+      bottom: 0; left: 0;
+      height: 3px;
+      width: 0%;
+      background: linear-gradient(90deg, #1A8FE3, #C9A84C);
+      z-index: 20;
+    }
+
+    /* Content overlays — each section gets its own absolutely-positioned panel */
+    .seq-content {
+      position: absolute;
+      inset: 0;
+      z-index: 10;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding-top: 80px;
+      transition: opacity 0.5s ease;
+      will-change: opacity;
+    }
+
+    /* Scroll indicator */
+    @keyframes bounce-down {
+      0%,100% { transform: translateY(0); opacity:1; }
+      50%      { transform: translateY(10px); opacity:0.45; }
+    }
+    .scroll-indicator { animation: bounce-down 2s ease-in-out infinite; }
+
+    /* ══ BackgroundGradientAnimation — CSS variables + keyframes ══ */
+    :root {
+      --gradient-background-start: rgb(5, 5, 12);
+      --gradient-background-end:   rgb(8, 15, 40);
+      --first-color:   26, 75, 184;
+      --second-color:  201, 168, 76;
+      --third-color:   91, 155, 245;
+      --fourth-color:  12, 20, 60;
+      --fifth-color:   150, 120, 30;
+      --pointer-color: 91, 155, 245;
+      --size: 80%;
+      --blending-value: hard-light;
+    }
+    @keyframes moveVertical {
+      0%   { transform: translateY(-50%); }
+      50%  { transform: translateY(50%); }
+      100% { transform: translateY(-50%); }
+    }
+    @keyframes moveInCircle {
+      0%   { transform: rotate(0deg); }
+      50%  { transform: rotate(180deg); }
+      100% { transform: rotate(360deg); }
+    }
+    @keyframes moveHorizontal {
+      0%   { transform: translateX(-50%) translateY(-10%); }
+      50%  { transform: translateX(50%) translateY(10%); }
+      100% { transform: translateX(-50%) translateY(-10%); }
+    }
+    .grad-blob { position:absolute; border-radius:50%; mix-blend-mode:var(--blending-value); }
+    .grad-blob-1 { width:var(--size); height:var(--size); top:calc(50% - var(--size)/2); left:calc(50% - var(--size)/2); background:radial-gradient(circle at center, rgba(var(--first-color),0.9) 0, rgba(var(--first-color),0) 50%) no-repeat; transform-origin:center center; animation:moveVertical 30s ease infinite; opacity:1; }
+    .grad-blob-2 { width:var(--size); height:var(--size); top:calc(50% - var(--size)/2); left:calc(50% - var(--size)/2); background:radial-gradient(circle at center, rgba(var(--second-color),0.8) 0, rgba(var(--second-color),0) 50%) no-repeat; transform-origin:calc(50% - 400px); animation:moveInCircle 20s reverse infinite; opacity:1; }
+    .grad-blob-3 { width:var(--size); height:var(--size); top:calc(50% - var(--size)/2); left:calc(50% - var(--size)/2); background:radial-gradient(circle at center, rgba(var(--third-color),0.8) 0, rgba(var(--third-color),0) 50%) no-repeat; transform-origin:calc(50% + 400px); animation:moveInCircle 40s linear infinite; opacity:1; }
+    .grad-blob-4 { width:var(--size); height:var(--size); top:calc(50% - var(--size)/2); left:calc(50% - var(--size)/2); background:radial-gradient(circle at center, rgba(var(--fourth-color),0.8) 0, rgba(var(--fourth-color),0) 50%) no-repeat; transform-origin:calc(50% - 200px); animation:moveHorizontal 40s ease infinite; opacity:0.7; }
+    .grad-blob-5 { width:var(--size); height:var(--size); top:calc(50% - var(--size)/2); left:calc(50% - var(--size)/2); background:radial-gradient(circle at center, rgba(var(--fifth-color),0.8) 0, rgba(var(--fifth-color),0) 50%) no-repeat; transform-origin:calc(50% - 800px) calc(50% + 800px); animation:moveInCircle 20s ease infinite; opacity:1; }
+    .grad-pointer { position:absolute; width:100%; height:100%; top:-50%; left:-50%; background:radial-gradient(circle at center, rgba(var(--pointer-color),0.8) 0, rgba(var(--pointer-color),0) 50%) no-repeat; mix-blend-mode:var(--blending-value); opacity:0.7; transition:transform 0.05s linear; }
+
+    /* ── Custom range sliders ── */
+    .range-wrap { position:relative; width:100%; }
+    input.custom-range {
+      -webkit-appearance:none; appearance:none;
+      width:100%; height:3px; border-radius:2px; outline:none; cursor:pointer;
+      background: linear-gradient(to left, rgba(255,255,255,0.12) 0%, #C9A84C 100%);
+    }
+    input.custom-range::-webkit-slider-thumb {
+      -webkit-appearance:none; appearance:none;
+      width:20px; height:20px; border-radius:50%;
+      background: radial-gradient(circle, #F0D98A 0%, #C9A84C 100%);
+      cursor:grab; border:2px solid rgba(255,255,255,0.3);
+      box-shadow: 0 0 12px rgba(201,168,76,0.6), 0 0 24px rgba(201,168,76,0.3);
+      transition: box-shadow 0.2s;
+    }
+    input.custom-range::-webkit-slider-thumb:active { cursor:grabbing; box-shadow:0 0 20px rgba(201,168,76,0.9); }
+    input.custom-range::-moz-range-thumb {
+      width:20px; height:20px; border-radius:50%; border:2px solid rgba(255,255,255,0.3);
+      background: radial-gradient(circle, #F0D98A 0%, #C9A84C 100%);
+      cursor:grab; box-shadow:0 0 12px rgba(201,168,76,0.6);
+    }
+    /* Auction card dark override */
+    .auction-card-dark {
+      background: rgba(10,10,20,0.75);
+      border: 1px solid rgba(255,255,255,0.08);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+    }
+    .auction-card-dark:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 20px 50px rgba(26,75,184,0.3), 0 4px 16px rgba(201,168,76,0.15);
+      border-color: rgba(201,168,76,0.3);
+    }
+
+    /* ── Stats ticker ── */
+    @keyframes ticker {
+      0%   { transform: translateX(0); }
+      100% { transform: translateX(-50%); }
+    }
+    .ticker-track { animation: ticker 28s linear infinite; display: flex; width: max-content; }
+    .ticker-wrap:hover .ticker-track { animation-play-state: paused; }
+
+    /* ── Card hover ── */
+    .feature-card {
+      transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+    }
+    .feature-card:hover {
+      transform: translateY(-6px);
+      box-shadow: 0 20px 50px rgba(26,143,227,0.18), 0 4px 16px rgba(201,168,76,0.15);
+      border-color: #C9A84C;
+    }
+
+    /* ── Auction card ── */
+    .auction-card {
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    .auction-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 24px 48px rgba(26,143,227,0.2);
+    }
+
+    /* ── Testimonial card ── */
+    .testimonial-card {
+      transition: transform 0.25s ease, box-shadow 0.25s ease;
+    }
+    .testimonial-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 16px 40px rgba(26,143,227,0.15);
+    }
+
+    /* ── Accordion ── */
+    .faq-answer {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.45s cubic-bezier(0.4,0,0.2,1), padding 0.3s ease;
+    }
+    .faq-answer.open { max-height: 400px; }
+    .faq-chevron { transition: transform 0.35s ease; }
+    .faq-chevron.rotated { transform: rotate(180deg); }
+
+    /* ── Gold button ── */
+    .btn-gold {
+      background: linear-gradient(135deg, #C9A84C 0%, #F0D98A 50%, #A0802A 100%);
+      color: #fff;
+      font-family: 'Cairo', sans-serif;
+      font-weight: 700;
+      cursor: pointer;
+      transition: opacity 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+      position: relative;
+      overflow: hidden;
+    }
+    .btn-gold::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, #F0D98A, #C9A84C);
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+    .btn-gold:hover::before { opacity: 1; }
+    .btn-gold:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(201,168,76,0.45); }
+    .btn-gold span { position: relative; z-index: 1; }
+
+    /* ── Sky outline button ── */
+    .btn-sky-outline {
+      border: 2px solid #1A8FE3;
+      color: #1A8FE3;
+      font-family: 'Cairo', sans-serif;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background 0.25s ease, color 0.25s ease, transform 0.2s ease;
+    }
+    .btn-sky-outline:hover {
+      background: #1A8FE3;
+      color: #fff;
+      transform: translateY(-2px);
+    }
+
+    /* ── Section fade-in ── */
+    @keyframes fadeUp {
+      from { opacity:0; transform: translateY(30px); }
+      to   { opacity:1; transform: translateY(0); }
+    }
+    .animate-fade-up { animation: fadeUp 0.7s ease forwards; }
+    .delay-1 { animation-delay: 0.15s; opacity: 0; }
+    .delay-2 { animation-delay: 0.3s;  opacity: 0; }
+    .delay-3 { animation-delay: 0.45s; opacity: 0; }
+    .delay-4 { animation-delay: 0.6s;  opacity: 0; }
+
+    /* ── Diagonal section divider ── */
+    .skew-divider {
+      height: 60px;
+      background: #1A8FE3;
+      clip-path: polygon(0 0, 100% 40%, 100% 100%, 0 100%);
+    }
+    .skew-divider-reverse {
+      height: 60px;
+      background: #EAF6FF;
+      clip-path: polygon(0 0, 100% 0, 100% 60%, 0 100%);
+    }
+
+    /* ── Saving calculator ── */
+    .calc-input:focus { outline: none; border-color: #C9A84C; box-shadow: 0 0 0 3px rgba(201,168,76,0.2); }
+
+    /* ── WhatsApp float button ── */
+    .wa-float {
+      position: fixed;
+      bottom: 24px;
+      left: 24px;
+      z-index: 999;
+      width: 58px;
+      height: 58px;
+      border-radius: 50%;
+      background: #25D366;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 6px 20px rgba(37,211,102,0.45);
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+      cursor: pointer;
+    }
+    .wa-float:hover { transform: scale(1.1); box-shadow: 0 10px 28px rgba(37,211,102,0.55); }
+
+    /* ── Divider line ── */
+    .gold-divider { height: 2px; background: linear-gradient(90deg, transparent, #C9A84C 40%, #F0D98A 60%, transparent); }
+
+    /* ── Image overlay card ── */
+    .car-photo-card { position: relative; overflow: hidden; border-radius: 16px; }
+    .car-photo-card img { transition: transform 0.5s ease; display: block; width: 100%; height: 100%; object-fit: cover; }
+    .car-photo-card:hover img { transform: scale(1.07); }
+    .car-photo-card .overlay {
+      position: absolute; inset: 0;
+      background: linear-gradient(to top, rgba(13,53,88,0.75) 0%, transparent 55%);
+    }
+
+    /* ── Responsive nav ── */
+    #mobile-menu { display: none; }
+    #mobile-menu.open { display: block; }
+  </style>
+</head>
+
+<body class="bg-sky-light" style="background:#09090F;">
+
+<!-- ═══════════════════════════════════════════
+     FLOATING WHATSAPP BUTTON
+═══════════════════════════════════════════ -->
+<a href="https://wa.me/966550112411" target="_blank" class="wa-float" aria-label="تواصل عبر واتساب">
+  <svg viewBox="0 0 24 24" fill="white" width="30" height="30" xmlns="http://www.w3.org/2000/svg">
+    <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+  </svg>
+</a>
+
+<!-- ═══════════════════════════════════════════
+     NAVBAR
+═══════════════════════════════════════════ -->
+<nav class="navbar-glass fixed top-0 right-0 left-0 z-50 px-4 py-3">
+  <div class="max-w-7xl mx-auto flex items-center justify-between">
+    <!-- Logo -->
+    <div class="flex items-center gap-2">
+      <div class="w-10 h-10 rounded-full bg-sky flex items-center justify-center shadow-lg">
+        <svg viewBox="0 0 24 24" fill="#C9A84C" width="22" height="22"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14H9V8h2v8zm4 0h-2V8h2v8z"/></svg>
+      </div>
+      <div>
+        <p class="font-cairo font-900 text-sky leading-none text-lg">العز العالمي</p>
+        <p class="text-gold text-xs font-tajawal">استيراد سيارات كورية فاخرة</p>
+      </div>
+    </div>
+
+    <!-- Desktop Links -->
+    <div class="hidden md:flex items-center gap-6 font-cairo font-600 text-sm" style="color:#C8D8F0;">
+      <a href="#features" class="hover:text-gold transition-colors duration-200 cursor-pointer" style="color:#C8D8F0;">مميزاتنا</a>
+      <a href="#auctions" class="hover:text-gold transition-colors duration-200 cursor-pointer" style="color:#C8D8F0;">المزادات</a>
+      <a href="#success" class="hover:text-gold transition-colors duration-200 cursor-pointer" style="color:#C8D8F0;">قصص النجاح</a>
+      <a href="#faq" class="hover:text-gold transition-colors duration-200 cursor-pointer" style="color:#C8D8F0;">الأسئلة الشائعة</a>
+    </div>
+
+    <!-- CTA + Hamburger -->
+    <div class="flex items-center gap-3">
+      <a href="https://wa.me/966550112411" class="btn-gold hidden sm:inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-sm shadow-md">
+        <span>تواصل معنا</span>
+        <svg viewBox="0 0 24 24" fill="white" width="16" height="16"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+      </a>
+      <button id="hamburger" class="md:hidden p-2 rounded-lg hover:bg-sky-mid transition-colors cursor-pointer" aria-label="القائمة">
+        <svg viewBox="0 0 24 24" fill="#0D3558" width="24" height="24"><path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/></svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- Mobile menu -->
+  <div id="mobile-menu" class="md:hidden mt-3 pb-3 border-t border-sky-mid pt-3">
+    <div class="flex flex-col gap-3 px-2 font-cairo font-600 text-ink">
+      <a href="#features" class="hover:text-sky transition-colors duration-200">مميزاتنا</a>
+      <a href="#auctions" class="hover:text-sky transition-colors duration-200">المزادات</a>
+      <a href="#success" class="hover:text-sky transition-colors duration-200">قصص النجاح</a>
+      <a href="#faq" class="hover:text-sky transition-colors duration-200">الأسئلة الشائعة</a>
+      <a href="https://wa.me/966550112411" class="btn-gold inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-full text-sm">
+        <span>تواصل معنا الآن</span>
+      </a>
+    </div>
+  </div>
+</nav>
+
+<!-- ═══════════════════════════════════════════
+     HERO SECTION — CINEMATIC VIDEO
+═══════════════════════════════════════════ -->
+
+<!-- ═══════════════════════════════════════════════════════
+     DUAL CANVAS SEQUENCE  —  12000px total scroll travel
+     S1: 0→6000px  (150 frames / hero)
+     S2: 6000→12000px  (120 frames / journey)
+═══════════════════════════════════════════════════════ -->
+<div id="canvas-wrap">
+  <div id="canvas-sticky">
+
+    <!-- ① Canvas — GPU-drawn frames -->
+    <canvas id="hero-canvas" aria-hidden="true"></canvas>
+
+    <!-- ② Always-on cinematic overlay -->
+    <div class="seq-overlay"></div>
+    <div class="seq-grain"></div>
+
+    <!-- ③ Global progress bar -->
+    <div id="video-progress"></div>
+
+    <!-- S1 CONTENT -->
+    <div id="s1-content" class="seq-content">
+      <div class="max-w-7xl mx-auto px-6 w-full">
+        <div class="inline-flex items-center gap-2 bg-white/10 backdrop-blur border border-white/20 rounded-full px-4 py-1.5 mb-6">
+          <span class="w-2 h-2 rounded-full bg-gold animate-pulse inline-block"></span>
+          <span class="text-white font-cairo font-700 text-sm">منذ 2019 — أكثر من 3000 سيارة</span>
+        </div>
+        <h1 class="font-cairo font-900 text-white leading-tight mb-5"
+            style="font-size:clamp(2.2rem,5.5vw,4rem);text-shadow:0 4px 32px rgba(0,0,0,0.5);">
+          استورد سيارتك الكورية الفاخرة<br/>
+          <span class="text-gold-gradient">مع العز العالمي</span>
+        </h1>
+        <p class="font-tajawal text-white/85 text-lg leading-relaxed mb-10 max-w-2xl"
+           style="text-shadow:0 2px 12px rgba(0,0,0,0.6);">
+          خبرة منذ 2019، استوردنا أكثر من
+          <strong class="text-gold-light font-700">3000 سيارة</strong> بنجاح.
+          نرافقك في رحلة ميدانية من كوريا إلى الرياض.
+        </p>
+        <div class="flex flex-wrap gap-4">
+          <a href="https://wa.me/966550112411" class="btn-gold inline-flex items-center gap-2 px-8 py-4 rounded-full text-base shadow-2xl">
+            <span>تواصل معنا للبحث عن سيارتك</span>
+            <svg viewBox="0 0 24 24" fill="white" width="18" height="18"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+          </a>
+          <a href="#auctions" class="inline-flex items-center gap-2 px-8 py-4 rounded-full text-base font-cairo font-700 text-white border-2 border-white/40 backdrop-blur bg-white/10 hover:bg-white/20 transition-all duration-300">
+            <span>اكتشف رحلة الاستيراد الميدانية</span>
+            <svg viewBox="0 0 24 24" fill="white" width="18" height="18"><path d="M7.41 15.41L12 10.83l4.59 4.58L18 14l-6-6-6 6 1.41 1.41z" transform="rotate(180 12 12)"/></svg>
+          </a>
+        </div>
+        <div class="flex flex-wrap gap-3 mt-10">
+          <div class="flex items-center gap-2 bg-black/30 backdrop-blur border border-white/15 rounded-full px-4 py-2">
+            <svg viewBox="0 0 24 24" fill="#C9A84C" width="16" height="16"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4z"/></svg>
+            <span class="font-cairo font-700 text-white text-sm">ضمان الجودة</span>
+          </div>
+          <div class="flex items-center gap-2 bg-black/30 backdrop-blur border border-white/15 rounded-full px-4 py-2">
+            <svg viewBox="0 0 24 24" fill="#1A8FE3" width="16" height="16"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+            <span class="font-cairo font-700 text-white text-sm">فحص فني شامل</span>
+          </div>
+          <div class="flex items-center gap-2 bg-black/30 backdrop-blur border border-white/15 rounded-full px-4 py-2">
+            <svg viewBox="0 0 24 24" fill="#C9A84C" width="16" height="16"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zm4.24 16L12 15.45 7.77 18l1.12-4.81-3.73-3.23 4.92-.42L12 5l1.92 4.53 4.92.42-3.73 3.23L16.23 18z"/></svg>
+            <span class="font-cairo font-700 text-white text-sm">رضا 100%</span>
+          </div>
+        </div>
+      </div>
+      <div class="absolute bottom-20 left-6 z-10 flex-col gap-3 hidden md:flex">
+        <div class="bg-black/40 backdrop-blur border border-white/15 rounded-2xl px-4 py-3">
+          <p class="font-cairo font-900 text-white text-2xl leading-none">+3000</p>
+          <p class="font-tajawal text-white/60 text-xs mt-0.5">سيارة مُستوردة</p>
+        </div>
+        <div class="bg-gold/80 backdrop-blur rounded-2xl px-4 py-3">
+          <p class="font-cairo font-900 text-white text-2xl leading-none">2019</p>
+          <p class="font-tajawal text-white/80 text-xs mt-0.5">تأسيس الشركة</p>
+        </div>
+      </div>
+      <div class="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-1 z-10 scroll-indicator">
+        <span class="font-tajawal text-white/50 text-xs">مرِّر للأسفل</span>
+        <svg viewBox="0 0 24 24" fill="white" width="24" height="24" style="opacity:0.5"><path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z"/></svg>
+      </div>
+    </div><!-- /s1-content -->
+
+    <!-- S2 CONTENT -->
+    <div id="s2-content" class="seq-content" style="opacity:0;">
+      <div class="max-w-7xl mx-auto px-6 w-full">
+        <div class="inline-flex items-center gap-2 bg-white/10 backdrop-blur border border-gold/30 rounded-full px-4 py-1.5 mb-6">
+          <svg viewBox="0 0 24 24" fill="#C9A84C" width="14" height="14"><path d="M21 3L3 10.53v.98l6.84 2.65L12.48 21h.98L21 3z"/></svg>
+          <span class="text-gold-light font-cairo font-700 text-sm">الرحلة الميدانية إلى كوريا</span>
+        </div>
+        <h2 class="font-cairo font-900 text-white leading-tight mb-5"
+            style="font-size:clamp(2rem,5vw,3.6rem);text-shadow:0 4px 32px rgba(0,0,0,0.5);">
+          نرافقك خطوةً بخطوة<br/>
+          <span class="text-gold-gradient">من إنتشون إلى الرياض</span>
+        </h2>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8 max-w-2xl">
+          <div class="flex items-center gap-3 bg-black/35 backdrop-blur border border-white/10 rounded-2xl px-4 py-3">
+            <div class="w-8 h-8 rounded-full bg-sky/80 flex items-center justify-center flex-shrink-0 font-cairo font-800 text-white text-sm">١</div>
+            <p class="font-tajawal text-white/90 text-sm">استقبال في مطار إنتشون وإقامة فندقية</p>
+          </div>
+          <div class="flex items-center gap-3 bg-black/35 backdrop-blur border border-white/10 rounded-2xl px-4 py-3">
+            <div class="w-8 h-8 rounded-full bg-sky/80 flex items-center justify-center flex-shrink-0 font-cairo font-800 text-white text-sm">٢</div>
+            <p class="font-tajawal text-white/90 text-sm">جولة على المزادات وفحص السيارات</p>
+          </div>
+          <div class="flex items-center gap-3 bg-black/35 backdrop-blur border border-white/10 rounded-2xl px-4 py-3">
+            <div class="w-8 h-8 rounded-full bg-gold/80 flex items-center justify-center flex-shrink-0 font-cairo font-800 text-white text-sm">٣</div>
+            <p class="font-tajawal text-white/90 text-sm">تفاوض مباشر وإتمام صفقة الشراء</p>
+          </div>
+          <div class="flex items-center gap-3 bg-black/35 backdrop-blur border border-white/10 rounded-2xl px-4 py-3">
+            <div class="w-8 h-8 rounded-full bg-gold/80 flex items-center justify-center flex-shrink-0 font-cairo font-800 text-white text-sm">٤</div>
+            <p class="font-tajawal text-white/90 text-sm">شحن وتخليص جمركي حتى الرياض</p>
+          </div>
+        </div>
+        <a href="https://wa.me/966550112411?text=%D8%A3%D8%B1%D9%8A%D8%AF%20%D8%A7%D9%84%D8%A7%D8%B3%D8%AA%D9%81%D8%B3%D8%A7%D8%B1%20%D8%B9%D9%86%20%D8%A7%D9%84%D8%B1%D8%AD%D9%84%D8%A9%20%D8%A7%D9%84%D9%85%D9%8A%D8%AF%D8%A7%D9%86%D9%8A%D8%A9"
+           class="btn-gold inline-flex items-center gap-2 px-8 py-4 rounded-full text-base shadow-2xl">
+          <span>احجز رحلتك الميدانية الآن</span>
+          <svg viewBox="0 0 24 24" fill="white" width="18" height="18"><path d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z"/></svg>
+        </a>
+      </div>
+      <div class="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-1 z-10" style="animation:bounce-down 2s ease-in-out infinite;">
+        <span class="font-tajawal text-white/50 text-xs">تابع التمرير</span>
+        <svg viewBox="0 0 24 24" fill="white" width="24" height="24" style="opacity:0.5"><path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z"/></svg>
+      </div>
+    </div><!-- /s2-content -->
+
+  </div><!-- /canvas-sticky -->
+</div><!-- /canvas-wrap -->
+
+<!-- Stats ticker -->
+<div class="w-full bg-sky py-3 overflow-hidden ticker-wrap">
+  <div class="ticker-track">
+    <span class="font-cairo font-700 text-white mx-6 text-sm whitespace-nowrap">✦ أكثر من 3000 سيارة مُستوردة</span>
+    <span class="font-cairo font-700 text-gold-light mx-6 text-sm whitespace-nowrap">✦ رضا العملاء 100%</span>
+    <span class="font-cairo font-700 text-white mx-6 text-sm whitespace-nowrap">✦ مرافقة ميدانية من كوريا للرياض</span>
+    <span class="font-cairo font-700 text-gold-light mx-6 text-sm whitespace-nowrap">✦ فحص فني شامل قبل الشراء</span>
+    <span class="font-cairo font-700 text-white mx-6 text-sm whitespace-nowrap">✦ مكاتبنا: الرياض ✦ إنتشون كوريا</span>
+    <span class="font-cairo font-700 text-gold-light mx-6 text-sm whitespace-nowrap">✦ توفير حتى 35% عن الوكلاء المحليين</span>
+    <span class="font-cairo font-700 text-white mx-6 text-sm whitespace-nowrap">✦ أكثر من 3000 سيارة مُستوردة</span>
+    <span class="font-cairo font-700 text-gold-light mx-6 text-sm whitespace-nowrap">✦ رضا العملاء 100%</span>
+    <span class="font-cairo font-700 text-white mx-6 text-sm whitespace-nowrap">✦ مرافقة ميدانية من كوريا للرياض</span>
+    <span class="font-cairo font-700 text-gold-light mx-6 text-sm whitespace-nowrap">✦ فحص فني شامل قبل الشراء</span>
+    <span class="font-cairo font-700 text-white mx-6 text-sm whitespace-nowrap">✦ مكاتبنا: الرياض ✦ إنتشون كوريا</span>
+    <span class="font-cairo font-700 text-gold-light mx-6 text-sm whitespace-nowrap">✦ توفير حتى 35% عن الوكلاء المحليين</span>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     SECTION 3 — CONTAINER SCROLL ANIMATION
+     Vanilla JS port of Aceternity ContainerScroll
+     (framer-motion rotateX + scale + translateY)
+═══════════════════════════════════════════ -->
+<section id="s3-section" class="bg-sky-light section-fade" style="overflow:hidden;position:relative;">
+
+  <!-- Scroll container — height drives the animation range -->
+  <div id="s3-container" style="
+    height: 75rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    padding: 1rem;
+  ">
+    <div style="
+      padding-top: 2.5rem;
+      padding-bottom: 10rem;
+      width: 100%;
+      position: relative;
+      perspective: 1000px;
+    ">
+
+      <!-- Title — translateY driven by scroll -->
+      <div id="s3-title" style="
+        max-width: 64rem;
+        margin: 0 auto;
+        text-align: center;
+        will-change: transform;
+      ">
+        <p style="
+          font-family: 'Tajawal', sans-serif;
+          font-weight: 700;
+          font-size: 0.8rem;
+          letter-spacing: 0.15em;
+          text-transform: uppercase;
+          color: #C9A84C;
+          margin-bottom: 0.75rem;
+        ">الفخامة بلا حدود</p>
+
+        <h2 style="
+          font-family: 'Cairo', sans-serif;
+          font-weight: 900;
+          color: #5B9BF5;
+          line-height: 1.15;
+          font-size: clamp(2rem, 4.5vw, 3rem);
+          margin-bottom: 0.5rem;
+        ">
+          استوردنا أكثر من<br/>
+          <span style="
+            font-size: clamp(3rem, 8vw, 6rem);
+            font-weight: 900;
+            background: linear-gradient(135deg, #C9A84C 0%, #F0D98A 50%, #A0802A 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            display: block;
+            line-height: 1.1;
+          ">3000 سيارة فاخرة</span>
+        </h2>
+
+        <p style="
+          font-family: 'Tajawal', sans-serif;
+          color: rgba(200,216,240,0.7);
+          font-size: 1.1rem;
+          margin-top: 1rem;
+          max-width: 36rem;
+          margin-left: auto;
+          margin-right: auto;
+          line-height: 1.7;
+        ">
+          تجربة مرئية حية من أرض المزادات الكورية — كل سيارة رحلة وقصة
+        </p>
+      </div><!-- /s3-title -->
+
+      <!-- Card — rotateX + scale driven by scroll -->
+      <div id="s3-card" style="
+        max-width: 64rem;
+        margin: -3rem auto 0;
+        height: 38rem;
+        width: 100%;
+        border: 4px solid #6C6C6C;
+        background: #1a1a1a;
+        border-radius: 30px;
+        transform-origin: 50% 100%;
+        will-change: transform;
+        overflow: hidden;
+        box-shadow:
+          0 0 #0000004d,
+          0 9px 20px #0000004a,
+          0 37px 37px #00000042,
+          0 84px 50px #00000026,
+          0 149px 60px #0000000a,
+          0 233px 65px #00000003;
+      ">
+        <!-- Inner card content -->
+        <div style="
+          height: 100%;
+          width: 100%;
+          overflow: hidden;
+          border-radius: 20px;
+          background: #111;
+          position: relative;
+        ">
+          <!-- Main car image -->
+          <img
+            src="https://images.unsplash.com/photo-1617469767053-d3b523a0b982?w=1400&q=85&auto=format&fit=crop"
+            alt="سيارة Genesis فاخرة — استيراد كوريا"
+            style="
+              width: 100%;
+              height: 100%;
+              object-fit: cover;
+              object-position: center;
+              display: block;
+            "
+            loading="lazy"
+          />
+
+          <!-- Overlay stats strip at bottom -->
+          <div style="
+            position: absolute;
+            bottom: 0; left: 0; right: 0;
+            background: linear-gradient(to top, rgba(0,0,0,0.85) 0%, transparent 100%);
+            padding: 2.5rem 2rem 1.5rem;
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 1rem;
+          ">
+            <div style="display:flex; gap: 2rem; flex-wrap: wrap;">
+              <div>
+                <p style="font-family:'Cairo',sans-serif;font-size:2rem;font-weight:900;color:#fff;line-height:1;">+3000</p>
+                <p style="font-family:'Tajawal',sans-serif;font-size:0.78rem;color:rgba(255,255,255,0.6);margin-top:2px;">سيارة مُستوردة</p>
+              </div>
+              <div>
+                <p style="font-family:'Cairo',sans-serif;font-size:2rem;font-weight:900;color:#C9A84C;line-height:1;">100%</p>
+                <p style="font-family:'Tajawal',sans-serif;font-size:0.78rem;color:rgba(255,255,255,0.6);margin-top:2px;">نسبة رضا العملاء</p>
+              </div>
+              <div>
+                <p style="font-family:'Cairo',sans-serif;font-size:2rem;font-weight:900;color:#1A8FE3;line-height:1;">2019</p>
+                <p style="font-family:'Tajawal',sans-serif;font-size:0.78rem;color:rgba(255,255,255,0.6);margin-top:2px;">سنة التأسيس</p>
+              </div>
+            </div>
+            <a href="https://wa.me/966550112411"
+               style="
+                 display: inline-flex;
+                 align-items: center;
+                 gap: 8px;
+                 background: linear-gradient(135deg,#C9A84C,#F0D98A,#A0802A);
+                 color: #fff;
+                 font-family: 'Cairo',sans-serif;
+                 font-weight: 700;
+                 padding: 0.65rem 1.5rem;
+                 border-radius: 999px;
+                 text-decoration: none;
+                 font-size: 0.9rem;
+                 transition: transform 0.2s, box-shadow 0.2s;
+               "
+               onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 8px 20px rgba(201,168,76,0.5)'"
+               onmouseout="this.style.transform='';this.style.boxShadow=''">
+              ابدأ رحلتك الآن
+              <svg viewBox="0 0 24 24" fill="white" width="16" height="16"><path d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z"/></svg>
+            </a>
+          </div>
+        </div>
+      </div><!-- /s3-card -->
+
+    </div>
+  </div><!-- /s3-container -->
+
+</section><!-- /s3-section -->
+
+<!-- Section 3 scroll animation JS -->
+<script>
+(function() {
+  var container = document.getElementById('s3-container');
+  var card      = document.getElementById('s3-card');
+  var title     = document.getElementById('s3-title');
+  if (!container || !card || !title) return;
+
+  // Responsive scale range (mirrors Framer Motion scaleDimensions())
+  function scaleDims() {
+    return window.innerWidth <= 768 ? { from: 0.7, to: 0.9 } : { from: 1.05, to: 1.0 };
+  }
+
+  function lerp(a, b, t) {
+    var c = Math.max(0, Math.min(1, t));
+    return a + (b - a) * c;
+  }
+
+  function updateS3() {
+    var rect  = container.getBoundingClientRect();
+    var viewH = window.innerHeight;
+    var H     = rect.height;
+
+    // Mirrors Framer Motion useScroll({ target }) progress:
+    // 0 = element top at viewport bottom (just entering)
+    // 1 = element bottom at viewport top (just exiting)
+    var scrolled = viewH - rect.top;
+    var total    = viewH + H;
+    var progress = Math.max(0, Math.min(1, scrolled / total));
+
+    var sd = scaleDims();
+    var rotateX  = lerp(20,    0,      progress);
+    var scale    = lerp(sd.from, sd.to, progress);
+    var transY   = lerp(0,     -100,   progress);
+
+    card.style.transform  = 'rotateX(' + rotateX + 'deg) scale(' + scale + ')';
+    title.style.transform = 'translateY(' + transY + 'px)';
+  }
+
+  // Run on scroll and resize
+  window.addEventListener('scroll', updateS3, { passive: true });
+  window.addEventListener('resize', updateS3, { passive: true });
+
+  // Initial paint
+  updateS3();
+
+  // Also run on next frame to catch any layout shift
+  requestAnimationFrame(updateS3);
+})();
+</script>
+
+<!-- ═══════════════════════════════════════════
+     FEATURES SECTION
+═══════════════════════════════════════════ -->
+<!-- ═══ ShaderBackground — WebGL plasma waves ═══ -->
+<section id="features" style="position:relative; overflow:hidden; padding-top:5rem; padding-bottom:5rem;">
+
+  <!-- WebGL canvas — fills the section as background -->
+  <canvas id="shader-canvas" style="
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    display: block;
+    z-index: 0;
+  " aria-hidden="true"></canvas>
+
+  <!-- Dark overlay to keep text readable -->
+  <div style="
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      to bottom,
+      rgba(9,9,15,0.55) 0%,
+      rgba(9,9,15,0.30) 50%,
+      rgba(9,9,15,0.55) 100%
+    );
+    z-index: 1;
+    pointer-events: none;
+  "></div>
+
+  <!-- Content sits above shader -->
+  <div class="max-w-7xl mx-auto px-4" style="position:relative; z-index:2;">
+
+    <!-- Title -->
+    <div class="text-center mb-14">
+      <p class="font-tajawal text-gold font-700 text-sm uppercase tracking-widest mb-2">لماذا العز العالمي؟</p>
+      <h2 class="font-cairo font-900 gold-underline" style="font-size:clamp(1.8rem,4vw,2.8rem); color:#5B9BF5;">مزاياكم التنافسية</h2>
+      <p class="font-tajawal mt-4 max-w-xl mx-auto" style="color:rgba(200,216,240,0.75);">نقدم تجربة استيراد متكاملة ومضمونة من أول اتصال حتى استلام مفاتيح سيارتك</p>
+    </div>
+
+    <!-- 4-column grid -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 reveal-child">
+
+      <!-- Card 1 -->
+      <div class="feature-card rounded-2xl p-6 border-2 cursor-pointer" style="
+        background: rgba(15,16,32,0.75);
+        border-color: rgba(91,155,245,0.25);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+      ">
+        <div class="w-14 h-14 rounded-2xl bg-sky flex items-center justify-center mb-5 shadow-md">
+          <svg viewBox="0 0 24 24" fill="white" width="28" height="28"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4z"/></svg>
+        </div>
+        <h3 class="font-cairo font-800 text-xl mb-2" style="color:#5B9BF5;">خبرة منذ 2019</h3>
+        <p class="font-tajawal text-sm leading-relaxed" style="color:rgba(200,216,240,0.75);">أكثر من <strong class="text-gold">3000 سيارة</strong> تم استيرادها بنجاح. تاريخ حافل يتحدث عن نفسه.</p>
+        <div class="gold-divider mt-5 rounded-full"></div>
+      </div>
+
+      <!-- Card 2 -->
+      <div class="feature-card rounded-2xl p-6 border-2 cursor-pointer" style="
+        background: rgba(26,77,184,0.55);
+        border-color: rgba(91,155,245,0.35);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+      ">
+        <div class="w-14 h-14 rounded-2xl flex items-center justify-center mb-5 shadow-md" style="background:rgba(255,255,255,0.15);">
+          <svg viewBox="0 0 24 24" fill="white" width="28" height="28"><path d="M21 3L3 10.53v.98l6.84 2.65L12.48 21h.98L21 3z"/></svg>
+        </div>
+        <h3 class="font-cairo font-800 text-white text-xl mb-2">خدمة مرافقة ميدانية</h3>
+        <p class="font-tajawal text-white/85 text-sm leading-relaxed">استقبال، إقامة، فحص دقيق، وتفاوض مباشر في كوريا. نحن معك خطوة بخطوة.</p>
+        <div class="h-0.5 mt-5 rounded-full" style="background:linear-gradient(90deg,transparent,rgba(255,255,255,0.4),transparent)"></div>
+      </div>
+
+      <!-- Card 3 -->
+      <div class="feature-card rounded-2xl p-6 border-2 cursor-pointer" style="
+        background: rgba(15,16,32,0.75);
+        border-color: rgba(201,168,76,0.25);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+      ">
+        <div class="w-14 h-14 rounded-2xl bg-gold flex items-center justify-center mb-5 shadow-md">
+          <svg viewBox="0 0 24 24" fill="white" width="28" height="28"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"/></svg>
+        </div>
+        <h3 class="font-cairo font-800 text-xl mb-2" style="color:#5B9BF5;">فحص فني دقيق</h3>
+        <p class="font-tajawal text-sm leading-relaxed" style="color:rgba(200,216,240,0.75);">تقرير فني شامل لكل سيارة قبل الشراء — تاريخ الحوادث، الكيلومترات، وحالة المحرك.</p>
+        <div class="gold-divider mt-5 rounded-full"></div>
+      </div>
+
+      <!-- Card 4 -->
+      <div class="feature-card rounded-2xl p-6 border-2 cursor-pointer" style="
+        background: rgba(26,77,184,0.55);
+        border-color: rgba(91,155,245,0.35);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+      ">
+        <div class="w-14 h-14 rounded-2xl flex items-center justify-center mb-5 shadow-md" style="background:rgba(255,255,255,0.15);">
+          <svg viewBox="0 0 24 24" fill="white" width="28" height="28"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
+        </div>
+        <h3 class="font-cairo font-800 text-white text-xl mb-2">تواجد محلي ودولي</h3>
+        <p class="font-tajawal text-white/85 text-sm leading-relaxed">مكاتبنا في <strong class="text-gold-light">الرياض — حي القادسية</strong> وفي <strong class="text-gold-light">إنتشون — كوريا</strong>.</p>
+        <div class="h-0.5 mt-5 rounded-full" style="background:linear-gradient(90deg,transparent,rgba(255,255,255,0.4),transparent)"></div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ShaderBackground JS — plasma wave WebGL background for features section -->
+<script>
+(function() {
+  var sc   = document.getElementById('shader-canvas');
+  var sect = document.getElementById('features');
+  if (!sc || !sect) return;
+
+  var gl = sc.getContext('webgl', {alpha:false})
+         || sc.getContext('experimental-webgl', {alpha:false});
+  if (!gl) return;
+
+  /* ---------- shaders ---------- */
+  var VS = 'attribute vec4 P; void main(){gl_Position=P;}';
+
+  var FS = [
+    'precision highp float;',
+    'uniform vec2 R; uniform float T;',
+    'const int N = 16;',
+    'float rng(float t){',
+    '  return (cos(t)+cos(t*1.3+1.3)+cos(t*1.4+1.4))/3.0;',
+    '}',
+    'void main(){',
+    '  vec2 uv = gl_FragCoord.xy / R;',
+    '  vec2 sp = (gl_FragCoord.xy - R*0.5) / R.x * 10.0;',
+    '  float hf = 1.0 - (cos(uv.x*6.2832)*0.5+0.5);',
+    '  float vf = 1.0 - (cos(uv.y*6.2832)*0.5+0.5);',
+    '  sp.y += rng(sp.x*0.5 + T*0.04) * hf;',
+    '  sp.x += rng(sp.y*0.5 + T*0.04 + 2.0) * hf;',
+    '  vec4 lines = vec4(0.0);',
+    '  for(int l=0; l<N; l++){',
+    '    float fi  = float(l);',
+    '    float r   = rng(fi + T*0.27)*0.5 + 0.5;',
+    '    float off = rng(fi + T*0.13)*2.0;',
+    '    float lp  = rng(sp.x*0.2 + T*0.20)*hf + off;',
+    '    float hw  = mix(0.01, 0.12, r*hf)*0.5;',
+    '    float cx  = mod(fi + T*0.20, 25.0) - 12.0;',
+    '    float cy  = rng(cx*0.2 + T*0.20)*hf + off;',
+    '    float ln  = smoothstep(hw, 0.0, abs(lp - sp.y));',
+    '    float ci  = smoothstep(0.025, 0.0, length(sp - vec2(cx,cy))) * 3.0;',
+    '    lines += (ln + ci) * vec4(0.35,0.60,0.95,1.0) * r;',
+    '  }',
+    '  vec4 col = mix(vec4(0.035,0.035,0.065,1.0), vec4(0.055,0.07,0.13,1.0), uv.x);',
+    '  col *= vf;',
+    '  col.a = 1.0;',
+    '  col  += lines;',
+    '  gl_FragColor = col;',
+    '}'
+  ].join('\n');
+
+  /* ---------- compile ---------- */
+  function sh(type, src) {
+    var s = gl.createShader(type);
+    gl.shaderSource(s, src);
+    gl.compileShader(s);
+    if (!gl.getShaderParameter(s, gl.COMPILE_STATUS)) {
+      console.warn('Shader err:', gl.getShaderInfoLog(s));
+      return null;
+    }
+    return s;
+  }
+  var vs = sh(gl.VERTEX_SHADER, VS);
+  var fs = sh(gl.FRAGMENT_SHADER, FS);
+  if (!vs || !fs) return;
+
+  var prog = gl.createProgram();
+  gl.attachShader(prog, vs);
+  gl.attachShader(prog, fs);
+  gl.linkProgram(prog);
+  if (!gl.getProgramParameter(prog, gl.LINK_STATUS)) {
+    console.warn('Link err:', gl.getProgramInfoLog(prog));
+    return;
+  }
+
+  /* ---------- geometry ---------- */
+  var buf = gl.createBuffer();
+  gl.bindBuffer(gl.ARRAY_BUFFER, buf);
+  gl.bufferData(gl.ARRAY_BUFFER,
+    new Float32Array([-1,-1, 1,-1, -1,1, 1,1]), gl.STATIC_DRAW);
+
+  var aP = gl.getAttribLocation(prog, 'P');
+  var uR = gl.getUniformLocation(prog, 'R');
+  var uT = gl.getUniformLocation(prog, 'T');
+
+  /* ---------- resize ---------- */
+  function resize() {
+    sc.width  = sect.offsetWidth  || 1280;
+    sc.height = sect.offsetHeight || 500;
+    gl.viewport(0, 0, sc.width, sc.height);
+  }
+  resize();
+  window.addEventListener('resize', resize, { passive: true });
+
+  /* ---------- render loop ---------- */
+  gl.useProgram(prog);
+  gl.bindBuffer(gl.ARRAY_BUFFER, buf);
+  gl.vertexAttribPointer(aP, 2, gl.FLOAT, false, 0, 0);
+  gl.enableVertexAttribArray(aP);
+  gl.clearColor(0.035, 0.035, 0.065, 1.0);
+
+  var t0 = Date.now();
+  function frame() {
+    gl.clear(gl.COLOR_BUFFER_BIT);
+    gl.uniform2f(uR, sc.width, sc.height);
+    gl.uniform1f(uT, (Date.now() - t0) / 1000);
+    gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+    requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
+
+})();
+</script>
+
+<!-- ═══════════════════════════════════════════
+     AUCTIONS + COST CALCULATOR
+═══════════════════════════════════════════ -->
+<!-- ═══ BackgroundGradientAnimation — Auctions + Calculator ═══ -->
+<section id="auctions" style="position:relative; overflow:hidden; padding:5rem 0;">
+
+  <!-- ① Gradient animated background (BackgroundGradientAnimation port) -->
+  <div id="auction-gradient-bg" style="
+    position:absolute; inset:0; z-index:0;
+    background: linear-gradient(40deg, var(--gradient-background-start), var(--gradient-background-end));
+  ">
+    <!-- SVG filter for goo effect -->
+    <svg style="display:none;">
+      <defs>
+        <filter id="blurMe">
+          <feGaussianBlur in="SourceGraphic" stdDeviation="10" result="blur"/>
+          <feColorMatrix in="blur" mode="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 18 -8" result="goo"/>
+          <feBlend in="SourceGraphic" in2="goo"/>
+        </filter>
+      </defs>
+    </svg>
+
+    <!-- Gradient blobs container — filter:url(#blurMe) blur(40px) -->
+    <div style="position:absolute;inset:0;filter:url(#blurMe) blur(40px);overflow:hidden;">
+      <div class="grad-blob grad-blob-1"></div>
+      <div class="grad-blob grad-blob-2"></div>
+      <div class="grad-blob grad-blob-3"></div>
+      <div class="grad-blob grad-blob-4"></div>
+      <div class="grad-blob grad-blob-5"></div>
+    </div>
+
+    <!-- Mouse-interactive pointer blob -->
+    <div id="auction-pointer" class="grad-pointer" style="pointer-events:none;"></div>
+  </div>
+
+  <!-- ② Content sits above gradient -->
+  <div class="max-w-7xl mx-auto px-4" style="position:relative;z-index:2;">
+
+    <!-- Title -->
+    <div class="text-center mb-14">
+      <p class="font-tajawal text-gold font-700 text-sm uppercase tracking-widest mb-2">فرص حصرية</p>
+      <h2 class="font-cairo font-900 text-white" style="font-size:clamp(1.8rem,4vw,2.8rem);">
+        مزادات كوريا <span class="text-gold-gradient">اليوم</span>
+      </h2>
+      <p class="font-tajawal text-white/75 mt-4 max-w-xl mx-auto">أسعار المزادات محدَّثة — تواصل معنا فوراً للتزايد قبل فوات الأوان</p>
+    </div>
+
+    <!-- Auction cards — dark glass style -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-16 reveal-child">
+
+      <!-- Car 1 — Genesis GV80 -->
+      <div class="auction-card-dark rounded-3xl overflow-hidden cursor-pointer">
+        <div class="car-photo-card h-52">
+          <img src="https://images.unsplash.com/photo-1617469767053-d3b523a0b982?w=600&q=80&auto=format&fit=crop" alt="Genesis GV80" loading="lazy"/>
+          <div class="overlay"></div>
+          <div class="absolute top-3 right-3 bg-gold rounded-full px-3 py-1 z-10">
+            <span class="font-cairo font-700 text-white text-xs">متاح الآن</span>
+          </div>
+          <div class="absolute bottom-3 right-3 z-10">
+            <p class="font-cairo font-900 text-white text-lg leading-none">Genesis GV80</p>
+            <p class="font-tajawal text-white/70 text-xs">2023 — 18,000 كم</p>
+          </div>
+        </div>
+        <div class="p-5">
+          <div class="flex justify-between items-center mb-3">
+            <div>
+              <p class="font-tajawal text-xs mb-0.5" style="color:rgba(200,216,240,0.5);">السعر الحالي في المزاد</p>
+              <p class="font-cairo font-800 text-xl" style="color:#5B9BF5;">82,000 ريال</p>
+            </div>
+            <div class="text-left">
+              <p class="font-tajawal text-xs mb-0.5" style="color:rgba(200,216,240,0.5);">سعر الشركة التقديري</p>
+              <p class="font-cairo font-800 text-emerald-400 text-xl">98,000 ريال</p>
+            </div>
+          </div>
+          <div style="background:rgba(16,185,129,0.12);border:1px solid rgba(16,185,129,0.25);border-radius:12px;padding:8px 12px;margin-bottom:16px;text-align:center;">
+            <p class="font-cairo font-700 text-emerald-400 text-sm">توفيرك المتوقع: 16,000 ريال</p>
+          </div>
+          <a href="https://wa.me/966550112411?text=أريد%20المزايدة%20على%20Genesis%20GV80"
+             class="btn-gold w-full flex items-center justify-center gap-2 py-3 rounded-xl text-sm">
+            <span>زايد الآن</span>
+            <svg viewBox="0 0 24 24" fill="white" width="16" height="16"><path d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z"/></svg>
+          </a>
+        </div>
+      </div>
+
+      <!-- Car 2 — Hyundai IONIQ 6 -->
+      <div class="auction-card-dark rounded-3xl overflow-hidden cursor-pointer">
+        <div class="car-photo-card h-52">
+          <img src="https://images.unsplash.com/photo-1593941707882-a5bba14938c7?w=600&q=80&auto=format&fit=crop" alt="Hyundai IONIQ 6" loading="lazy"/>
+          <div class="overlay"></div>
+          <div class="absolute top-3 right-3 rounded-full px-3 py-1 z-10" style="background:#1A4DB8;">
+            <span class="font-cairo font-700 text-white text-xs">مزاد حار</span>
+          </div>
+          <div class="absolute bottom-3 right-3 z-10">
+            <p class="font-cairo font-900 text-white text-lg leading-none">Hyundai IONIQ 6</p>
+            <p class="font-tajawal text-white/70 text-xs">2024 — 9,500 كم</p>
+          </div>
+        </div>
+        <div class="p-5">
+          <div class="flex justify-between items-center mb-3">
+            <div>
+              <p class="font-tajawal text-xs mb-0.5" style="color:rgba(200,216,240,0.5);">السعر الحالي في المزاد</p>
+              <p class="font-cairo font-800 text-xl" style="color:#5B9BF5;">95,000 ريال</p>
+            </div>
+            <div class="text-left">
+              <p class="font-tajawal text-xs mb-0.5" style="color:rgba(200,216,240,0.5);">سعر الشركة التقديري</p>
+              <p class="font-cairo font-800 text-emerald-400 text-xl">116,000 ريال</p>
+            </div>
+          </div>
+          <div style="background:rgba(16,185,129,0.12);border:1px solid rgba(16,185,129,0.25);border-radius:12px;padding:8px 12px;margin-bottom:16px;text-align:center;">
+            <p class="font-cairo font-700 text-emerald-400 text-sm">توفيرك المتوقع: 21,000 ريال</p>
+          </div>
+          <a href="https://wa.me/966550112411?text=أريد%20المزايدة%20على%20IONIQ%206"
+             class="btn-gold w-full flex items-center justify-center gap-2 py-3 rounded-xl text-sm">
+            <span>زايد الآن</span>
+            <svg viewBox="0 0 24 24" fill="white" width="16" height="16"><path d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z"/></svg>
+          </a>
+        </div>
+      </div>
+
+      <!-- Car 3 — Kia EV6 GT -->
+      <div class="auction-card-dark rounded-3xl overflow-hidden cursor-pointer">
+        <div class="car-photo-card h-52">
+          <img src="https://images.unsplash.com/photo-1649517555501-e72785f6a82c?w=600&q=80&auto=format&fit=crop" alt="Kia EV6" loading="lazy"/>
+          <div class="overlay"></div>
+          <div class="absolute top-3 right-3 bg-red-600 rounded-full px-3 py-1 z-10">
+            <span class="font-cairo font-700 text-white text-xs">ينتهي قريباً</span>
+          </div>
+          <div class="absolute bottom-3 right-3 z-10">
+            <p class="font-cairo font-900 text-white text-lg leading-none">Kia EV6 GT</p>
+            <p class="font-tajawal text-white/70 text-xs">2024 — 12,200 كم</p>
+          </div>
+        </div>
+        <div class="p-5">
+          <div class="flex justify-between items-center mb-3">
+            <div>
+              <p class="font-tajawal text-xs mb-0.5" style="color:rgba(200,216,240,0.5);">السعر الحالي في المزاد</p>
+              <p class="font-cairo font-800 text-xl" style="color:#5B9BF5;">88,500 ريال</p>
+            </div>
+            <div class="text-left">
+              <p class="font-tajawal text-xs mb-0.5" style="color:rgba(200,216,240,0.5);">سعر الشركة التقديري</p>
+              <p class="font-cairo font-800 text-emerald-400 text-xl">108,000 ريال</p>
+            </div>
+          </div>
+          <div style="background:rgba(16,185,129,0.12);border:1px solid rgba(16,185,129,0.25);border-radius:12px;padding:8px 12px;margin-bottom:16px;text-align:center;">
+            <p class="font-cairo font-700 text-emerald-400 text-sm">توفيرك المتوقع: 19,500 ريال</p>
+          </div>
+          <a href="https://wa.me/966550112411?text=أريد%20المزايدة%20على%20Kia%20EV6%20GT"
+             class="btn-gold w-full flex items-center justify-center gap-2 py-3 rounded-xl text-sm">
+            <span>زايد الآن</span>
+            <svg viewBox="0 0 24 24" fill="white" width="16" height="16"><path d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z"/></svg>
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ INTERACTIVE SAVINGS CALCULATOR — Slider Edition ══ -->
+    <div style="
+      background: rgba(5,5,12,0.80);
+      border: 1px solid rgba(201,168,76,0.2);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-radius: 28px;
+      padding: 2.5rem;
+      max-width: 52rem;
+      margin: 0 auto;
+      box-shadow: 0 0 60px rgba(26,75,184,0.2), inset 0 1px 0 rgba(255,255,255,0.05);
+    ">
+      <!-- Header -->
+      <div class="text-center mb-8">
+        <div style="display:inline-flex;align-items:center;gap:8px;background:rgba(201,168,76,0.12);border:1px solid rgba(201,168,76,0.3);border-radius:999px;padding:6px 16px;margin-bottom:12px;">
+          <svg viewBox="0 0 24 24" fill="#F0D98A" width="16" height="16"><path d="M11.8 10.9c-2.27-.59-3-1.2-3-2.15 0-1.09 1.01-1.85 2.7-1.85 1.78 0 2.44.85 2.5 2.1h2.21c-.07-1.72-1.12-3.3-3.21-3.81V3h-3v2.16c-1.94.42-3.5 1.68-3.5 3.61 0 2.31 1.91 3.46 4.7 4.13 2.5.6 3 1.48 3 2.41 0 .69-.49 1.79-2.7 1.79-2.06 0-2.87-.92-2.98-2.1h-2.2c.12 2.19 1.76 3.42 3.68 3.83V21h3v-2.15c1.95-.37 3.5-1.5 3.5-3.55 0-2.84-2.43-3.81-4.7-4.4z"/></svg>
+          <span class="font-cairo font-700 text-sm" style="color:#F0D98A;">احسب توفيرك الآن</span>
+        </div>
+        <h3 class="font-cairo font-900 text-white" style="font-size:1.7rem;margin-bottom:4px;">محاكي التوفير التفاعلي</h3>
+        <p class="font-tajawal" style="color:rgba(200,216,240,0.6);font-size:0.9rem;">حرِّك الأشرطة لحساب توفيرك الفعلي مقارنةً بالوكيل المحلي</p>
+      </div>
+
+      <!-- Sliders -->
+      <div style="display:flex;flex-direction:column;gap:2rem;margin-bottom:2rem;">
+
+        <!-- Slider 1: Car Price -->
+        <div>
+          <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:10px;">
+            <label class="font-cairo font-700 text-sm" style="color:rgba(200,216,240,0.8);">
+              <svg viewBox="0 0 24 24" fill="#5B9BF5" width="14" height="14" style="display:inline;margin-left:4px;"><path d="M18.92 5.01C18.72 4.42 18.16 4 17.5 4h-11c-.66 0-1.21.42-1.42 1.01L3 12v8c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1h12v1c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-8l-2.08-6.99zM6.5 15c-.83 0-1.5-.67-1.5-1.5S5.67 12 6.5 12 8 12.67 8 13.5 7.33 15 6.5 15zm11 0c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zM5 10l1.5-4.5h11L19 10H5z"/></svg>
+              سعر السيارة في كوريا
+            </label>
+            <span id="car-price-display" class="font-cairo font-900" style="color:#C9A84C;font-size:1.1rem;">80,000 ريال</span>
+          </div>
+          <div class="range-wrap">
+            <input id="car-price" class="custom-range" type="range" min="10000" max="300000" step="1000" value="80000" oninput="updateCalc()"/>
+          </div>
+          <div style="display:flex;justify-content:space-between;margin-top:4px;">
+            <span class="font-tajawal" style="color:rgba(200,216,240,0.35);font-size:0.7rem;">10,000</span>
+            <span class="font-tajawal" style="color:rgba(200,216,240,0.35);font-size:0.7rem;">300,000 ريال</span>
+          </div>
+        </div>
+
+        <!-- Slider 2: Shipping -->
+        <div>
+          <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:10px;">
+            <label class="font-cairo font-700 text-sm" style="color:rgba(200,216,240,0.8);">
+              <svg viewBox="0 0 24 24" fill="#5B9BF5" width="14" height="14" style="display:inline;margin-left:4px;"><path d="M20 8h-3V4H3c-1.1 0-2 .9-2 2v11h2c0 1.66 1.34 3 3 3s3-1.34 3-3h6c0 1.66 1.34 3 3 3s3-1.34 3-3h2v-5l-3-4zm-1.5 1.5l1.96 2.5H17V9.5h1.5zM6 18c-.55 0-1-.45-1-1s.45-1 1-1 1 .45 1 1-.45 1-1 1zm2.22-3c-.55-.61-1.33-1-2.22-1s-1.67.39-2.22 1H3V6h12v9H8.22zm9.78 3c-.55 0-1-.45-1-1s.45-1 1-1 1 .45 1 1-.45 1-1 1z"/></svg>
+              تكلفة الشحن
+            </label>
+            <span id="ship-cost-display" class="font-cairo font-900" style="color:#C9A84C;font-size:1.1rem;">3,000 ريال</span>
+          </div>
+          <div class="range-wrap">
+            <input id="ship-cost" class="custom-range" type="range" min="500" max="10000" step="100" value="3000" oninput="updateCalc()"/>
+          </div>
+          <div style="display:flex;justify-content:space-between;margin-top:4px;">
+            <span class="font-tajawal" style="color:rgba(200,216,240,0.35);font-size:0.7rem;">500</span>
+            <span class="font-tajawal" style="color:rgba(200,216,240,0.35);font-size:0.7rem;">10,000 ريال</span>
+          </div>
+        </div>
+
+        <!-- Slider 3: Customs -->
+        <div>
+          <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:10px;">
+            <label class="font-cairo font-700 text-sm" style="color:rgba(200,216,240,0.8);">
+              <svg viewBox="0 0 24 24" fill="#5B9BF5" width="14" height="14" style="display:inline;margin-left:4px;"><path d="M20 4H4c-1.11 0-2 .89-2 2v12c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V6c0-1.11-.89-2-2-2zm0 14H4v-6h16v6zm0-10H4V6h16v2z"/></svg>
+              رسوم الجمارك
+            </label>
+            <span id="customs-display" class="font-cairo font-900" style="color:#C9A84C;font-size:1.1rem;">5%</span>
+          </div>
+          <div class="range-wrap">
+            <input id="customs" class="custom-range" type="range" min="0" max="25" step="0.5" value="5" oninput="updateCalc()"/>
+          </div>
+          <div style="display:flex;justify-content:space-between;margin-top:4px;">
+            <span class="font-tajawal" style="color:rgba(200,216,240,0.35);font-size:0.7rem;">0%</span>
+            <span class="font-tajawal" style="color:rgba(200,216,240,0.35);font-size:0.7rem;">25%</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Live Results — always visible, updates in real-time -->
+      <div id="calc-result" style="
+        background: rgba(0,0,0,0.4);
+        border: 1px solid rgba(255,255,255,0.08);
+        border-radius: 20px;
+        padding: 1.5rem;
+      ">
+        <!-- Total cost headline -->
+        <div style="text-align:center;margin-bottom:1.25rem;">
+          <p class="font-tajawal" style="color:rgba(200,216,240,0.55);font-size:0.82rem;margin-bottom:2px;">التكلفة الإجمالية معنا (شامل الشحن والجمارك)</p>
+          <p id="total-cost" class="font-cairo font-900 text-white" style="font-size:2.4rem;line-height:1;"></p>
+        </div>
+
+        <!-- Comparison row -->
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:1.25rem;">
+          <div style="background:rgba(26,75,184,0.2);border:1px solid rgba(91,155,245,0.15);border-radius:14px;padding:14px;text-align:center;">
+            <p class="font-tajawal" style="color:rgba(200,216,240,0.55);font-size:0.75rem;margin-bottom:4px;">سعر الوكيل المحلي (تقديري)</p>
+            <p id="dealer-price" class="font-cairo font-800 text-white" style="font-size:1.2rem;"></p>
+          </div>
+          <div style="background:rgba(16,185,129,0.15);border:1px solid rgba(16,185,129,0.25);border-radius:14px;padding:14px;text-align:center;">
+            <p class="font-tajawal" style="color:rgba(200,216,240,0.55);font-size:0.75rem;margin-bottom:4px;">توفيرك المتوقع 💰</p>
+            <p id="saving-amount" class="font-cairo font-900" style="font-size:1.3rem;color:#34d399;"></p>
+          </div>
+        </div>
+
+        <!-- Savings progress bar -->
+        <div style="margin-bottom:1.25rem;">
+          <div style="display:flex;justify-content:space-between;margin-bottom:6px;">
+            <span class="font-tajawal" style="color:rgba(200,216,240,0.5);font-size:0.75rem;">نسبة التوفير</span>
+            <span id="saving-pct" class="font-cairo font-700" style="color:#34d399;font-size:0.85rem;"></span>
+          </div>
+          <div style="height:6px;background:rgba(255,255,255,0.06);border-radius:3px;overflow:hidden;">
+            <div id="saving-bar" style="height:100%;background:linear-gradient(90deg,#1A4DB8,#34d399);border-radius:3px;transition:width 0.4s cubic-bezier(0.4,0,0.2,1);width:0%;"></div>
+          </div>
+        </div>
+
+        <!-- CTA -->
+        <div style="text-align:center;">
+          <a href="https://wa.me/966550112411?text=أريد%20الاستفسار%20عن%20الاستيراد"
+             class="btn-gold inline-flex items-center gap-2 px-8 py-3 rounded-full text-sm shadow-lg">
+            <span>احجز استشارتك المجانية</span>
+            <svg viewBox="0 0 24 24" fill="white" width="16" height="16"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+          </a>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /content -->
+</section>
+
+<!-- Gradient animation + Calculator JS -->
+<script>
+(function() {
+  // ── BackgroundGradientAnimation — mouse interactive ──
+  var section = document.getElementById('auctions');
+  var pointer = document.getElementById('auction-pointer');
+  var curX = 0, curY = 0, tgX = 0, tgY = 0;
+
+  if (section && pointer) {
+    section.addEventListener('mousemove', function(e) {
+      var rect = section.getBoundingClientRect();
+      tgX = e.clientX - rect.left;
+      tgY = e.clientY - rect.top;
+    });
+
+    (function movePointer() {
+      curX += (tgX - curX) / 20;
+      curY += (tgY - curY) / 20;
+      if (pointer) {
+        pointer.style.transform = 'translate(' + Math.round(curX) + 'px, ' + Math.round(curY) + 'px)';
+      }
+      requestAnimationFrame(movePointer);
+    })();
+  }
+
+  // ── Interactive Savings Calculator ──
+  function fmt(n) { return Math.round(n).toLocaleString('ar-SA') + ' ريال'; }
+
+  function updateSliderFill(input) {
+    var min = parseFloat(input.min), max = parseFloat(input.max), val = parseFloat(input.value);
+    var pct = (val - min) / (max - min) * 100;
+    input.style.background = 'linear-gradient(to left, rgba(255,255,255,0.10) ' + (100-pct) + '%, #C9A84C ' + (100-pct) + '%)';
+  }
+
+  window.updateCalc = function() {
+    var carSlider  = document.getElementById('car-price');
+    var shipSlider = document.getElementById('ship-cost');
+    var custSlider = document.getElementById('customs');
+
+    var cp   = parseFloat(carSlider.value)  || 0;
+    var sc   = parseFloat(shipSlider.value) || 0;
+    var cust = parseFloat(custSlider.value) || 0;
+
+    // Update display labels
+    document.getElementById('car-price-display').textContent  = Math.round(cp).toLocaleString('ar-SA') + ' ريال';
+    document.getElementById('ship-cost-display').textContent  = Math.round(sc).toLocaleString('ar-SA') + ' ريال';
+    document.getElementById('customs-display').textContent    = cust + '%';
+
+    // Update slider fill colors
+    updateSliderFill(carSlider);
+    updateSliderFill(shipSlider);
+    updateSliderFill(custSlider);
+
+    // Calculations
+    var total   = cp + sc + cp * (cust / 100);
+    var dealer  = cp * 1.35;
+    var saving  = dealer - total;
+    var savPct  = dealer > 0 ? (saving / dealer * 100) : 0;
+
+    document.getElementById('total-cost').textContent   = fmt(total);
+    document.getElementById('dealer-price').textContent = fmt(dealer);
+    document.getElementById('saving-amount').textContent = saving > 0 ? fmt(saving) : '—';
+    document.getElementById('saving-pct').textContent   = saving > 0 ? savPct.toFixed(1) + '٪ توفير' : '—';
+    document.getElementById('saving-bar').style.width   = saving > 0 ? Math.min(100, savPct) + '%' : '0%';
+  };
+
+  // Init on load
+  ['car-price','ship-cost','customs'].forEach(function(id) {
+    var el = document.getElementById(id);
+    if (el) { updateSliderFill(el); }
+  });
+  updateCalc();
+})();
+</script>
+
+<!-- ═══════════════════════════════════════════
+     SOCIAL PROOF
+═══════════════════════════════════════════ -->
+<section id="success" class="py-20 bg-sky-light section-fade" style="position:relative;">
+  <div class="max-w-7xl mx-auto px-4">
+    <!-- Stats row -->
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-6 mb-16">
+      <div class="text-center">
+        <p class="font-cairo font-900 text-sky" style="font-size:clamp(2.5rem,6vw,4rem);">3000<span class="text-gold">+</span></p>
+        <p class="font-tajawal text-ink/70 text-sm">سيارة مُستوردة</p>
+      </div>
+      <div class="text-center">
+        <p class="font-cairo font-900 text-sky" style="font-size:clamp(2.5rem,6vw,4rem);">100<span class="text-gold">%</span></p>
+        <p class="font-tajawal text-ink/70 text-sm">نسبة رضا العملاء</p>
+      </div>
+      <div class="text-center">
+        <p class="font-cairo font-900 text-sky" style="font-size:clamp(2.5rem,6vw,4rem);">6<span class="text-gold">+</span></p>
+        <p class="font-tajawal text-ink/70 text-sm">سنوات خبرة</p>
+      </div>
+      <div class="text-center">
+        <p class="font-cairo font-900 text-sky" style="font-size:clamp(2.5rem,6vw,4rem);">2<span class="text-gold"></span></p>
+        <p class="font-tajawal text-ink/70 text-sm">مكتب (رياض + كوريا)</p>
+      </div>
+    </div>
+
+    <div class="gold-divider mb-16 rounded-full max-w-3xl mx-auto"></div>
+
+    <!-- Title -->
+    <div class="text-center mb-12">
+      <p class="font-tajawal text-gold font-700 text-sm uppercase tracking-widest mb-2">عملاؤنا يتحدثون</p>
+      <h2 class="font-cairo font-900 text-sky" style="font-size:clamp(1.8rem,4vw,2.8rem);">قصص نجاح من العز العالمي</h2>
+    </div>
+
+    <!-- Testimonials + Car photos -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-10 items-start">
+      <!-- Testimonials -->
+      <div class="flex flex-col gap-5">
+        <!-- T1 -->
+        <div class="testimonial-card bg-white rounded-2xl p-6 border border-sky/15 shadow-sm cursor-pointer">
+          <div class="flex items-start gap-4 mb-3">
+            <div class="w-12 h-12 rounded-full bg-sky flex items-center justify-center flex-shrink-0 text-white font-cairo font-800 text-lg">خ</div>
+            <div>
+              <p class="font-cairo font-700" style="color:#C8D8F0;">خالد العتيبي — الرياض</p>
+              <div class="flex gap-0.5 mt-0.5">
+                <svg viewBox="0 0 24 24" fill="#C9A84C" width="14" height="14"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
+                <svg viewBox="0 0 24 24" fill="#C9A84C" width="14" height="14"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
+                <svg viewBox="0 0 24 24" fill="#C9A84C" width="14" height="14"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
+                <svg viewBox="0 0 24 24" fill="#C9A84C" width="14" height="14"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
+                <svg viewBox="0 0 24 24" fill="#C9A84C" width="14" height="14"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
+              </div>
+            </div>
+          </div>
+          <p class="font-tajawal text-ink/75 text-sm leading-relaxed">"استوردت Genesis GV80 موفراً أكثر من 22,000 ريال مقارنة بالوكيل. الفريق رافقني في كوريا وأشرف على كل شيء. تجربة لا تُنسى!"</p>
+        </div>
+
+        <!-- T2 -->
+        <div class="testimonial-card bg-sky rounded-2xl p-6 shadow-sm cursor-pointer">
+          <div class="flex items-start gap-4 mb-3">
+            <div class="w-12 h-12 rounded-full bg-white/25 flex items-center justify-center flex-shrink-0 text-white font-cairo font-800 text-lg">م</div>
+            <div>
+              <p class="font-cairo font-700 text-white">محمد الشمري — جدة</p>
+              <div class="flex gap-0.5 mt-0.5">
+                <svg viewBox="0 0 24 24" fill="#F0D98A" width="14" height="14"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
+                <svg viewBox="0 0 24 24" fill="#F0D98A" width="14" height="14"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
+                <svg viewBox="0 0 24 24" fill="#F0D98A" width="14" height="14"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
+                <svg viewBox="0 0 24 24" fill="#F0D98A" width="14" height="14"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
+                <svg viewBox="0 0 24 24" fill="#F0D98A" width="14" height="14"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
+              </div>
+            </div>
+          </div>
+          <p class="font-tajawal text-white/85 text-sm leading-relaxed">"ما توقعت الخدمة تكون بهذا المستوى. الشفافية الكاملة في الأسعار والفحص الدقيق أعطاني ثقة كبيرة. نصحت كل أصدقائي بهم."</p>
+        </div>
+
+        <!-- T3 -->
+        <div class="testimonial-card bg-white rounded-2xl p-6 border border-sky/15 shadow-sm cursor-pointer">
+          <div class="flex items-start gap-4 mb-3">
+            <div class="w-12 h-12 rounded-full bg-gold flex items-center justify-center flex-shrink-0 text-white font-cairo font-800 text-lg">ع</div>
+            <div>
+              <p class="font-cairo font-700 text-ink">عبدالله الدوسري — الدمام</p>
+              <div class="flex gap-0.5 mt-0.5">
+                <svg viewBox="0 0 24 24" fill="#C9A84C" width="14" height="14"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
+                <svg viewBox="0 0 24 24" fill="#C9A84C" width="14" height="14"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
+                <svg viewBox="0 0 24 24" fill="#C9A84C" width="14" height="14"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
+                <svg viewBox="0 0 24 24" fill="#C9A84C" width="14" height="14"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
+                <svg viewBox="0 0 24 24" fill="#C9A84C" width="14" height="14"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
+              </div>
+            </div>
+          </div>
+          <p class="font-tajawal text-ink/75 text-sm leading-relaxed">"اشتريت Kia EV6 وتم التسليم خلال 45 يوماً بالضبط. السيارة وصلت بحالة ممتازة تماماً كما وُصفت. أفضل قرار اتخذته."</p>
+        </div>
+      </div>
+
+      <!-- Car photos grid -->
+      <div class="grid grid-cols-2 gap-4">
+        <div class="car-photo-card h-44 shadow-md">
+          <img src="https://images.unsplash.com/photo-1583121274602-3e2820c69888?w=400&q=80&auto=format&fit=crop" alt="سيارة مُسلَّمة لعميل 1" />
+          <div class="overlay"></div>
+          <div class="absolute bottom-3 right-3 z-10">
+            <p class="font-cairo font-700 text-white text-sm">تسليم الرياض</p>
+          </div>
+        </div>
+        <div class="car-photo-card h-44 shadow-md">
+          <img src="https://images.unsplash.com/photo-1555215695-3004980ad54e?w=400&q=80&auto=format&fit=crop" alt="سيارة مُسلَّمة لعميل 2" />
+          <div class="overlay"></div>
+          <div class="absolute bottom-3 right-3 z-10">
+            <p class="font-cairo font-700 text-white text-sm">فحص كوريا</p>
+          </div>
+        </div>
+        <div class="car-photo-card h-44 shadow-md">
+          <img src="https://images.unsplash.com/photo-1541443131876-44b03de101c5?w=400&q=80&auto=format&fit=crop" alt="سيارة مُسلَّمة لعميل 3" />
+          <div class="overlay"></div>
+          <div class="absolute bottom-3 right-3 z-10">
+            <p class="font-cairo font-700 text-white text-sm">مزاد إنتشون</p>
+          </div>
+        </div>
+        <div class="car-photo-card h-44 shadow-md" style="background:#1A8FE3;">
+          <div class="h-full flex flex-col items-center justify-center p-4 text-center">
+            <p class="font-cairo font-900 text-white text-4xl leading-none">100<span class="text-gold-light">%</span></p>
+            <p class="font-tajawal text-white/80 text-xs mt-1">رضا العملاء الموثَّق</p>
+            <svg viewBox="0 0 24 24" fill="#F0D98A" width="32" height="32" class="mt-3"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     FAQ SECTION
+═══════════════════════════════════════════ -->
+<section id="faq" style="position:relative; overflow:hidden; padding:5rem 0; background:#0A1228; color:white;">
+
+  <!-- BackgroundPaths SVG injected by JS below -->
+
+  <div class="max-w-3xl mx-auto px-4" style="position:relative; z-index:2;">
+    <div class="text-center mb-12">
+      <p class="font-tajawal text-gold font-700 text-sm uppercase tracking-widest mb-2">كل ما تريد معرفته</p>
+      <h2 class="font-cairo font-900 text-white" style="font-size:clamp(1.8rem,4vw,2.8rem);">الأسئلة الشائعة</h2>
+    </div>
+
+    <div class="flex flex-col gap-4 reveal-child" id="faq-list">
+
+      <!-- Q1 -->
+      <div class="faq-item bg-white/10 border border-white/20 rounded-2xl overflow-hidden">
+        <button class="faq-trigger w-full flex items-center justify-between px-6 py-5 text-right cursor-pointer" onclick="toggleFaq(this)">
+          <span class="font-cairo font-700 text-white text-base">كيف تضمنون مطابقة المواصفات المطلوبة؟</span>
+          <svg class="faq-chevron flex-shrink-0 text-gold" viewBox="0 0 24 24" fill="currentColor" width="20" height="20"><path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z"/></svg>
+        </button>
+        <div class="faq-answer px-6">
+          <p class="font-tajawal text-white/80 text-sm leading-relaxed pb-5">نعتمد على قائمة تفصيلية دقيقة تشمل الموديل، السنة، اللون، المحرك، والمواصفات التقنية. يتم مراجعتها مع العميل قبل الذهاب للمزاد، ولا يُشترى إلا ما يطابقها 100%.</p>
+        </div>
+      </div>
+
+      <!-- Q2 -->
+      <div class="faq-item bg-white/10 border border-white/20 rounded-2xl overflow-hidden">
+        <button class="faq-trigger w-full flex items-center justify-between px-6 py-5 text-right cursor-pointer" onclick="toggleFaq(this)">
+          <span class="font-cairo font-700 text-white text-base">ما هي آلية الفحص الفني قبل الشراء؟</span>
+          <svg class="faq-chevron flex-shrink-0 text-gold" viewBox="0 0 24 24" fill="currentColor" width="20" height="20"><path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z"/></svg>
+        </button>
+        <div class="faq-answer px-6">
+          <p class="font-tajawal text-white/80 text-sm leading-relaxed pb-5">نستخدم أجهزة فحص معتمدة تكشف الحوادث السابقة، التصوير الكامل، وتقرير المصنع. يُرسل للعميل تقرير PDF شامل مع صور 360° قبل المصادقة على الشراء.</p>
+        </div>
+      </div>
+
+      <!-- Q3 -->
+      <div class="faq-item bg-white/10 border border-white/20 rounded-2xl overflow-hidden">
+        <button class="faq-trigger w-full flex items-center justify-between px-6 py-5 text-right cursor-pointer" onclick="toggleFaq(this)">
+          <span class="font-cairo font-700 text-white text-base">كم تستغرق مدة الشحن من كوريا إلى الرياض؟</span>
+          <svg class="faq-chevron flex-shrink-0 text-gold" viewBox="0 0 24 24" fill="currentColor" width="20" height="20"><path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z"/></svg>
+        </button>
+        <div class="faq-answer px-6">
+          <p class="font-tajawal text-white/80 text-sm leading-relaxed pb-5">متوسط مدة الشحن البحري من إنتشون إلى ميناء جدة أو الدمام <strong class="text-gold-light">30–40 يوماً</strong>. بعد وصول السيارة يتم استيفاء إجراءات الجمارك خلال 3–7 أيام عمل ثم التسليم في الرياض.</p>
+        </div>
+      </div>
+
+      <!-- Q4 -->
+      <div class="faq-item bg-white/10 border border-white/20 rounded-2xl overflow-hidden">
+        <button class="faq-trigger w-full flex items-center justify-between px-6 py-5 text-right cursor-pointer" onclick="toggleFaq(this)">
+          <span class="font-cairo font-700 text-white text-base">ما هي إجراءات الجمارك والتخليص؟</span>
+          <svg class="faq-chevron flex-shrink-0 text-gold" viewBox="0 0 24 24" fill="currentColor" width="20" height="20"><path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z"/></svg>
+        </button>
+        <div class="faq-answer px-6">
+          <p class="font-tajawal text-white/80 text-sm leading-relaxed pb-5">نتولى كامل عملية التخليص الجمركي نيابةً عنك. تشمل: شهادة المنشأ، فاتورة الشراء، وثائق الشحن، وتسديد الرسوم الجمركية (5% + ضريبة القيمة المضافة). لا تحتاج لأي تدخل شخصي.</p>
+        </div>
+      </div>
+
+      <!-- Q5 -->
+      <div class="faq-item bg-white/10 border border-white/20 rounded-2xl overflow-hidden">
+        <button class="faq-trigger w-full flex items-center justify-between px-6 py-5 text-right cursor-pointer" onclick="toggleFaq(this)">
+          <span class="font-cairo font-700 text-white text-base">هل يمكنني مرافقتكم شخصياً إلى كوريا؟</span>
+          <svg class="faq-chevron flex-shrink-0 text-gold" viewBox="0 0 24 24" fill="currentColor" width="20" height="20"><path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z"/></svg>
+        </button>
+        <div class="faq-answer px-6">
+          <p class="font-tajawal text-white/80 text-sm leading-relaxed pb-5">نعم، هذه خدمتنا الأكثر تميزاً! نوفر لك رحلة ميدانية كاملة: استقبال في مطار إنتشون، إقامة فندقية، جولة على المزادات، والتفاوض بالنيابة عنك. تواصل معنا لحجز موعد الرحلة القادمة.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- BackgroundPaths — SMIL SVG animations (smooth, compositor-thread, no unit mismatch) -->
+<script>
+(function () {
+  'use strict';
+
+  var faq = document.getElementById('faq');
+  if (!faq) return;
+
+  var NS = 'http://www.w3.org/2000/svg';
+
+  /* ── SVG container ─────────────────────────────────── */
+  var svg = document.createElementNS(NS, 'svg');
+  svg.setAttribute('viewBox', '0 0 696 316');
+  svg.setAttribute('preserveAspectRatio', 'xMidYMid slice');
+  svg.setAttribute('fill', 'none');
+  svg.setAttribute('aria-hidden', 'true');
+  svg.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:0;';
+  faq.insertBefore(svg, faq.firstChild);
+
+  /* ── Path formula 1:1 from FloatingPaths component ─── */
+  function buildPaths(position) {
+    var arr = [];
+    for (var i = 0; i < 18; i++) {   /* 18 per group × 2 = 36 total (was 72) */
+      var a=380-i*5*position, b=189+i*6;
+      var c=312-i*5*position, d=216-i*6;
+      var e=152-i*5*position, f=343-i*6;
+      var g=616-i*5*position, h=470-i*6;
+      var k=684-i*5*position, m=875-i*6;
+      arr.push({
+        d: 'M'+(-a)+' '+(-b)+'C'+(-a)+' '+(-b)+' '+(-c)+' '+d+' '+e+' '+f+'C'+g+' '+h+' '+k+' '+m+' '+k+' '+m,
+        opacity: 0.1 + i * 0.03,
+        width:   0.5 + i * 0.03,
+        dur:     (20 + Math.random() * 10).toFixed(2),
+        begin:   (-(Math.random() * 25)).toFixed(2)
+      });
+    }
+    return arr;
+  }
+
+  var allPaths = buildPaths(1).concat(buildPaths(-1));
+
+  allPaths.forEach(function (p, idx) {
+    var stroke = idx % 4 === 0 ? 'rgba(201,168,76,0.65)'
+               : idx % 7 === 0 ? 'rgba(91,155,245,0.55)'
+               : 'rgba(255,255,255,0.70)';
+
+    var el = document.createElementNS(NS, 'path');
+    el.setAttribute('d',             p.d);
+    el.setAttribute('stroke',        stroke);
+    el.setAttribute('stroke-width',  p.width);
+    el.setAttribute('fill',          'none');
+    el.setAttribute('stroke-dasharray',  '600 2400');
+    el.setAttribute('stroke-dashoffset', '0');
+
+    /* SMIL 1 — flow dash along path (unitless SVG values, no CSS unit mismatch) */
+    var aDash = document.createElementNS(NS, 'animate');
+    aDash.setAttribute('attributeName',  'stroke-dashoffset');
+    aDash.setAttribute('from',           '0');
+    aDash.setAttribute('to',             '-3000');
+    aDash.setAttribute('dur',            p.dur + 's');
+    aDash.setAttribute('begin',          p.begin + 's');
+    aDash.setAttribute('repeatCount',    'indefinite');
+    aDash.setAttribute('calcMode',       'linear');
+    el.appendChild(aDash);
+
+    /* SMIL 2 — opacity pulse */
+    var opL = (p.opacity * 0.45).toFixed(3);
+    var opH = p.opacity.toFixed(3);
+    var aOp = document.createElementNS(NS, 'animate');
+    aOp.setAttribute('attributeName', 'opacity');
+    aOp.setAttribute('values',        opL+';'+opH+';'+opL);
+    aOp.setAttribute('dur',           p.dur + 's');
+    aOp.setAttribute('begin',         p.begin + 's');
+    aOp.setAttribute('repeatCount',   'indefinite');
+    aOp.setAttribute('calcMode',      'linear');
+    el.appendChild(aOp);
+
+    svg.appendChild(el);
+  });
+
+  /* ensure content sits above SVG */
+  var content = faq.querySelector('.max-w-3xl');
+  if (content) { content.style.position = 'relative'; content.style.zIndex = '2'; }
+
+})();
+</script>
+
+<!-- ══ GLOBAL: Scroll-reveal + Animation pause/resume ══ -->
+<script>
+(function () {
+  'use strict';
+
+  /* ── 1. Scroll-reveal (IntersectionObserver) ──────────────
+     Adds .in-view to .reveal and .reveal-child elements
+     when they enter the viewport — triggering CSS transitions  */
+  var revealObs = new IntersectionObserver(function (entries) {
+    entries.forEach(function (e) {
+      if (e.isIntersecting) {
+        e.target.classList.add('in-view');
+        revealObs.unobserve(e.target); // fire once
+      }
+    });
+  }, { threshold: 0.08, rootMargin: '0px 0px -40px 0px' });
+
+  document.querySelectorAll('.reveal, .reveal-child').forEach(function (el) {
+    revealObs.observe(el);
+  });
+
+  /* ── 2. Pause/resume CSS animations for off-screen sections ─
+     Gradient blobs in #auctions and ticker pause when not visible
+     — saves GPU/CPU when user is elsewhere on the page           */
+  var pauseTargets = ['auctions', 'features'];
+
+  var pauseObs = new IntersectionObserver(function (entries) {
+    entries.forEach(function (e) {
+      if (e.isIntersecting) {
+        e.target.classList.remove('paused');
+      } else {
+        e.target.classList.add('paused');
+      }
+    });
+  }, { threshold: 0.0, rootMargin: '200px' });
+
+  pauseTargets.forEach(function (id) {
+    var el = document.getElementById(id);
+    if (el) pauseObs.observe(el);
+  });
+
+  /* ── 3. SMIL optimisation — pause FAQ paths when off-screen ─
+     SMIL can't be paused via CSS, so we suspend/unsuspend
+     the SVG document directly                                    */
+  var faqSVG = document.querySelector('#faq svg');
+  if (faqSVG) {
+    var faqObs = new IntersectionObserver(function (entries) {
+      var vis = entries[0].isIntersecting;
+      try {
+        if (vis) {
+          if (faqSVG.unpauseAnimations) faqSVG.unpauseAnimations();
+        } else {
+          if (faqSVG.pauseAnimations) faqSVG.pauseAnimations();
+        }
+      } catch(e) {}
+    }, { threshold: 0.0, rootMargin: '100px' });
+
+    /* start paused — resume when first visible */
+    try { if (faqSVG.pauseAnimations) faqSVG.pauseAnimations(); } catch(e) {}
+    faqObs.observe(document.getElementById('faq'));
+  }
+
+  /* ── 4. Smooth ticker stop on non-visible ─────────────────── */
+  var ticker = document.querySelector('.ticker-wrap');
+  if (ticker) {
+    new IntersectionObserver(function (entries) {
+      var t = ticker.querySelector('.ticker-track');
+      if (!t) return;
+      t.style.animationPlayState = entries[0].isIntersecting ? 'running' : 'paused';
+    }, { threshold: 0.0 }).observe(ticker);
+  }
+
+})();
+</script>
+
+<!-- ═══════════════════════════════════════════
+     FOOTER
+═══════════════════════════════════════════ -->
+<footer class="pt-16 pb-6" style="background:#050508;">
+  <div class="max-w-7xl mx-auto px-4">
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-10 mb-12">
+
+      <!-- Col 1: About -->
+      <div>
+        <div class="flex items-center gap-2 mb-4">
+          <div class="w-10 h-10 rounded-full bg-sky flex items-center justify-center">
+            <svg viewBox="0 0 24 24" fill="#C9A84C" width="22" height="22"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14H9V8h2v8zm4 0h-2V8h2v8z"/></svg>
+          </div>
+          <p class="font-cairo font-900 text-sky text-xl">العز العالمي</p>
+        </div>
+        <p class="font-tajawal text-white/65 text-sm leading-relaxed mb-5">
+          شركة متخصصة في استيراد السيارات الكورية الفاخرة منذ عام 2019. نقدم خدمة مرافقة ميدانية متكاملة من لحظة البحث عن السيارة في كوريا حتى تسليمها بيدك في الرياض.
+        </p>
+        <div class="gold-divider w-24 rounded-full"></div>
+      </div>
+
+      <!-- Col 2: Locations -->
+      <div>
+        <h4 class="font-cairo font-800 text-white text-lg mb-5">مواقعنا</h4>
+        <div class="flex flex-col gap-5">
+          <div class="flex items-start gap-3">
+            <div class="w-9 h-9 rounded-xl bg-sky/20 flex items-center justify-center flex-shrink-0 mt-0.5">
+              <svg viewBox="0 0 24 24" fill="#1A8FE3" width="18" height="18"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
+            </div>
+            <div>
+              <p class="font-cairo font-700 text-white text-sm">مكتب الرياض</p>
+              <p class="font-tajawal text-white/60 text-xs leading-relaxed mt-0.5">حي القادسية، الرياض<br/>المملكة العربية السعودية</p>
+            </div>
+          </div>
+          <div class="flex items-start gap-3">
+            <div class="w-9 h-9 rounded-xl bg-gold/20 flex items-center justify-center flex-shrink-0 mt-0.5">
+              <svg viewBox="0 0 24 24" fill="#C9A84C" width="18" height="18"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
+            </div>
+            <div>
+              <p class="font-cairo font-700 text-white text-sm">مكتب إنتشون</p>
+              <p class="font-tajawal text-white/60 text-xs leading-relaxed mt-0.5">Incheon, South Korea<br/>مركز المزادات الكورية</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Col 3: Social + WhatsApp -->
+      <div>
+        <h4 class="font-cairo font-800 text-white text-lg mb-5">تواصل معنا</h4>
+        <!-- WhatsApp -->
+        <a href="https://wa.me/966550112411"
+           class="flex items-center gap-3 bg-[#25D366]/15 border border-[#25D366]/30 rounded-xl px-4 py-3 mb-5 hover:bg-[#25D366]/25 transition-colors duration-200 cursor-pointer">
+          <svg viewBox="0 0 24 24" fill="#25D366" width="24" height="24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+          <div>
+            <p class="font-cairo font-700 text-white text-sm">واتساب مباشر</p>
+            <p class="font-tajawal text-white/60 text-xs">0550112411</p>
+          </div>
+        </a>
+
+        <!-- Social icons -->
+        <p class="font-tajawal text-white/50 text-xs mb-3">تابعونا على</p>
+        <div class="flex gap-3 flex-wrap">
+          <!-- X / Twitter -->
+          <a href="#" class="w-10 h-10 rounded-xl bg-white/10 hover:bg-white/20 transition-colors duration-200 flex items-center justify-center cursor-pointer" aria-label="X">
+            <svg viewBox="0 0 24 24" fill="white" width="18" height="18"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+          </a>
+          <!-- Snapchat -->
+          <a href="#" class="w-10 h-10 rounded-xl bg-white/10 hover:bg-[#FFFC00]/30 transition-colors duration-200 flex items-center justify-center cursor-pointer" aria-label="سناب شات">
+            <svg viewBox="0 0 24 24" fill="white" width="18" height="18"><path d="M12.206.793c.99 0 4.347.276 5.93 3.821.529 1.193.403 3.219.299 4.847l-.003.06c-.012.18-.022.345-.03.51.07.04.174.083.316.083.22-.001.456-.073.696-.215.062-.04.138-.06.217-.06.144 0 .286.069.381.188.153.188.146.484-.023.738-.077.11-.189.2-.333.267-.048.02-.652.271-.847.765-.015.042-.029.083-.044.125-.037.11-.082.24-.089.38-.002.041-.003.082-.003.122 0 .086.016.17.046.248.045.117.12.234.213.333.37.404.866.72 1.372.72.1 0 .198-.015.29-.05.135-.05.28-.05.413 0 .36.131.39.497.357.79-.028.252-.224.43-.469.572-.498.281-1.081.39-1.657.39-.249 0-.488-.024-.716-.071-.46-.091-.866-.261-1.17-.438a.685.685 0 0 0-.339-.091c-.093 0-.19.023-.28.07-.464.231-.836.72-.855 1.322-.01.291.083.573.258.796.38.487 1.125.713 2.041.713.268 0 .542-.025.817-.075.186-.033.3-.046.406-.046.326 0 .535.13.583.359.062.293-.156.559-.585.735-.785.321-1.812.483-2.782.483a6.38 6.38 0 0 1-.67-.035c-.215-.023-.33.028-.33.28 0 .265.062.616.145.978.045.195.099.408.149.62.163.68.22.965.22 1.259 0 .506-.203.998-.59 1.383-.44.437-1.051.666-1.786.666-.464 0-.883-.089-1.228-.255a3.065 3.065 0 0 0-1.307-.287c-.464 0-.913.099-1.308.287-.345.166-.764.255-1.228.255-.734 0-1.346-.229-1.786-.666-.387-.385-.59-.877-.59-1.383 0-.294.057-.579.22-1.259.05-.212.104-.425.149-.62.083-.362.145-.713.145-.978 0-.252-.115-.303-.33-.28-.215.022-.44.035-.67.035-.97 0-1.997-.162-2.782-.483-.43-.176-.647-.442-.585-.735.048-.229.257-.359.583-.359.106 0 .22.013.406.046.275.05.549.075.817.075.916 0 1.661-.226 2.041-.713.175-.223.268-.505.258-.796-.019-.602-.391-1.091-.855-1.322a.742.742 0 0 0-.28-.07.685.685 0 0 0-.339.091c-.304.177-.71.347-1.17.438-.228.047-.467.071-.716.071-.576 0-1.159-.109-1.657-.39-.245-.142-.441-.32-.469-.572-.033-.293-.003-.659.357-.79.133-.05.278-.05.413 0 .092.035.19.05.29.05.506 0 1.002-.316 1.372-.72.093-.099.168-.216.213-.333a.73.73 0 0 0 .046-.248c0-.04-.001-.081-.003-.122-.007-.14-.052-.27-.089-.38-.015-.042-.029-.083-.044-.125-.195-.494-.799-.745-.847-.765-.144-.067-.256-.157-.333-.267-.169-.254-.176-.55-.023-.738a.466.466 0 0 1 .381-.188c.079 0 .155.02.217.06.24.142.476.214.696.215.142 0 .246-.043.316-.083l-.03-.51c-.104-1.628-.23-3.654.299-4.847C7.859 1.069 11.216.793 12.206.793z"/></svg>
+          </a>
+          <!-- TikTok -->
+          <a href="#" class="w-10 h-10 rounded-xl bg-white/10 hover:bg-white/20 transition-colors duration-200 flex items-center justify-center cursor-pointer" aria-label="تيك توك">
+            <svg viewBox="0 0 24 24" fill="white" width="18" height="18"><path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1V9.01a6.34 6.34 0 00-.79-.05 6.34 6.34 0 00-6.34 6.34 6.34 6.34 0 006.34 6.34 6.34 6.34 0 006.33-6.34V9.59a8.16 8.16 0 004.77 1.52V7.66a4.85 4.85 0 01-1-.97z"/></svg>
+          </a>
+          <!-- Instagram -->
+          <a href="#" class="w-10 h-10 rounded-xl bg-white/10 hover:bg-pink-500/30 transition-colors duration-200 flex items-center justify-center cursor-pointer" aria-label="إنستغرام">
+            <svg viewBox="0 0 24 24" fill="white" width="18" height="18"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <div class="gold-divider mb-6 rounded-full"></div>
+
+    <div class="flex flex-col sm:flex-row items-center justify-between gap-3 text-center">
+      <p class="font-tajawal text-white/40 text-xs">© 2025 العز العالمي لاستيراد السيارات. جميع الحقوق محفوظة.</p>
+      <p class="font-tajawal text-white/40 text-xs">الرياض، المملكة العربية السعودية | إنتشون، كوريا الجنوبية</p>
+    </div>
+  </div>
+</footer>
+
+<!-- ═══════════════════════════════════════════
+     JAVASCRIPT
+═══════════════════════════════════════════ -->
+<script>
+(function() {
+  'use strict';
+
+  // ── Config ──────────────────────────────────────────────
+  var S1_COUNT  = 150;
+  var S2_COUNT  = 120;
+  var TOTAL     = S1_COUNT + S2_COUNT;
+  var S1_SCROLL = 6000;
+  var S2_SCROLL = 6000;
+  var LERP      = 0.10;
+  var FADE      = 500;
+
+  // ── DOM refs ─────────────────────────────────────────────
+  var canvas = document.getElementById('hero-canvas');
+  var ctx    = canvas.getContext('2d');
+  var wrap   = document.getElementById('canvas-wrap');
+  var bar    = document.getElementById('video-progress');
+  var s1El   = document.getElementById('s1-content');
+  var s2El   = document.getElementById('s2-content');
+  var arrow  = document.querySelector('.scroll-indicator');
+  var navbar = document.querySelector('nav');
+
+  navbar.style.background        = 'rgba(9,9,15,0.45)';
+  navbar.style.backdropFilter    = 'blur(20px) saturate(180%)';
+  navbar.style.borderBottomColor = 'rgba(255,255,255,0.07)';
+
+  // ── Canvas sizing ────────────────────────────────────────
+  var lastDrawn = -1;
+  function sizeCanvas() {
+    var w = document.documentElement.clientWidth  || 1280;
+    var h = document.documentElement.clientHeight || 800;
+    if (canvas.width !== w || canvas.height !== h) {
+      canvas.width  = w;
+      canvas.height = h;
+      lastDrawn = -1;
+    }
+  }
+  sizeCanvas();
+  window.addEventListener('resize', sizeCanvas);
+
+  // ── Image loading ─────────────────────────────────────────
+  var frames1      = [];
+  var frames2      = [];
+  var loadedCount  = 0;
+  var totalLoad    = S1_COUNT + S2_COUNT;
+  var isReady      = false;
+
+  // Loader UI
+  var loaderEl = document.createElement('div');
+  loaderEl.style.cssText = 'position:absolute;inset:0;z-index:50;display:flex;flex-direction:column;align-items:center;justify-content:center;background:rgba(10,20,40,0.88);backdrop-filter:blur(10px);transition:opacity 0.6s ease';
+  loaderEl.innerHTML =
+    '<p style="font-family:Cairo,sans-serif;color:#C9A84C;font-size:1.1rem;font-weight:700;margin-bottom:12px">جاري تحميل المشهد…</p>' +
+    '<div style="width:220px;height:4px;background:rgba(255,255,255,0.12);border-radius:4px;overflow:hidden">' +
+      '<div id="ld-bar" style="height:100%;width:0%;background:linear-gradient(90deg,#1A8FE3,#C9A84C);border-radius:4px"></div>' +
+    '</div>' +
+    '<p id="ld-pct" style="font-family:Tajawal,sans-serif;color:rgba(255,255,255,0.4);font-size:0.8rem;margin-top:8px">0 / ' + totalLoad + '</p>';
+  document.getElementById('canvas-sticky').appendChild(loaderEl);
+  var ldBar = document.getElementById('ld-bar');
+  var ldPct = document.getElementById('ld-pct');
+
+  function onSettle() {
+    loadedCount++;
+    ldBar.style.width = Math.round(loadedCount / totalLoad * 100) + '%';
+    ldPct.textContent = loadedCount + ' / ' + totalLoad;
+    if (loadedCount === totalLoad) {
+      isReady = true;
+      sizeCanvas();
+      doDraw(0);
+      loaderEl.style.opacity = '0';
+      setTimeout(function() { if (loaderEl.parentNode) loaderEl.parentNode.removeChild(loaderEl); }, 700);
+    }
+  }
+
+  function pad4(n) { return ('0000' + n).slice(-4); }
+
+  for (var i = 0; i < S1_COUNT; i++) {
+    var img1 = new Image();
+    img1.onload = img1.onerror = onSettle;
+    img1.src = 'frames/frame' + pad4(i + 1) + '.jpg';
+    frames1.push(img1);
+  }
+  for (var j = 0; j < S2_COUNT; j++) {
+    var img2 = new Image();
+    img2.onload = img2.onerror = onSettle;
+    img2.src = 'frames2/frame' + pad4(j + 1) + '.jpg';
+    frames2.push(img2);
+  }
+
+  // ── Draw ─────────────────────────────────────────────────
+  // vIdx 0-149   → frames1[0-149]   (S1)
+  // vIdx 150-269 → frames2[0-119]   (S2)
+  function doDraw(vIdx) {
+    var i = Math.max(0, Math.min(TOTAL - 1, Math.round(vIdx)));
+    if (i === lastDrawn) return;
+    lastDrawn = i;
+    var img = i < S1_COUNT ? frames1[i] : frames2[i - S1_COUNT];
+    if (!img || !img.complete || !img.naturalWidth) return;
+    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+  }
+
+  // ── Target index (PIECEWISE — clean boundary at 6000px) ──
+  function getTarget() {
+    var sc = Math.max(0, -(wrap.getBoundingClientRect().top));
+    if (sc <= S1_SCROLL) return (sc / S1_SCROLL) * (S1_COUNT - 1);
+    var p = Math.min(1, (sc - S1_SCROLL) / S2_SCROLL);
+    return S1_COUNT + p * (S2_COUNT - 1);
+  }
+
+  // ── Content crossfade ─────────────────────────────────────
+  function updateContent(sc) {
+    var op1 = 1;
+    if (sc > S1_SCROLL - FADE) op1 = Math.max(0, 1 - (sc - (S1_SCROLL - FADE)) / FADE);
+
+    var op2 = 0;
+    if (sc > S1_SCROLL) {
+      op2 = (sc - S1_SCROLL) / FADE;
+      var END = S1_SCROLL + S2_SCROLL;
+      if (sc > END - FADE) op2 = 1 - (sc - (END - FADE)) / FADE;
+      op2 = Math.max(0, Math.min(1, op2));
+    }
+    s1El.style.opacity = op1;
+    s2El.style.opacity = op2;
+  }
+
+  // ── RAF loop ─────────────────────────────────────────────
+  var lerpIdx = 0;
+  function raf() {
+    requestAnimationFrame(raf);
+    if (!isReady) return;
+    var tgt = getTarget();
+    lerpIdx += (tgt - lerpIdx) * LERP;
+    doDraw(lerpIdx);
+    if (bar) {
+      var pct = lerpIdx < S1_COUNT
+        ? lerpIdx / (S1_COUNT - 1) * 100
+        : (lerpIdx - S1_COUNT) / (S2_COUNT - 1) * 100;
+      bar.style.width = Math.max(0, Math.min(100, pct)) + '%';
+    }
+  }
+  requestAnimationFrame(raf);
+
+  // ── Scroll events ─────────────────────────────────────────
+  window.addEventListener('scroll', function() {
+    var sc = Math.max(0, -(wrap.getBoundingClientRect().top));
+    if (arrow) arrow.style.opacity = sc > 80 ? '0' : '1';
+    updateContent(sc);
+    /* Dark glass throughout — consistent with dark theme */
+    navbar.style.background        = 'rgba(9,9,15,0.45)';
+    navbar.style.backdropFilter    = 'blur(20px) saturate(180%)';
+    navbar.style.borderBottomColor = 'rgba(255,255,255,0.07)';
+  }, { passive: true });
+
+  // ── Mobile nav ────────────────────────────────────────────
+  document.getElementById('hamburger').addEventListener('click', function() {
+    document.getElementById('mobile-menu').classList.toggle('open');
+  });
+  document.querySelectorAll('#mobile-menu a').forEach(function(a) {
+    a.addEventListener('click', function() {
+      document.getElementById('mobile-menu').classList.remove('open');
+    });
+  });
+
+  // ── FAQ ──────────────────────────────────────────────────
+  window.toggleFaq = function(btn) {
+    var ans = btn.nextElementSibling;
+    var chv = btn.querySelector('.faq-chevron');
+    var open = ans.classList.contains('open');
+    document.querySelectorAll('.faq-answer').forEach(function(a) { a.classList.remove('open'); });
+    document.querySelectorAll('.faq-chevron').forEach(function(c) { c.classList.remove('rotated'); });
+    if (!open) { ans.classList.add('open'); chv.classList.add('rotated'); }
+  };
+
+  // ── Savings Calculator — handled by inline script above ──
+  // calcSavings is now updateCalc() defined in the auctions script block
+  window.calcSavings = function() {
+    if (typeof updateCalc === 'function') updateCalc();
+  };
+
+})();
+</script>
+</script>
+
+</body>
+</html>
