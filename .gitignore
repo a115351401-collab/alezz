@@ -5,6 +5,12 @@
 # Exclude leftover WebP artifact from failed extraction (6.9MB)
 frames/*.webp
 
+# Video source files (replaced by extracted JPEG frames)
+*.mp4
+*.mov
+*.avi
+*.webm
+
 # Claude Code internal settings
 .claude/
 
