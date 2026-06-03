@@ -793,15 +793,7 @@
   <div id="canvas-sticky">
 
     <!-- ① Canvas — GPU-drawn frames (Desktop only) -->
-    <canvas id="hero-canvas" class="hidden md:block absolute inset-0 w-full h-full" aria-hidden="true"></canvas>
-
-    <!-- Mobile Videos -->
-    <video id="mobile-vid1" autoplay loop muted playsinline webkit-playsinline preload="metadata" class="block md:hidden absolute inset-0 w-full h-full object-cover" style="opacity:1;z-index:0;will-change:transform,opacity;">
-      <source src="vid1.mp4" type="video/mp4">
-    </video>
-    <video id="mobile-vid2" autoplay loop muted playsinline webkit-playsinline preload="metadata" class="block md:hidden absolute inset-0 w-full h-full object-cover" style="opacity:0;z-index:0;will-change:transform,opacity;">
-      <source src="vid2.mp4" type="video/mp4">
-    </video>
+    <canvas id="hero-canvas" class="absolute inset-0 w-full h-full" aria-hidden="true"></canvas>
 
     <!-- ② Always-on cinematic overlay -->
     <div class="seq-overlay"></div>
@@ -2202,11 +2194,10 @@
   'use strict';
 
   // ── Config ──────────────────────────────────────────────
-  var S1_COUNT  = 150;
-  var S2_COUNT  = 120;
-  var TOTAL     = S1_COUNT + S2_COUNT;
-  /* Shorter scroll distance on mobile — matches CSS canvas-wrap height */
   var IS_MOBILE  = window.innerWidth <= 768;
+  var S1_COUNT  = IS_MOBILE ? 50  : 150;
+  var S2_COUNT  = IS_MOBILE ? 40  : 120;
+  var TOTAL     = S1_COUNT + S2_COUNT;
   var S1_SCROLL  = IS_MOBILE ? 3000 : 6000;
   var S2_SCROLL  = IS_MOBILE ? 3000 : 6000;
   var LERP      = 0.10;
@@ -2221,9 +2212,6 @@
   var s2El   = document.getElementById('s2-content');
   var arrow  = document.querySelector('.scroll-indicator');
   var navbar = document.querySelector('nav');
-  var v1     = document.getElementById('mobile-vid1');
-  var v2     = document.getElementById('mobile-vid2');
-
   navbar.style.background        = 'rgba(9,9,15,0.45)';
   navbar.style.backdropFilter    = 'blur(20px) saturate(180%)';
   navbar.style.borderBottomColor = 'rgba(255,255,255,0.07)';
@@ -2231,7 +2219,6 @@
   // ── Canvas sizing — Safari/iOS visual viewport aware ─────
   var lastDrawn = -1;
   function sizeCanvas() {
-    if (IS_MOBILE) return; // Skip canvas sizing on mobile
     // Use visualViewport when available (avoids iOS address-bar issues)
     var vvp = window.visualViewport;
     var w = vvp ? Math.round(vvp.width)  : (document.documentElement.clientWidth  || window.innerWidth  || 1280);
@@ -2254,26 +2241,13 @@
   var frames2 = [];
   var isReady = false;
 
-  if (IS_MOBILE) {
-    isReady = true;
+  {
+    var loadedCount = 0;
+    var totalLoad   = S1_COUNT + S2_COUNT;
+    var dir1 = IS_MOBILE ? 'frames-m'  : 'frames';
+    var dir2 = IS_MOBILE ? 'frames2-m' : 'frames2';
 
-    // Ensure both videos play — iOS sometimes needs explicit play() call
-    var ensurePlaying = function() {
-      if (v1 && v1.paused) v1.play().catch(function(){});
-      if (v2 && v2.paused) v2.play().catch(function(){});
-    };
-    ensurePlaying();
-
-    // Retry on first touch (iOS backup) and on tab return
-    document.addEventListener('touchstart', ensurePlaying, { passive: true, once: true });
-    document.addEventListener('visibilitychange', function() {
-      if (!document.hidden) ensurePlaying();
-    });
-  } else {
-    var loadedCount  = 0;
-    var totalLoad    = S1_COUNT + S2_COUNT;
-
-    // Loader UI
+    // Loader UI (same for mobile and desktop)
     var loaderEl = document.createElement('div');
     loaderEl.style.cssText = 'position:absolute;inset:0;z-index:50;display:flex;flex-direction:column;align-items:center;justify-content:center;background:rgba(10,20,40,0.88);backdrop-filter:blur(10px);transition:opacity 0.6s ease';
     loaderEl.innerHTML =
@@ -2306,13 +2280,13 @@
     for (var i = 0; i < S1_COUNT; i++) {
       var img1 = new Image();
       img1.onload = img1.onerror = onSettle;
-      img1.src = 'frames/frame' + pad4(i + 1) + '.jpg';
+      img1.src = dir1 + '/frame' + pad4(i + 1) + '.jpg';
       frames1.push(img1);
     }
     for (var j = 0; j < S2_COUNT; j++) {
       var img2 = new Image();
       img2.onload = img2.onerror = onSettle;
-      img2.src = 'frames2/frame' + pad4(j + 1) + '.jpg';
+      img2.src = dir2 + '/frame' + pad4(j + 1) + '.jpg';
       frames2.push(img2);
     }
   }
@@ -2398,16 +2372,6 @@
     s1El.style.opacity = op1;
     s2El.style.opacity = op2;
 
-    if (IS_MOBILE) {
-      // Opacity crossfade between vid1 and vid2
-      if (v1) v1.style.opacity = op1;
-      if (v2) v2.style.opacity = op2;
-      // Cinematic parallax: subtle zoom-in as user scrolls (1.0 → 1.08)
-      var zp = Math.min(1, sc / S1_SCROLL);
-      var zs = (1 + zp * 0.08).toFixed(4);
-      if (v1) v1.style.transform = 'scale(' + zs + ')';
-      if (v2) v2.style.transform = 'scale(' + (1 + Math.min(1,(sc-S1_SCROLL)/S2_SCROLL) * 0.08).toFixed(4) + ')';
-    }
   }
 
   // Initial content update on load
@@ -2422,9 +2386,7 @@
     var tgt = getTarget();
     lerpIdx += (tgt - lerpIdx) * LERP;
 
-    if (!IS_MOBILE) {
-      doDraw(lerpIdx);
-    }
+    doDraw(lerpIdx);
 
     if (bar) {
       var pct = lerpIdx < S1_COUNT
