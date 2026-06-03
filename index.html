@@ -1706,9 +1706,9 @@
      FEATURES SECTION
 ═══════════════════════════════════════════ -->
   <!-- ═══ ShaderBackground — WebGL plasma waves ═══ -->
-  <section id="features" class="section-fade" style="position:relative; padding-top:5rem; padding-bottom:5rem;">
+  <div id="features-auctions-wrapper" class="section-fade" style="position:relative;">
 
-    <!-- WebGL canvas — sticky so always fills viewport while section scrolls -->
+    <!-- WebGL canvas — sticky so always fills viewport while both sections scroll -->
     <canvas id="shader-canvas" style="
     position: sticky;
     top: 0;
@@ -1732,6 +1732,8 @@
     z-index: 1;
     pointer-events: none;
   "></div>
+
+  <section id="features" style="position:relative; padding-top:5rem; padding-bottom:5rem; z-index:10;">
 
     <!-- Content sits above shader -->
     <div class="max-w-7xl mx-auto px-4" style="position:relative; z-index:10;">
@@ -1954,32 +1956,7 @@
      AUCTIONS + COST CALCULATOR
 ═══════════════════════════════════════════ -->
   <!-- ═══ BackgroundGradientAnimation — Auctions + Calculator ═══ -->
-  <section id="auctions" class="section-fade" style="position:relative; padding:5rem 0;">
-
-    <!-- ① Gradient background — STICKY so blobs always visible in viewport -->
-    <!-- margin-bottom:-100vh collapses the sticky height so content flows normally -->
-    <div style="position:sticky; top:0; height:100vh; overflow:hidden; margin-bottom:-100vh; z-index:0;
-    background: linear-gradient(40deg, var(--gradient-background-start), var(--gradient-background-end));">
-      <!-- SVG filter for goo effect -->
-      <svg style="display:none;">
-        <defs>
-          <filter id="blurMe">
-            <feGaussianBlur in="SourceGraphic" stdDeviation="10" result="blur" />
-            <feColorMatrix in="blur" mode="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 18 -8" result="goo" />
-            <feBlend in="SourceGraphic" in2="goo" />
-          </filter>
-        </defs>
-      </svg>
-      <!-- Gradient blobs centred in viewport (not in tall section) -->
-      <div style="position:absolute;inset:0;filter:url(#blurMe) blur(40px);overflow:hidden;">
-        <div class="grad-blob grad-blob-1"></div>
-        <div class="grad-blob grad-blob-2"></div>
-        <div class="grad-blob grad-blob-3"></div>
-        <div class="grad-blob grad-blob-4"></div>
-        <div class="grad-blob grad-blob-5"></div>
-      </div>
-      <div id="auction-pointer" class="grad-pointer" style="pointer-events:none;"></div>
-    </div>
+  <section id="auctions" style="position:relative; padding:5rem 0; z-index:10;">
 
     <!-- ② Content sits above sticky gradient -->
     <div class="max-w-7xl mx-auto px-4" style="position:relative;z-index:10;">
@@ -2270,6 +2247,7 @@
 
         </div><!-- /content -->
   </section>
+  </div>
 
   <!-- Gradient animation + Calculator JS -->
   <script>
