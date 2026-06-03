@@ -1361,29 +1361,6 @@
     </div><!-- /canvas-sticky -->
   </div><!-- /canvas-wrap -->
 
-  <!-- Stats ticker -->
-  <div class="w-full bg-sky py-3 overflow-hidden ticker-wrap">
-    <div class="ticker-track">
-      <span class="font-cairo font-700 text-white mx-6 text-sm whitespace-nowrap">✦ أكثر من 3000 سيارة مُستوردة</span>
-      <span class="font-cairo font-700 text-gold-light mx-6 text-sm whitespace-nowrap">✦ رضا العملاء 100%</span>
-      <span class="font-cairo font-700 text-white mx-6 text-sm whitespace-nowrap">✦ مرافقة ميدانية من كوريا
-        للرياض</span>
-      <span class="font-cairo font-700 text-gold-light mx-6 text-sm whitespace-nowrap">✦ فحص فني شامل قبل الشراء</span>
-      <span class="font-cairo font-700 text-white mx-6 text-sm whitespace-nowrap">✦ مكاتبنا: الرياض ✦ إنتشون
-        كوريا</span>
-      <span class="font-cairo font-700 text-gold-light mx-6 text-sm whitespace-nowrap">✦ توفير حتى 35% عن الوكلاء
-        المحليين</span>
-      <span class="font-cairo font-700 text-white mx-6 text-sm whitespace-nowrap">✦ أكثر من 3000 سيارة مُستوردة</span>
-      <span class="font-cairo font-700 text-gold-light mx-6 text-sm whitespace-nowrap">✦ رضا العملاء 100%</span>
-      <span class="font-cairo font-700 text-white mx-6 text-sm whitespace-nowrap">✦ مرافقة ميدانية من كوريا
-        للرياض</span>
-      <span class="font-cairo font-700 text-gold-light mx-6 text-sm whitespace-nowrap">✦ فحص فني شامل قبل الشراء</span>
-      <span class="font-cairo font-700 text-white mx-6 text-sm whitespace-nowrap">✦ مكاتبنا: الرياض ✦ إنتشون
-        كوريا</span>
-      <span class="font-cairo font-700 text-gold-light mx-6 text-sm whitespace-nowrap">✦ توفير حتى 35% عن الوكلاء
-        المحليين</span>
-    </div>
-  </div>
 
   <!-- ═══════════════════════════════════════════
      SECTION 3 — CONTAINER SCROLL ANIMATION
@@ -1391,6 +1368,9 @@
      (framer-motion rotateX + scale + translateY)
 ═══════════════════════════════════════════ -->
   <section id="s3-section" class="bg-sky-light section-fade" style="overflow:hidden;position:relative;">
+
+    <!-- Canvas for speed lines -->
+    <canvas id="s3-speed-lines-canvas" class="absolute inset-0 w-full h-full pointer-events-none z-0" style="mix-blend-mode: screen;"></canvas>
 
     <!-- Scroll container — height drives the animation range -->
     <div id="s3-container" style="
@@ -1400,6 +1380,7 @@
     justify-content: center;
     position: relative;
     padding: 1rem;
+    z-index: 10;
   ">
       <div style="
       padding-top: 2.5rem;
@@ -1583,14 +1564,110 @@
           return a + (b - a) * c;
         }
 
+        // --- SPEED LINES CANVAS ENGINE ---
+        var canvas = document.getElementById('s3-speed-lines-canvas');
+        var ctx = canvas ? canvas.getContext('2d') : null;
+        var particles = [];
+        var maxParticles = 60;
+        
+        // Scroll speed tracker
+        var lastScrollY = window.scrollY;
+        var lastTime = Date.now();
+        var scrollVelocity = 0;
+        var smoothedVelocity = 0;
+
+        function resizeCanvas() {
+          if (!canvas) return;
+          canvas.width = canvas.offsetWidth;
+          canvas.height = canvas.offsetHeight;
+        }
+        
+        if (canvas) {
+          resizeCanvas();
+          window.addEventListener('resize', resizeCanvas, { passive: true });
+
+          // Create particles
+          for (var i = 0; i < maxParticles; i++) {
+            particles.push(createParticle());
+          }
+        }
+
+        function createParticle(reset) {
+          var width = canvas.width;
+          var height = canvas.height;
+          return {
+            x: width / 2,
+            y: height / 2,
+            angle: Math.random() * Math.PI * 2,
+            r: reset ? 0 : Math.random() * Math.sqrt(width*width + height*height) / 2,
+            speed: 1.5 + Math.random() * 3,
+            length: 8 + Math.random() * 20,
+            color: Math.random() > 0.4 ? 'rgba(201, 168, 76, 0.45)' : 'rgba(91, 155, 245, 0.35)', 
+            width: 0.8 + Math.random() * 1.5
+          };
+        }
+
+        function updateParticles() {
+          if (!ctx || !canvas) return;
+          var w = canvas.width;
+          var h = canvas.height;
+          var cx = w / 2;
+          var cy = h / 2;
+
+          // Clear with alpha for motion blur trails
+          ctx.fillStyle = 'rgba(9, 9, 15, 0.18)';
+          ctx.fillRect(0, 0, w, h);
+
+          // Update smoothed velocity
+          smoothedVelocity += (scrollVelocity - smoothedVelocity) * 0.08;
+          scrollVelocity *= 0.95; 
+
+          var speedMultiplier = 1 + smoothedVelocity * 2.5;
+
+          for (var i = 0; i < particles.length; i++) {
+            var p = particles[i];
+            var prevR = p.r;
+            
+            p.r += p.speed * speedMultiplier;
+            
+            var startX = cx + Math.cos(p.angle) * prevR;
+            var startY = cy + Math.sin(p.angle) * prevR;
+            var endX = cx + Math.cos(p.angle) * (p.r + p.length * (1 + smoothedVelocity * 0.15));
+            var endY = cy + Math.sin(p.angle) * (p.r + p.length * (1 + smoothedVelocity * 0.15));
+
+            ctx.beginPath();
+            ctx.strokeStyle = p.color;
+            ctx.lineWidth = p.width * (1 + smoothedVelocity * 0.05);
+            ctx.moveTo(startX, startY);
+            ctx.lineTo(endX, endY);
+            ctx.stroke();
+
+            var maxDist = Math.sqrt(w*w + h*h) / 2;
+            if (p.r > maxDist) {
+              particles[i] = createParticle(true);
+            }
+          }
+        }
+
+        window.addEventListener('scroll', function() {
+          var currentScrollY = window.scrollY;
+          var currentTime = Date.now();
+          var timeDiff = currentTime - lastTime;
+          if (timeDiff > 0) {
+            var dist = Math.abs(currentScrollY - lastScrollY);
+            var vel = dist / timeDiff;
+            scrollVelocity = Math.min(18, vel * 12);
+          }
+          lastScrollY = currentScrollY;
+          lastTime = currentTime;
+        }, { passive: true });
+        // --- END SPEED LINES CANVAS ENGINE ---
+
         function updateS3() {
           var rect = container.getBoundingClientRect();
           var viewH = window.innerHeight;
           var H = rect.height;
 
-          // Mirrors Framer Motion useScroll({ target }) progress:
-          // 0 = element top at viewport bottom (just entering)
-          // 1 = element bottom at viewport top (just exiting)
           var scrolled = viewH - rect.top;
           var total = viewH + H;
           var progress = Math.max(0, Math.min(1, scrolled / total));
@@ -1610,6 +1687,15 @@
 
         // Initial paint
         updateS3();
+
+        // Loop for canvas rendering
+        function loop() {
+          updateParticles();
+          requestAnimationFrame(loop);
+        }
+        if (canvas) {
+          requestAnimationFrame(loop);
+        }
 
         // Also run on next frame to catch any layout shift
         requestAnimationFrame(updateS3);
@@ -2263,8 +2349,102 @@
   <!-- ═══════════════════════════════════════════
      SOCIAL PROOF
 ═══════════════════════════════════════════ -->
-  <section id="success" class="py-20 bg-sky-light section-fade" style="position:relative;">
-    <div class="max-w-7xl mx-auto px-4">
+  <section id="success" class="py-20 bg-sky-light section-fade" style="position:relative; overflow:hidden;">
+    <style>
+      .route-group {
+        transition: opacity 0.5s ease;
+      }
+      .flow-path {
+        animation: flowPathAnim 6s linear infinite;
+      }
+      @keyframes flowPathAnim {
+        to {
+          stroke-dashoffset: -300;
+        }
+      }
+      .testimonial-card {
+        border: 1px solid rgba(91, 155, 245, 0.08);
+        background-color: #0F1020 !important;
+        transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+        position: relative;
+        z-index: 10;
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+      }
+      .testimonial-card.active-card {
+        border-color: #C9A84C !important;
+        box-shadow: 0 0 30px rgba(201, 168, 76, 0.25) !important;
+        background: linear-gradient(135deg, rgba(15, 17, 37, 0.95) 0%, rgba(20, 24, 50, 0.95) 100%) !important;
+      }
+      
+      /* Dynamic Glow Blobs Keyframes */
+      @keyframes blobMove1 {
+        0%, 100% {
+          transform: translate(0px, 0px) scale(1);
+        }
+        33% {
+          transform: translate(60px, 80px) scale(1.15);
+        }
+        66% {
+          transform: translate(-40px, 120px) scale(0.9);
+        }
+      }
+      @keyframes blobMove2 {
+        0%, 100% {
+          transform: translate(0px, 0px) scale(1);
+        }
+        50% {
+          transform: translate(-80px, -60px) scale(1.2);
+        }
+      }
+      @keyframes blobMove3 {
+        0%, 100% {
+          transform: translate(0px, 0px) scale(1.05);
+        }
+        50% {
+          transform: translate(50px, -100px) scale(0.85);
+        }
+      }
+
+      .success-blob {
+        position: absolute;
+        border-radius: 50%;
+        mix-blend-mode: screen;
+        will-change: transform;
+      }
+      
+      @media (max-width: 768px) {
+        #success-map-wrapper {
+          height: auto !important;
+          min-height: 480px;
+        }
+        #hologram-map {
+          transform: rotateX(0deg) rotateZ(0deg) scale(0.7) !important;
+          margin-top: -30px;
+        }
+        .map-pin {
+          transform: none !important;
+        }
+      }
+      @media (max-width: 480px) {
+        #hologram-map {
+          transform: rotateX(0deg) rotateZ(0deg) scale(0.55) !important;
+          margin-top: -50px;
+        }
+      }
+    </style>
+
+    <!-- Dynamic Gradient Glow Blobs Background -->
+    <div id="success-glow-bg" class="absolute inset-0 z-0 overflow-hidden pointer-events-none opacity-40">
+      <!-- Glow Blob 1: Soft Gold -->
+      <div class="success-blob bg-gold/10 w-[380px] h-[380px] blur-[90px]" style="top: 10%; left: 8%; animation: blobMove1 22s ease-in-out infinite;"></div>
+      <!-- Glow Blob 2: Sky Blue -->
+      <div class="success-blob bg-sky/15 w-[420px] h-[420px] blur-[100px]" style="bottom: 12%; right: 10%; animation: blobMove2 28s ease-in-out infinite;"></div>
+      <!-- Glow Blob 3: Indigo Accent -->
+      <div class="success-blob bg-indigo-500/10 w-[320px] h-[320px] blur-[80px]" style="top: 55%; left: 35%; animation: blobMove3 25s ease-in-out infinite;"></div>
+    </div>
+
+    <div class="max-w-7xl mx-auto px-4" style="position:relative; z-index:10;">
       <!-- Stats row -->
       <div class="grid grid-cols-2 md:grid-cols-4 gap-6 mb-16">
         <div class="text-center">
@@ -2298,12 +2478,12 @@
         </h2>
       </div>
 
-      <!-- Testimonials + Car photos -->
+      <!-- Testimonials + 3D Map Dashboard -->
       <div class="grid grid-cols-1 lg:grid-cols-2 gap-10 items-start">
         <!-- Testimonials -->
         <div class="flex flex-col gap-5">
           <!-- T1 -->
-          <div class="testimonial-card bg-white rounded-2xl p-6 border border-sky/15 shadow-sm cursor-pointer">
+          <div id="t-khaled" data-route="riyadh" class="testimonial-card bg-white rounded-2xl p-6 border border-sky/15 shadow-sm cursor-pointer">
             <div class="flex items-start gap-4 mb-3">
               <div
                 class="w-12 h-12 rounded-full bg-sky flex items-center justify-center flex-shrink-0 text-white font-cairo font-800 text-lg">
@@ -2339,43 +2519,43 @@
           </div>
 
           <!-- T2 -->
-          <div class="testimonial-card bg-sky rounded-2xl p-6 shadow-sm cursor-pointer">
+          <div id="t-mohammad" data-route="jeddah" class="testimonial-card bg-white rounded-2xl p-6 border border-sky/15 shadow-sm cursor-pointer">
             <div class="flex items-start gap-4 mb-3">
               <div
-                class="w-12 h-12 rounded-full bg-white/25 flex items-center justify-center flex-shrink-0 text-white font-cairo font-800 text-lg">
+                class="w-12 h-12 rounded-full bg-sky flex items-center justify-center flex-shrink-0 text-white font-cairo font-800 text-lg">
                 م</div>
               <div>
-                <p class="font-cairo font-700 text-white">محمد الشمري — جدة</p>
+                <p class="font-cairo font-700" style="color:#C8D8F0;">محمد الشمري — جدة</p>
                 <div class="flex gap-0.5 mt-0.5">
-                  <svg viewBox="0 0 24 24" fill="#F0D98A" width="14" height="14">
+                  <svg viewBox="0 0 24 24" fill="#C9A84C" width="14" height="14">
                     <path
                       d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z" />
                   </svg>
-                  <svg viewBox="0 0 24 24" fill="#F0D98A" width="14" height="14">
+                  <svg viewBox="0 0 24 24" fill="#C9A84C" width="14" height="14">
                     <path
                       d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z" />
                   </svg>
-                  <svg viewBox="0 0 24 24" fill="#F0D98A" width="14" height="14">
+                  <svg viewBox="0 0 24 24" fill="#C9A84C" width="14" height="14">
                     <path
                       d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z" />
                   </svg>
-                  <svg viewBox="0 0 24 24" fill="#F0D98A" width="14" height="14">
+                  <svg viewBox="0 0 24 24" fill="#C9A84C" width="14" height="14">
                     <path
                       d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z" />
                   </svg>
-                  <svg viewBox="0 0 24 24" fill="#F0D98A" width="14" height="14">
+                  <svg viewBox="0 0 24 24" fill="#C9A84C" width="14" height="14">
                     <path
                       d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z" />
                   </svg>
                 </div>
               </div>
             </div>
-            <p class="font-tajawal text-white/85 text-sm leading-relaxed">"ما توقعت الخدمة تكون بهذا المستوى. الشفافية
+            <p class="font-tajawal text-ink/75 text-sm leading-relaxed">"ما توقعت الخدمة تكون بهذا المستوى. الشفافية
               الكاملة في الأسعار والفحص الدقيق أعطاني ثقة كبيرة. نصحت كل أصدقائي بهم."</p>
           </div>
 
           <!-- T3 -->
-          <div class="testimonial-card bg-white rounded-2xl p-6 border border-sky/15 shadow-sm cursor-pointer">
+          <div id="t-abdullah" data-route="dammam" class="testimonial-card bg-white rounded-2xl p-6 border border-sky/15 shadow-sm cursor-pointer">
             <div class="flex items-start gap-4 mb-3">
               <div
                 class="w-12 h-12 rounded-full bg-gold flex items-center justify-center flex-shrink-0 text-white font-cairo font-800 text-lg">
@@ -2411,46 +2591,407 @@
           </div>
         </div>
 
-        <!-- Car photos grid -->
-        <div class="grid grid-cols-2 gap-4">
-          <div class="car-photo-card h-44 shadow-md">
-            <img src="https://images.unsplash.com/photo-1583121274602-3e2820c69888?w=400&q=80&auto=format&fit=crop"
-              alt="سيارة مُسلَّمة لعميل 1" />
-            <div class="overlay"></div>
-            <div class="absolute bottom-3 right-3 z-10">
-              <p class="font-cairo font-700 text-white text-sm">تسليم الرياض</p>
+        <!-- Interactive 3D Shipping Map Wrapper -->
+        <div class="relative w-full h-[520px] bg-[#0A0B1A]/80 border border-white/10 rounded-3xl p-6 overflow-hidden flex flex-col justify-between" id="success-map-wrapper">
+          <!-- Map Title and status -->
+          <div class="flex justify-between items-start z-10">
+            <div>
+              <span class="inline-flex items-center gap-1.5 bg-gold/10 border border-gold/30 rounded-full px-3 py-1 text-[10px] text-gold-light font-cairo font-700">
+                <span class="w-1.5 h-1.5 rounded-full bg-gold animate-pulse"></span>
+                خريطة التتبع التفاعلية ثلاثية الأبعاد
+              </span>
+              <h3 class="font-cairo font-800 text-white text-sm md:text-base mt-2" id="active-route-title">مسار الاستيراد: الرياض</h3>
+            </div>
+            <div class="text-left font-tajawal text-xs text-white/50">
+              <p id="active-route-eta" class="bg-black/35 px-3 py-1 rounded-full border border-white/5">المدة التقريبية: ٣٥ - ٤٥ يوماً</p>
             </div>
           </div>
-          <div class="car-photo-card h-44 shadow-md">
-            <img src="https://images.unsplash.com/photo-1555215695-3004980ad54e?w=400&q=80&auto=format&fit=crop"
-              alt="سيارة مُسلَّمة لعميل 2" />
-            <div class="overlay"></div>
-            <div class="absolute bottom-3 right-3 z-10">
-              <p class="font-cairo font-700 text-white text-sm">فحص كوريا</p>
-            </div>
-          </div>
-          <div class="car-photo-card h-44 shadow-md">
-            <img src="https://images.unsplash.com/photo-1541443131876-44b03de101c5?w=400&q=80&auto=format&fit=crop"
-              alt="سيارة مُسلَّمة لعميل 3" />
-            <div class="overlay"></div>
-            <div class="absolute bottom-3 right-3 z-10">
-              <p class="font-cairo font-700 text-white text-sm">مزاد إنتشون</p>
-            </div>
-          </div>
-          <div class="car-photo-card h-44 shadow-md" style="background:#1A8FE3;">
-            <div class="h-full flex flex-col items-center justify-center p-4 text-center">
-              <p class="font-cairo font-900 text-white text-4xl leading-none">100<span class="text-gold-light">%</span>
-              </p>
-              <p class="font-tajawal text-white/80 text-xs mt-1">رضا العملاء الموثَّق</p>
-              <svg viewBox="0 0 24 24" fill="#F0D98A" width="32" height="32" class="mt-3">
-                <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z" />
+
+          <!-- 3D Map viewport -->
+          <div class="relative w-full h-[320px] flex items-center justify-center" style="perspective: 1200px;">
+            <!-- Grid floor glow -->
+            <div class="absolute w-[400px] h-[400px] rounded-full border border-white/5 bg-[radial-gradient(circle,rgba(26,77,184,0.08)_0%,transparent_70%)]" style="transform: rotateX(70deg) translateZ(-50px);"></div>
+
+            <!-- The 3D tilted map container -->
+            <div id="hologram-map" class="relative w-[500px] h-[300px] transition-transform duration-700 ease-out" style="transform: rotateX(55deg) rotateZ(-22deg); transform-style: preserve-3d;">
+              
+              <!-- Stylized map graphic (vector representation of East Asia and Middle East) -->
+              <svg class="absolute inset-0 w-full h-full opacity-35" viewBox="0 0 500 300" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <!-- Tech grid pattern -->
+                <pattern id="map-grid" width="20" height="20" patternUnits="userSpaceOnUse">
+                  <path d="M 20 0 L 0 0 0 20" fill="none" stroke="rgba(255, 255, 255, 0.04)" stroke-width="1"/>
+                </pattern>
+                <rect width="100%" height="100%" fill="url(#map-grid)" />
+
+                <!-- Middle East / Arabian Peninsula -->
+                <path d="M 15 170 C 25 150, 45 160, 65 150 C 85 140, 95 165, 85 195 C 75 215, 50 235, 30 225 C 15 215, 5 190, 15 170 Z" fill="rgba(26, 75, 184, 0.2)" stroke="rgba(26, 75, 184, 0.4)" stroke-width="1.5" stroke-dasharray="3 3" />
+                
+                <!-- India / South Asia -->
+                <path d="M 160 160 C 180 140, 205 160, 225 170 C 235 190, 215 210, 195 230 C 175 210, 165 190, 160 160 Z" fill="rgba(255, 255, 255, 0.05)" stroke="rgba(255, 255, 255, 0.1)" stroke-width="1.2" />
+                
+                <!-- China / East Asia / Korea -->
+                <path d="M 310 70 C 340 60, 390 50, 430 70 C 450 90, 470 110, 450 140 C 430 150, 410 140, 390 160 C 360 170, 340 150, 310 130 C 290 110, 290 80, 310 70 Z" fill="rgba(255, 255, 255, 0.05)" stroke="rgba(255, 255, 255, 0.1)" stroke-width="1.2" />
+                
+                <!-- Korea Peninsula -->
+                <path d="M 440 98 Q 445 88 448 83 Q 453 80 455 88 Q 450 96 440 98 Z" fill="rgba(201, 168, 76, 0.25)" stroke="rgba(201, 168, 76, 0.6)" stroke-width="1.5" />
+
+                <!-- Ocean route background path -->
+                <path d="M 445 92 C 395 172, 285 272, 195 242 C 135 222, 90 202, 70 177" fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="2" />
               </svg>
+
+              <!-- Active routes -->
+              <svg class="absolute inset-0 w-full h-full z-10 pointer-events-none" viewBox="0 0 500 300" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <defs>
+                  <filter id="glow-heavy" x="-20%" y="-20%" width="140%" height="140%">
+                    <feGaussianBlur stdDeviation="6" result="blur" />
+                    <feMerge>
+                      <feMergeNode in="blur" />
+                      <feMergeNode in="SourceGraphic" />
+                    </feMerge>
+                  </filter>
+                  <filter id="glow-soft" x="-10%" y="-10%" width="120%" height="120%">
+                    <feGaussianBlur stdDeviation="3" result="blur" />
+                    <feMerge>
+                      <feMergeNode in="blur" />
+                      <feMergeNode in="SourceGraphic" />
+                    </feMerge>
+                  </filter>
+
+                  <linearGradient id="grad-riyadh" x1="445" y1="92" x2="60" y2="185" gradientUnits="userSpaceOnUse">
+                    <stop offset="0%" stop-color="#C9A84C" />
+                    <stop offset="70%" stop-color="#1A8FE3" />
+                    <stop offset="100%" stop-color="#C9A84C" />
+                  </linearGradient>
+                  <linearGradient id="grad-jeddah" x1="445" y1="92" x2="35" y2="215" gradientUnits="userSpaceOnUse">
+                    <stop offset="0%" stop-color="#C9A84C" />
+                    <stop offset="70%" stop-color="#1A8FE3" />
+                    <stop offset="100%" stop-color="#5B9BF5" />
+                  </linearGradient>
+                  <linearGradient id="grad-dammam" x1="445" y1="92" x2="80" y2="175" gradientUnits="userSpaceOnUse">
+                    <stop offset="0%" stop-color="#C9A84C" />
+                    <stop offset="70%" stop-color="#1A8FE3" />
+                    <stop offset="100%" stop-color="#10b981" />
+                  </linearGradient>
+                </defs>
+
+                <!-- Route 1: Riyadh -->
+                <g id="route-riyadh" class="route-group opacity-0 transition-opacity duration-500">
+                  <path d="M 445 92 C 395 172, 285 272, 195 242 C 135 222, 110 202, 82 175" fill="none" stroke="url(#grad-riyadh)" stroke-width="3" filter="url(#glow-soft)" />
+                  <path d="M 82 175 Q 70 185 60 195" fill="none" stroke="#C9A84C" stroke-width="2.5" stroke-dasharray="4 4" />
+                  <path class="flow-path" d="M 445 92 C 395 172, 285 272, 195 242 C 135 222, 110 202, 82 175 Q 70 185 60 195" fill="none" stroke="#FFF" stroke-width="1.5" stroke-dasharray="15 35" stroke-dashoffset="0" />
+                </g>
+
+                <!-- Route 2: Jeddah -->
+                <g id="route-jeddah" class="route-group opacity-0 transition-opacity duration-500">
+                  <path d="M 445 92 C 405 182, 295 282, 185 242 C 145 227, 115 227, 90 242 C 80 248, 70 237, 60 217" fill="none" stroke="url(#grad-jeddah)" stroke-width="3" filter="url(#glow-soft)" />
+                  <path class="flow-path" d="M 445 92 C 405 182, 295 282, 185 242 C 145 227, 115 227, 90 242 C 80 248, 70 237, 60 217" fill="none" stroke="#FFF" stroke-width="1.5" stroke-dasharray="15 35" stroke-dashoffset="0" />
+                </g>
+
+                <!-- Route 3: Dammam -->
+                <g id="route-dammam" class="route-group opacity-0 transition-opacity duration-500">
+                  <path d="M 445 92 C 395 172, 285 272, 195 242 C 135 222, 110 202, 82 175" fill="none" stroke="url(#grad-dammam)" stroke-width="3" filter="url(#glow-soft)" />
+                  <path class="flow-path" d="M 445 92 C 395 172, 285 272, 195 242 C 135 222, 110 202, 82 175" fill="none" stroke="#FFF" stroke-width="1.5" stroke-dasharray="15 35" stroke-dashoffset="0" />
+                </g>
+              </svg>
+
+              <!-- Pins -->
+              <!-- Incheon (Start) -->
+              <div class="absolute map-pin pointer-events-auto" style="top: 92px; left: 445px;">
+                <div class="relative flex items-center justify-center">
+                  <span class="animate-pulse absolute inline-flex h-6 w-6 rounded-full bg-gold opacity-50"></span>
+                  <div class="relative w-4.5 h-4.5 rounded-full bg-gold border-2 border-white flex items-center justify-center shadow-lg cursor-pointer" onclick="showMapTooltip('incheon')">
+                    <span class="w-1.5 h-1.5 rounded-full bg-black"></span>
+                  </div>
+                  <div class="absolute bottom-6 bg-black/90 backdrop-blur text-white text-[9px] font-cairo py-1 px-2 rounded border border-gold/30 whitespace-nowrap opacity-95 pointer-events-none">إنتشون (كوريا)</div>
+                </div>
+              </div>
+
+              <!-- Sea Shipping Stage -->
+              <div class="absolute map-pin pointer-events-auto" style="top: 235px; left: 215px;">
+                <div class="relative flex items-center justify-center">
+                  <div class="relative w-7 h-7 rounded-full bg-sky/90 border border-white/20 flex items-center justify-center shadow-2xl cursor-pointer hover:scale-110 transition-transform" onclick="showMapTooltip('sea')">
+                    <svg viewBox="0 0 24 24" fill="white" width="12" height="12">
+                      <path d="M20 21c-1.39 0-2.78-.47-4-1.32-2.44 1.71-5.56 1.71-8 0C6.78 20.53 5.39 21 4 21H2v2h2c1.38 0 2.74-.35 4-.99 2.52 1.29 5.48 1.29 8 0 1.26.64 2.62.99 4 .99h2v-2h-2zM3.93 11.07l1.41-1.41 3.54 3.54 7.78-7.78 1.41 1.41L10.3 14.61z"/>
+                    </svg>
+                  </div>
+                  <div class="absolute bottom-9 bg-black/90 backdrop-blur text-white text-[9px] font-cairo py-1 px-2 rounded border border-sky/30 whitespace-nowrap opacity-95 pointer-events-none">شحن بحري دولي</div>
+                </div>
+              </div>
+
+              <!-- Port of Arrival -->
+              <div id="pin-port" class="absolute map-pin pointer-events-auto" style="top: 175px; left: 82px;">
+                <div class="relative flex items-center justify-center">
+                  <span class="animate-pulse absolute inline-flex h-5 w-5 rounded-full bg-emerald-400 opacity-40"></span>
+                  <div class="relative w-4.5 h-4.5 rounded-full bg-emerald-400 border-2 border-white flex items-center justify-center shadow-lg cursor-pointer" onclick="showMapTooltip('port')">
+                    <span class="w-1.5 h-1.5 rounded-full bg-black"></span>
+                  </div>
+                  <div id="label-port" class="absolute bottom-6 bg-black/90 backdrop-blur text-white text-[9px] font-cairo py-1 px-2 rounded border border-emerald-400/30 whitespace-nowrap opacity-95 pointer-events-none">ميناء الدمام (التخليص)</div>
+                </div>
+              </div>
+
+              <!-- Destination City -->
+              <div id="pin-destination" class="absolute map-pin pointer-events-auto" style="top: 195px; left: 60px;">
+                <div class="relative flex items-center justify-center">
+                  <span class="animate-pulse absolute inline-flex h-6 w-6 rounded-full bg-gold opacity-50"></span>
+                  <div class="relative w-7.5 h-7.5 rounded-full bg-gold border-2 border-white flex items-center justify-center shadow-2xl cursor-pointer hover:scale-110 transition-transform" onclick="showMapTooltip('destination')">
+                    <svg viewBox="0 0 24 24" fill="black" width="13" height="13">
+                      <path d="M18.92 5.01C18.72 4.42 18.16 4 17.5 4h-11c-.66 0-1.21.42-1.42 1.01L3 12v8c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1h12v1c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-8l-2.08-6.99z"/>
+                    </svg>
+                  </div>
+                  <div id="label-destination" class="absolute bottom-9 bg-gold text-black font-cairo font-800 text-[10px] py-1 px-2.5 rounded-full shadow-lg whitespace-nowrap pointer-events-none">الرياض (التسليم)</div>
+                </div>
+              </div>
+
+            </div><!-- /hologram-map -->
+          </div><!-- /3d-viewport -->
+
+          <!-- Live interactive stats strip -->
+          <div class="bg-white/5 border border-white/10 rounded-2xl p-4 flex justify-between items-center gap-3 z-10 backdrop-blur-md">
+            <div class="flex items-center gap-3">
+              <div class="w-12 h-12 rounded-xl bg-white/5 border border-white/10 overflow-hidden flex-shrink-0" id="map-car-image-container">
+                <img id="map-car-image" src="https://images.unsplash.com/photo-1617469767053-d3b523a0b982?w=400&q=80&auto=format&fit=crop" alt="السيارة المستوردة" class="w-full h-full object-cover" />
+              </div>
+              <div>
+                <p class="font-cairo font-800 text-white text-xs leading-none" id="map-car-name">Genesis GV80</p>
+                <p class="font-tajawal text-gold-light text-[10px] mt-1.5" id="map-car-savings">وفر للعميل: ٢٢,٠٠٠ ريال</p>
+              </div>
             </div>
+            
+            <div class="flex flex-col items-end">
+              <div class="text-[9px] font-tajawal text-white/50" id="map-step-label">المرحلة الحالية</div>
+              <div class="text-xs font-cairo font-800 text-emerald-400 mt-1" id="map-step-status">تم التسليم بنجاح ✓</div>
+            </div>
+          </div>
+
+          <!-- Micro details tooltip -->
+          <div id="map-tooltip" class="absolute z-30 bg-black/95 backdrop-blur-md border border-gold/40 rounded-xl p-3 shadow-2xl opacity-0 transition-opacity duration-300 pointer-events-none max-w-[200px]">
+            <h4 class="font-cairo font-800 text-gold-light text-[11px]" id="tooltip-title">إنتشون، كوريا الجنوبية</h4>
+            <p class="font-tajawal text-white/80 text-[10px] mt-1.5 leading-relaxed" id="tooltip-desc">فحص السيارة الفني شامل وإرسال تقرير فوري للعميل.</p>
           </div>
         </div>
       </div>
     </div>
   </section>
+
+  <!-- Interactive Shipping Map JS -->
+  <script>
+    (function () {
+      'use strict';
+      
+      const routes = {
+        riyadh: {
+          title: "مسار الاستيراد: الرياض (العميل خالد العتيبي)",
+          eta: "المدة التقريبية: ٣٥ - ٤٥ يوماً",
+          car: "Genesis GV80",
+          savings: "وفر للعميل: ٢٢,٠٠٠ ريال",
+          image: "https://images.unsplash.com/photo-1617469767053-d3b523a0b982?w=400&q=80&auto=format&fit=crop",
+          status: "تم التسليم بنجاح ✓",
+          portPin: { top: "175px", left: "82px" },
+          portLabel: "ميناء الدمام (التخليص)",
+          destPin: { top: "195px", left: "60px", display: "flex" },
+          destLabel: "الرياض (التسليم)",
+          tooltip: {
+            incheon: "<b>مكتب إنتشون (كوريا)</b><br>فحص فني شامل لأكثر من ١٢٠ نقطة وتصوير السيارة للعميل بدقة عالية قبل المزايدة.",
+            sea: "<b>شحن بحري دولي</b><br>نقل آمن عبر سفن نقل سيارات (Ro-Ro) مخصصة من ميناء إنتشون بكوريا إلى الخليج العربي.",
+            port: "<b>ميناء الدمام</b><br>تخليص جمركي احترافي وسريع، سداد كافة الرسوم بالكامل وتجهيز أوراق التسجيل.",
+            destination: "<b>الرياض</b><br>توصيل السيارة المؤمنة على ناقلة خاصة مباشرة إلى منزل العميل خالد العتيبي."
+          }
+        },
+        jeddah: {
+          title: "مسار الاستيراد: جدة (العميل محمد الشمري)",
+          eta: "المدة التقريبية: ٣٠ - ٣٨ يوماً",
+          car: "Hyundai IONIQ 6",
+          savings: "وفر للعميل: ٢١,٠٠٠ ريال",
+          image: "https://images.unsplash.com/photo-1593941707882-a5bba14938c7?w=400&q=80&auto=format&fit=crop",
+          status: "تم التسليم بنجاح ✓",
+          portPin: { top: "210px", left: "40px" },
+          portLabel: "ميناء جدة الإسلامي",
+          destPin: { top: "230px", left: "55px", display: "flex" },
+          destLabel: "جدة (التسليم)",
+          tooltip: {
+            incheon: "<b>مكتب إنتشون (كوريا)</b><br>فحص دقيق للأنظمة والبطاريات الكهربائية وضمان الكيلومترات الأصلية.",
+            sea: "<b>شحن بحري دولي</b><br>مسار شحن سريع ومباشر يمر عبر المحيط الهندي وصولاً إلى البحر الأحمر وميناء جدة.",
+            port: "<b>ميناء جدة الإسلامي</b><br>استلام وتخليص جمركي مباشر بالميناء وإجراء الفحص الجمركي الأمني للسيارة.",
+            destination: "<b>جدة</b><br>تسليم السيارة الذكية للعميل محمد الشمري مع توثيق الرضا التام والضمان."
+          }
+        },
+        dammam: {
+          title: "مسار الاستيراد: الدمام (العميل عبدالله الدوسري)",
+          eta: "المدة التقريبية: ٣٢ - ٤٠ يوماً",
+          car: "Kia EV6 GT",
+          savings: "وفر للعميل: ١٩,٥٠٠ ريال",
+          image: "https://images.unsplash.com/photo-1649517555501-e72785f6a82c?w=400&q=80&auto=format&fit=crop",
+          status: "تم التسليم بنجاح ✓",
+          portPin: { top: "167px", left: "75px" },
+          portLabel: "ميناء الملك عبدالعزيز",
+          destPin: { top: "187px", left: "90px", display: "flex" },
+          destLabel: "الدمام (التسليم)",
+          tooltip: {
+            incheon: "<b>مكتب إنتشون (كوريا)</b><br>فحص جودة الهيكل والدهان الخارجي للسيارة والتحقق من التقرير الرسمي للمزاد الكوري.",
+            sea: "<b>شحن بحري دولي</b><br>نقل مباشر وسريع لتقليص مدة الانتظار وضمان سلامة السيارة طوال الرحلة.",
+            port: "<b>ميناء الدمام</b><br>إنهاء إجراءات التخليص وتسليم لوحات التصدير وإصدار البطاقة الجمركية للسيارة.",
+            destination: "<b>الدمام</b><br>تسليم السيارة الرياضية الفاخرة Kia EV6 GT للعميل عبدالله الدوسري أمام منزله."
+          }
+        }
+      };
+
+      let activeRoute = 'riyadh';
+
+      function updateActiveMap(name) {
+        activeRoute = name;
+        const data = routes[name];
+        if (!data) return;
+
+        // Update Title & ETA
+        document.getElementById('active-route-title').textContent = data.title;
+        document.getElementById('active-route-eta').textContent = data.eta;
+
+        // Update active route SVG paths
+        document.querySelectorAll('.route-group').forEach(el => {
+          el.classList.remove('opacity-100');
+          el.classList.add('opacity-0');
+        });
+        const activeGroup = document.getElementById('route-' + name);
+        if (activeGroup) {
+          activeGroup.classList.remove('opacity-0');
+          activeGroup.classList.add('opacity-100');
+        }
+
+        // Update Pins & Labels
+        const pinPort = document.getElementById('pin-port');
+        const labelPort = document.getElementById('label-port');
+        const pinDest = document.getElementById('pin-destination');
+        const labelDest = document.getElementById('label-destination');
+
+        if (pinPort && labelPort) {
+          pinPort.style.top = data.portPin.top;
+          pinPort.style.left = data.portPin.left;
+          labelPort.textContent = data.portLabel;
+        }
+
+        if (pinDest && labelDest) {
+          pinDest.style.top = data.destPin.top;
+          pinDest.style.left = data.destPin.left;
+          pinDest.style.display = data.destPin.display;
+          labelDest.textContent = data.destLabel;
+        }
+
+        // Update Bottom Card Info
+        document.getElementById('map-car-name').textContent = data.car;
+        document.getElementById('map-car-savings').textContent = data.savings;
+        document.getElementById('map-car-image').src = data.image;
+        document.getElementById('map-step-status').textContent = data.status;
+
+        // Update Active Testimonial Card style
+        document.querySelectorAll('.testimonial-card').forEach(el => {
+          el.classList.remove('active-card');
+        });
+        const activeTestimonial = document.getElementById('t-' + name);
+        if (activeTestimonial) {
+          activeTestimonial.classList.add('active-card');
+        }
+      }
+
+      // Tooltip handling
+      const tooltip = document.getElementById('map-tooltip');
+      window.showMapTooltip = function(type) {
+        const data = routes[activeRoute];
+        if (!data || !tooltip) return;
+
+        const content = data.tooltip[type];
+        if (!content) return;
+
+        document.getElementById('tooltip-title').innerHTML = content.split('<br>')[0];
+        document.getElementById('tooltip-desc').innerHTML = content.split('<br>')[1];
+
+        tooltip.style.opacity = '1';
+        tooltip.style.pointerEvents = 'auto';
+
+        // Position tooltip relative to the clicked/hovered pin
+        let pinEl;
+        if (type === 'incheon') {
+          pinEl = document.querySelector('.map-pin[style*="left: 445px"]');
+        } else if (type === 'sea') {
+          pinEl = document.querySelector('.map-pin[style*="left: 215px"]');
+        } else if (type === 'port') {
+          pinEl = document.getElementById('pin-port');
+        } else if (type === 'destination') {
+          pinEl = document.getElementById('pin-destination');
+        }
+
+        if (pinEl && tooltip) {
+          const rect = pinEl.getBoundingClientRect();
+          const parentRect = document.getElementById('success-map-wrapper').getBoundingClientRect();
+          tooltip.style.left = (rect.left - parentRect.left - 80) + 'px';
+          tooltip.style.top = (rect.top - parentRect.top - 100) + 'px';
+        }
+      };
+
+      // Hide tooltip on mouseleave from wrapper or click anywhere
+      const wrapper = document.getElementById('success-map-wrapper');
+      if (wrapper) {
+        wrapper.addEventListener('mouseleave', () => {
+          if (tooltip) tooltip.style.opacity = '0';
+        });
+      }
+      document.addEventListener('click', (e) => {
+        if (tooltip && !e.target.closest('.map-pin') && !e.target.closest('#map-tooltip')) {
+          tooltip.style.opacity = '0';
+        }
+      });
+
+      // Bind Testimonial Clicks
+      const tCards = {
+        't-khaled': 'riyadh',
+        't-mohammad': 'jeddah',
+        't-abdullah': 'dammam'
+      };
+
+      Object.keys(tCards).forEach(id => {
+        const el = document.getElementById(id);
+        if (el) {
+          el.addEventListener('click', () => {
+            updateActiveMap(tCards[id]);
+          });
+        }
+      });
+
+      // 3D Parallax Tilt Effect for cards and map
+      function initTilt() {
+        const tiltElements = document.querySelectorAll('.testimonial-card, #success-map-wrapper');
+        tiltElements.forEach(el => {
+          el.addEventListener('mousemove', e => {
+            if (window.innerWidth <= 768) return; // disable on mobile
+
+            const rect = el.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+            
+            const xc = rect.width / 2;
+            const yc = rect.height / 2;
+            
+            // Limit tilt angle to max 5 degrees
+            const rotateY = ((x - xc) / xc) * 5;
+            const rotateX = -((y - yc) / yc) * 5;
+            
+            el.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateY(-4px)`;
+            if (el.id === 'success-map-wrapper') {
+              el.style.transform = `perspective(1200px) rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
+            }
+          });
+          
+          el.addEventListener('mouseleave', () => {
+            el.style.transform = '';
+          });
+        });
+      }
+
+      // Initialize
+      updateActiveMap('riyadh');
+      initTilt();
+    })();
+  </script>
+
 
   <!-- ═══════════════════════════════════════════
      FAQ SECTION
