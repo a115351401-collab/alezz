@@ -792,8 +792,12 @@
 <div id="canvas-wrap">
   <div id="canvas-sticky">
 
-    <!-- ① Canvas — GPU-drawn frames -->
-    <canvas id="hero-canvas" aria-hidden="true"></canvas>
+    <!-- ① Canvas — GPU-drawn frames (Desktop only) -->
+    <canvas id="hero-canvas" class="hidden md:block absolute inset-0 w-full h-full" aria-hidden="true"></canvas>
+
+    <!-- Mobile Videos -->
+    <video id="mobile-vid1" src="vid1.MOV" preload="auto" muted playsinline class="block md:hidden absolute inset-0 w-full h-full object-cover" style="opacity: 1; filter: brightness(0.4); z-index: 0;"></video>
+    <video id="mobile-vid2" src="vid2.MOV" preload="auto" muted playsinline class="block md:hidden absolute inset-0 w-full h-full object-cover" style="opacity: 0; filter: brightness(0.4); z-index: 0;"></video>
 
     <!-- ② Always-on cinematic overlay -->
     <div class="seq-overlay"></div>
@@ -2213,6 +2217,8 @@
   var s2El   = document.getElementById('s2-content');
   var arrow  = document.querySelector('.scroll-indicator');
   var navbar = document.querySelector('nav');
+  var v1     = document.getElementById('mobile-vid1');
+  var v2     = document.getElementById('mobile-vid2');
 
   navbar.style.background        = 'rgba(9,9,15,0.45)';
   navbar.style.backdropFilter    = 'blur(20px) saturate(180%)';
@@ -2221,6 +2227,7 @@
   // ── Canvas sizing — Safari/iOS visual viewport aware ─────
   var lastDrawn = -1;
   function sizeCanvas() {
+    if (IS_MOBILE) return; // Skip canvas sizing on mobile
     // Use visualViewport when available (avoids iOS address-bar issues)
     var vvp = window.visualViewport;
     var w = vvp ? Math.round(vvp.width)  : (document.documentElement.clientWidth  || window.innerWidth  || 1280);
@@ -2241,49 +2248,56 @@
   // ── Image loading ─────────────────────────────────────────
   var frames1      = [];
   var frames2      = [];
-  var loadedCount  = 0;
-  var totalLoad    = S1_COUNT + S2_COUNT;
   var isReady      = false;
 
-  // Loader UI
-  var loaderEl = document.createElement('div');
-  loaderEl.style.cssText = 'position:absolute;inset:0;z-index:50;display:flex;flex-direction:column;align-items:center;justify-content:center;background:rgba(10,20,40,0.88);backdrop-filter:blur(10px);transition:opacity 0.6s ease';
-  loaderEl.innerHTML =
-    '<p style="font-family:Cairo,sans-serif;color:#C9A84C;font-size:1.1rem;font-weight:700;margin-bottom:12px">جاري تحميل المشهد…</p>' +
-    '<div style="width:220px;height:4px;background:rgba(255,255,255,0.12);border-radius:4px;overflow:hidden">' +
-      '<div id="ld-bar" style="height:100%;width:0%;background:linear-gradient(90deg,#1A8FE3,#C9A84C);border-radius:4px"></div>' +
-    '</div>' +
-    '<p id="ld-pct" style="font-family:Tajawal,sans-serif;color:rgba(255,255,255,0.4);font-size:0.8rem;margin-top:8px">0 / ' + totalLoad + '</p>';
-  document.getElementById('canvas-sticky').appendChild(loaderEl);
-  var ldBar = document.getElementById('ld-bar');
-  var ldPct = document.getElementById('ld-pct');
+  if (IS_MOBILE) {
+    isReady = true;
+  } else {
+    var loadedCount  = 0;
+    var totalLoad    = S1_COUNT + S2_COUNT;
 
-  function onSettle() {
-    loadedCount++;
-    ldBar.style.width = Math.round(loadedCount / totalLoad * 100) + '%';
-    ldPct.textContent = loadedCount + ' / ' + totalLoad;
-    if (loadedCount === totalLoad) {
-      isReady = true;
-      sizeCanvas();
-      doDraw(0);
-      loaderEl.style.opacity = '0';
-      setTimeout(function() { if (loaderEl.parentNode) loaderEl.parentNode.removeChild(loaderEl); }, 700);
+    // Loader UI
+    var loaderEl = document.createElement('div');
+    loaderEl.style.cssText = 'position:absolute;inset:0;z-index:50;display:flex;flex-direction:column;align-items:center;justify-content:center;background:rgba(10,20,40,0.88);backdrop-filter:blur(10px);transition:opacity 0.6s ease';
+    loaderEl.innerHTML =
+      '<p style="font-family:Cairo,sans-serif;color:#C9A84C;font-size:1.1rem;font-weight:700;margin-bottom:12px">جاري تحميل المشهد…</p>' +
+      '<div style="width:220px;height:4px;background:rgba(255,255,255,0.12);border-radius:4px;overflow:hidden">' +
+        '<div id="ld-bar" style="height:100%;width:0%;background:linear-gradient(90deg,#1A8FE3,#C9A84C);border-radius:4px"></div>' +
+      '</div>' +
+      '<p id="ld-pct" style="font-family:Tajawal,sans-serif;color:rgba(255,255,255,0.4);font-size:0.8rem;margin-top:8px">0 / ' + totalLoad + '</p>';
+    document.getElementById('canvas-sticky').appendChild(loaderEl);
+    var ldBar = document.getElementById('ld-bar');
+    var ldPct = document.getElementById('ld-pct');
+
+    var onSettle = function() {
+      loadedCount++;
+      if (ldBar) ldBar.style.width = Math.round(loadedCount / totalLoad * 100) + '%';
+      if (ldPct) ldPct.textContent = loadedCount + ' / ' + totalLoad;
+      if (loadedCount === totalLoad) {
+        isReady = true;
+        sizeCanvas();
+        doDraw(0);
+        if (loaderEl) {
+          loaderEl.style.opacity = '0';
+          setTimeout(function() { if (loaderEl.parentNode) loaderEl.parentNode.removeChild(loaderEl); }, 700);
+        }
+      }
+    };
+
+    var pad4 = function(n) { return ('0000' + n).slice(-4); };
+
+    for (var i = 0; i < S1_COUNT; i++) {
+      var img1 = new Image();
+      img1.onload = img1.onerror = onSettle;
+      img1.src = 'frames/frame' + pad4(i + 1) + '.jpg';
+      frames1.push(img1);
     }
-  }
-
-  function pad4(n) { return ('0000' + n).slice(-4); }
-
-  for (var i = 0; i < S1_COUNT; i++) {
-    var img1 = new Image();
-    img1.onload = img1.onerror = onSettle;
-    img1.src = 'frames/frame' + pad4(i + 1) + '.jpg';
-    frames1.push(img1);
-  }
-  for (var j = 0; j < S2_COUNT; j++) {
-    var img2 = new Image();
-    img2.onload = img2.onerror = onSettle;
-    img2.src = 'frames2/frame' + pad4(j + 1) + '.jpg';
-    frames2.push(img2);
+    for (var j = 0; j < S2_COUNT; j++) {
+      var img2 = new Image();
+      img2.onload = img2.onerror = onSettle;
+      img2.src = 'frames2/frame' + pad4(j + 1) + '.jpg';
+      frames2.push(img2);
+    }
   }
 
   // ── Draw — object-fit:cover (all screen sizes) ────────────
@@ -2366,7 +2380,16 @@
     }
     s1El.style.opacity = op1;
     s2El.style.opacity = op2;
+
+    if (IS_MOBILE) {
+      if (v1) v1.style.opacity = op1;
+      if (v2) v2.style.opacity = op2;
+    }
   }
+
+  // Initial content update on load
+  var initialSc = Math.max(0, -(wrap.getBoundingClientRect().top));
+  updateContent(initialSc);
 
   // ── RAF loop ─────────────────────────────────────────────
   var lerpIdx = 0;
@@ -2375,7 +2398,26 @@
     if (!isReady) return;
     var tgt = getTarget();
     lerpIdx += (tgt - lerpIdx) * LERP;
-    doDraw(lerpIdx);
+
+    if (IS_MOBILE) {
+      if (v1 && v1.duration) {
+        var progress1 = Math.max(0, Math.min(1, lerpIdx / (S1_COUNT - 1)));
+        var targetTime1 = progress1 * v1.duration;
+        if (Math.abs(v1.currentTime - targetTime1) > 0.03) {
+          v1.currentTime = targetTime1;
+        }
+      }
+      if (v2 && v2.duration) {
+        var progress2 = Math.max(0, Math.min(1, (lerpIdx - S1_COUNT) / (S2_COUNT - 1)));
+        var targetTime2 = progress2 * v2.duration;
+        if (Math.abs(v2.currentTime - targetTime2) > 0.03) {
+          v2.currentTime = targetTime2;
+        }
+      }
+    } else {
+      doDraw(lerpIdx);
+    }
+
     if (bar) {
       var pct = lerpIdx < S1_COUNT
         ? lerpIdx / (S1_COUNT - 1) * 100
