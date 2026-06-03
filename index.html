@@ -333,25 +333,6 @@
       will-change: opacity;
     }
 
-    /* Scroll indicator */
-    @keyframes bounce-down {
-
-      0%,
-      100% {
-        transform: translateY(0);
-        opacity: 1;
-      }
-
-      50% {
-        transform: translateY(10px);
-        opacity: 0.45;
-      }
-    }
-
-    .scroll-indicator {
-      animation: bounce-down 2s ease-in-out infinite;
-    }
-
     /* ══ BackgroundGradientAnimation — CSS variables + keyframes ══ */
     :root {
       --gradient-background-start: rgb(5, 5, 12);
@@ -363,7 +344,7 @@
       --fifth-color: 150, 120, 30;
       --pointer-color: 91, 155, 245;
       --size: 80%;
-      --blending-value: hard-light;
+      --blending-value: normal;
     }
 
     @keyframes moveVertical {
@@ -419,7 +400,7 @@
       height: var(--size);
       top: calc(50% - var(--size)/2);
       left: calc(50% - var(--size)/2);
-      background: radial-gradient(circle at center, rgba(var(--first-color), 0.9) 0, rgba(var(--first-color), 0) 50%) no-repeat;
+      background: radial-gradient(circle at center, rgba(var(--first-color), 0.15) 0, rgba(var(--first-color), 0) 50%) no-repeat;
       transform-origin: center center;
       animation: moveVertical 30s ease infinite;
       opacity: 1;
@@ -430,7 +411,7 @@
       height: var(--size);
       top: calc(50% - var(--size)/2);
       left: calc(50% - var(--size)/2);
-      background: radial-gradient(circle at center, rgba(var(--second-color), 0.8) 0, rgba(var(--second-color), 0) 50%) no-repeat;
+      background: radial-gradient(circle at center, rgba(var(--second-color), 0.12) 0, rgba(var(--second-color), 0) 50%) no-repeat;
       transform-origin: calc(50% - 400px);
       animation: moveInCircle 20s reverse infinite;
       opacity: 1;
@@ -441,7 +422,7 @@
       height: var(--size);
       top: calc(50% - var(--size)/2);
       left: calc(50% - var(--size)/2);
-      background: radial-gradient(circle at center, rgba(var(--third-color), 0.8) 0, rgba(var(--third-color), 0) 50%) no-repeat;
+      background: radial-gradient(circle at center, rgba(var(--third-color), 0.15) 0, rgba(var(--third-color), 0) 50%) no-repeat;
       transform-origin: calc(50% + 400px);
       animation: moveInCircle 40s linear infinite;
       opacity: 1;
@@ -452,7 +433,7 @@
       height: var(--size);
       top: calc(50% - var(--size)/2);
       left: calc(50% - var(--size)/2);
-      background: radial-gradient(circle at center, rgba(var(--fourth-color), 0.8) 0, rgba(var(--fourth-color), 0) 50%) no-repeat;
+      background: radial-gradient(circle at center, rgba(var(--fourth-color), 0.15) 0, rgba(var(--fourth-color), 0) 50%) no-repeat;
       transform-origin: calc(50% - 200px);
       animation: moveHorizontal 40s ease infinite;
       opacity: 0.7;
@@ -463,7 +444,7 @@
       height: var(--size);
       top: calc(50% - var(--size)/2);
       left: calc(50% - var(--size)/2);
-      background: radial-gradient(circle at center, rgba(var(--fifth-color), 0.8) 0, rgba(var(--fifth-color), 0) 50%) no-repeat;
+      background: radial-gradient(circle at center, rgba(var(--fifth-color), 0.12) 0, rgba(var(--fifth-color), 0) 50%) no-repeat;
       transform-origin: calc(50% - 800px) calc(50% + 800px);
       animation: moveInCircle 20s ease infinite;
       opacity: 1;
@@ -475,7 +456,7 @@
       height: 100%;
       top: -50%;
       left: -50%;
-      background: radial-gradient(circle at center, rgba(var(--pointer-color), 0.8) 0, rgba(var(--pointer-color), 0) 50%) no-repeat;
+      background: radial-gradient(circle at center, rgba(var(--pointer-color), 0.15) 0, rgba(var(--pointer-color), 0) 50%) no-repeat;
       mix-blend-mode: var(--blending-value);
       opacity: 0.7;
       transition: transform 0.05s linear;
@@ -1104,6 +1085,25 @@
       #s3-card {
         height: auto !important;
         aspect-ratio: 16 / 9 !important;
+      }
+    }
+
+    /* SVG Path animations */
+    @keyframes pathDashOffset {
+      from {
+        stroke-dashoffset: 0;
+      }
+      to {
+        stroke-dashoffset: -1;
+      }
+    }
+
+    @keyframes pathOpacity {
+      0%, 100% {
+        stroke-opacity: var(--min-opacity, 0.1);
+      }
+      50% {
+        stroke-opacity: var(--max-opacity, 0.4);
       }
     }
   </style>
@@ -2413,13 +2413,13 @@
     </style>
 
     <!-- Dynamic Gradient Glow Blobs Background -->
-    <div id="success-glow-bg" class="absolute inset-0 z-0 overflow-hidden pointer-events-none opacity-40">
+    <div id="success-glow-bg" class="absolute inset-0 z-0 overflow-hidden pointer-events-none opacity-45">
       <!-- Glow Blob 1: Soft Gold -->
-      <div class="success-blob bg-gold/10 w-[380px] h-[380px] blur-[90px]" style="top: 10%; left: 8%; animation: blobMove1 22s ease-in-out infinite;"></div>
+      <div class="success-blob w-[380px] h-[380px]" style="top: 10%; left: 8%; animation: blobMove1 22s ease-in-out infinite; background: radial-gradient(circle, rgba(201, 168, 76, 0.12) 0%, rgba(201, 168, 76, 0.04) 40%, transparent 70%);"></div>
       <!-- Glow Blob 2: Sky Blue -->
-      <div class="success-blob bg-sky/15 w-[420px] h-[420px] blur-[100px]" style="bottom: 12%; right: 10%; animation: blobMove2 28s ease-in-out infinite;"></div>
+      <div class="success-blob w-[420px] h-[420px]" style="bottom: 12%; right: 10%; animation: blobMove2 28s ease-in-out infinite; background: radial-gradient(circle, rgba(26, 75, 184, 0.15) 0%, rgba(26, 75, 184, 0.05) 40%, transparent 70%);"></div>
       <!-- Glow Blob 3: Indigo Accent -->
-      <div class="success-blob bg-indigo-500/10 w-[320px] h-[320px] blur-[80px]" style="top: 55%; left: 35%; animation: blobMove3 25s ease-in-out infinite;"></div>
+      <div class="success-blob w-[320px] h-[320px]" style="top: 55%; left: 35%; animation: blobMove3 25s ease-in-out infinite; background: radial-gradient(circle, rgba(99, 102, 241, 0.10) 0%, rgba(99, 102, 241, 0.03) 40%, transparent 70%);"></div>
     </div>
 
     <div class="max-w-7xl mx-auto px-4" style="position:relative; z-index:10;">
@@ -3099,7 +3099,7 @@
       /* ── 2. Pause/resume CSS animations for off-screen sections ─
          Gradient blobs in #auctions and ticker pause when not visible
          — saves GPU/CPU when user is elsewhere on the page           */
-      var pauseTargets = ['auctions', 'features'];
+      var pauseTargets = ['auctions', 'features', 'faq', 'footer-section'];
 
       var pauseObs = new IntersectionObserver(function (entries) {
         entries.forEach(function (e) {
@@ -3167,19 +3167,11 @@
               path.setAttribute('pathLength', '1');
               path.setAttribute('stroke-dasharray', '0.3 0.7');
 
-              var animOffset = document.createElementNS('http://www.w3.org/2000/svg', 'animate');
-              animOffset.setAttribute('attributeName', 'stroke-dashoffset');
-              animOffset.setAttribute('values', '0; -1');
-              animOffset.setAttribute('dur', (20 + Math.random() * 15) + 's');
-              animOffset.setAttribute('repeatCount', 'indefinite');
-              path.appendChild(animOffset);
-
-              var animOpacity = document.createElementNS('http://www.w3.org/2000/svg', 'animate');
-              animOpacity.setAttribute('attributeName', 'stroke-opacity');
-              animOpacity.setAttribute('values', (baseOpacity * 0.3) + '; ' + baseOpacity + '; ' + (baseOpacity * 0.3));
-              animOpacity.setAttribute('dur', (15 + Math.random() * 15) + 's');
-              animOpacity.setAttribute('repeatCount', 'indefinite');
-              path.appendChild(animOpacity);
+              var durDash = (20 + Math.random() * 15).toFixed(2);
+              var durOpacity = (15 + Math.random() * 15).toFixed(2);
+              path.style.setProperty('--min-opacity', (baseOpacity * 0.3).toFixed(3));
+              path.style.setProperty('--max-opacity', baseOpacity.toFixed(3));
+              path.style.animation = 'pathDashOffset ' + durDash + 's linear infinite, pathOpacity ' + durOpacity + 's ease-in-out infinite';
 
               svg.appendChild(path);
             }
@@ -3189,31 +3181,6 @@
           container.insertBefore(wrapper, container.firstChild);
         });
       })();
-
-      /* ── 3. SMIL optimisation — pause background paths when off-screen ─
-         SMIL can't be paused via CSS, so we suspend/unsuspend
-         the SVG documents directly                                    */
-      ['faq', 'footer-section'].forEach(function (id) {
-        var container = document.getElementById(id);
-        if (!container) return;
-        var svg = container.querySelector('svg');
-        if (!svg) return;
-
-        var obs = new IntersectionObserver(function (entries) {
-          var vis = entries[0].isIntersecting;
-          try {
-            if (vis) {
-              if (svg.unpauseAnimations) svg.unpauseAnimations();
-            } else {
-              if (svg.pauseAnimations) svg.pauseAnimations();
-            }
-          } catch (e) { }
-        }, { threshold: 0.0, rootMargin: '100px' });
-
-        /* start paused — resume when first visible */
-        try { if (svg.pauseAnimations) svg.pauseAnimations(); } catch (e) { }
-        obs.observe(container);
-      });
 
       /* ── 4. Smooth ticker stop on non-visible ─────────────────── */
       var ticker = document.querySelector('.ticker-wrap');
@@ -3383,6 +3350,17 @@
       navbar.style.background = 'transparent';
       navbar.style.backdropFilter = 'none';
       navbar.style.borderBottom = 'none';
+
+      // ── Scroll tracking variables to prevent Layout Thrashing ──
+      var wrapOffsetTop = 0;
+      var currentScroll = 0;
+      function updateWrapOffset() {
+        if (wrap) {
+          wrapOffsetTop = wrap.getBoundingClientRect().top + window.pageYOffset;
+        }
+      }
+      updateWrapOffset();
+      window.addEventListener('resize', updateWrapOffset, { passive: true });
 
       // ── Canvas sizing — Safari/iOS visual viewport aware ─────
       var lastDrawn = -1;
@@ -3614,9 +3592,8 @@
 
       // ── Target index (PIECEWISE — clean boundary at 6000px) ──
       function getTarget() {
-        var sc = Math.max(0, -(wrap.getBoundingClientRect().top));
-        if (sc <= S1_SCROLL) return (sc / S1_SCROLL) * (S1_COUNT - 1);
-        var p = Math.min(1, (sc - S1_SCROLL) / S2_SCROLL);
+        if (currentScroll <= S1_SCROLL) return (currentScroll / S1_SCROLL) * (S1_COUNT - 1);
+        var p = Math.min(1, (currentScroll - S1_SCROLL) / S2_SCROLL);
         return S1_COUNT + p * (S2_COUNT - 1);
       }
 
@@ -3634,12 +3611,11 @@
         }
         s1El.style.opacity = op1;
         s2El.style.opacity = op2;
-
       }
 
       // Initial content update on load
-      var initialSc = Math.max(0, -(wrap.getBoundingClientRect().top));
-      updateContent(initialSc);
+      currentScroll = Math.max(0, window.pageYOffset - wrapOffsetTop);
+      updateContent(currentScroll);
 
       // ── RAF loop ─────────────────────────────────────────────
       var lerpIdx = 0;
@@ -3662,9 +3638,16 @@
 
       // ── Scroll events ─────────────────────────────────────────
       window.addEventListener('scroll', function () {
-        var sc = Math.max(0, -(wrap.getBoundingClientRect().top));
-        if (arrow) arrow.style.opacity = sc > 80 ? '0' : '1';
-        updateContent(sc);
+        currentScroll = Math.max(0, window.pageYOffset - wrapOffsetTop);
+        if (arrow) {
+          var shouldHide = currentScroll > 80;
+          if (shouldHide && arrow.style.opacity !== '0') {
+            arrow.style.opacity = '0';
+          } else if (!shouldHide && arrow.style.opacity !== '1') {
+            arrow.style.opacity = '1';
+          }
+        }
+        updateContent(currentScroll);
         /* Keep header completely transparent */
         navbar.style.background = 'transparent';
         navbar.style.backdropFilter = 'none';
