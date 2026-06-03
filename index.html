@@ -2195,8 +2195,8 @@
 
   // ── Config ──────────────────────────────────────────────
   var IS_MOBILE  = window.innerWidth <= 768;
-  var S1_COUNT  = IS_MOBILE ? 50  : 150;
-  var S2_COUNT  = IS_MOBILE ? 40  : 120;
+  var S1_COUNT  = IS_MOBILE ? 59  : 150;
+  var S2_COUNT  = IS_MOBILE ? 60  : 120;
   var TOTAL     = S1_COUNT + S2_COUNT;
   var S1_SCROLL  = IS_MOBILE ? 3000 : 6000;
   var S2_SCROLL  = IS_MOBILE ? 3000 : 6000;
@@ -2244,8 +2244,8 @@
   {
     var loadedCount = 0;
     var totalLoad   = S1_COUNT + S2_COUNT;
-    var dir1 = IS_MOBILE ? 'frames-m'  : 'frames';
-    var dir2 = IS_MOBILE ? 'frames2-m' : 'frames2';
+    var dir1 = IS_MOBILE ? 'frames-vid1' : 'frames';
+    var dir2 = IS_MOBILE ? 'frames-vid2' : 'frames2';
 
     // Loader UI (same for mobile and desktop)
     var loaderEl = document.createElement('div');
