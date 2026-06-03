@@ -796,8 +796,8 @@
     <canvas id="hero-canvas" class="hidden md:block absolute inset-0 w-full h-full" aria-hidden="true"></canvas>
 
     <!-- Mobile Videos -->
-    <video id="mobile-vid1" src="vid1.mp4" preload="auto" muted playsinline class="block md:hidden absolute inset-0 w-full h-full object-cover" style="opacity: 1; filter: brightness(0.4); z-index: 0;"></video>
-    <video id="mobile-vid2" src="vid2.mp4" preload="auto" muted playsinline class="block md:hidden absolute inset-0 w-full h-full object-cover" style="opacity: 0; filter: brightness(0.4); z-index: 0;"></video>
+    <video id="mobile-vid1" src="vid1.mp4" autoplay loop muted playsinline class="block md:hidden absolute inset-0 w-full h-full object-cover" style="opacity: 1; filter: brightness(0.4); z-index: 0;"></video>
+    <video id="mobile-vid2" src="vid2.mp4" autoplay loop muted playsinline class="block md:hidden absolute inset-0 w-full h-full object-cover" style="opacity: 0; filter: brightness(0.4); z-index: 0;"></video>
 
     <!-- ② Always-on cinematic overlay -->
     <div class="seq-overlay"></div>
@@ -2253,35 +2253,23 @@
   if (IS_MOBILE) {
     isReady = true;
     
-    // Play/Pause initialization trick to force loading metadata/decoders on mobile devices
-    var initVideo = function(v) {
-      if (!v) return;
-      v.load();
-      
-      var playPromise = v.play();
-      if (playPromise !== undefined) {
-        playPromise.then(function() {
-          v.pause();
-        }).catch(function(err) {
-          // Auto-play blocked (typical for mobile without interaction), try on first user scroll/touch
-          var unlock = function() {
-            v.play().then(function() {
-              v.pause();
-            }).catch(function(){});
-            window.removeEventListener('touchstart', unlock);
-            window.removeEventListener('scroll', unlock);
-          };
-          window.addEventListener('touchstart', unlock, { passive: true });
-          window.addEventListener('scroll', unlock, { passive: true });
-        });
-      }
+    // Autoplay helper to make sure videos start playing on mobile browsers
+    var startVideos = function() {
+      if (v1) v1.play().catch(function(e){ console.log("v1 play failed:", e); });
+      if (v2) v2.play().catch(function(e){ console.log("v2 play failed:", e); });
     };
     
-    // Wait for DOM to settle, then initialize both videos
-    setTimeout(function() {
-      initVideo(v1);
-      initVideo(v2);
-    }, 100);
+    // Attempt autoplay immediately
+    startVideos();
+    
+    // If blocked, unlock on first scroll or touch
+    var unlock = function() {
+      startVideos();
+      window.removeEventListener('touchstart', unlock);
+      window.removeEventListener('scroll', unlock);
+    };
+    window.addEventListener('touchstart', unlock, { passive: true });
+    window.addEventListener('scroll', unlock, { passive: true });
   } else {
     var loadedCount  = 0;
     var totalLoad    = S1_COUNT + S2_COUNT;
@@ -2429,22 +2417,7 @@
     var tgt = getTarget();
     lerpIdx += (tgt - lerpIdx) * LERP;
 
-    if (IS_MOBILE) {
-      if (v1 && v1.duration) {
-        var progress1 = Math.max(0, Math.min(1, lerpIdx / (S1_COUNT - 1)));
-        var targetTime1 = progress1 * v1.duration;
-        if (Math.abs(v1.currentTime - targetTime1) > 0.03) {
-          v1.currentTime = targetTime1;
-        }
-      }
-      if (v2 && v2.duration) {
-        var progress2 = Math.max(0, Math.min(1, (lerpIdx - S1_COUNT) / (S2_COUNT - 1)));
-        var targetTime2 = progress2 * v2.duration;
-        if (Math.abs(v2.currentTime - targetTime2) > 0.03) {
-          v2.currentTime = targetTime2;
-        }
-      }
-    } else {
+    if (!IS_MOBILE) {
       doDraw(lerpIdx);
     }
 
