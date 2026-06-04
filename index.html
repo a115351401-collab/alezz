@@ -1106,6 +1106,91 @@
         stroke-opacity: var(--max-opacity, 0.4);
       }
     }
+
+    /* ══ HORIZONTAL STICKY SCROLL SYSTEM (Desktop) ════════════════ */
+    @media (min-width: 769px) {
+      #horizontal-scroll-container {
+        position: relative;
+        height: 400vh; /* 4 panels * 100vh */
+      }
+
+      #horizontal-sticky {
+        position: -webkit-sticky;
+        position: sticky;
+        top: 0;
+        width: 100%;
+        height: 100vh;
+        overflow: hidden;
+      }
+
+      #horizontal-track {
+        display: flex;
+        flex-direction: row;
+        width: 400%; /* 4 panels */
+        height: 100vh;
+        will-change: transform;
+      }
+
+      .horizontal-panel {
+        width: 100vw;
+        height: 100vh;
+        flex-shrink: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .horizontal-panel section {
+        padding-top: 0 !important;
+        padding-bottom: 0 !important;
+        height: auto;
+      }
+
+      /* Compact layouts for sections in horizontal view to prevent vertical overflow */
+      #success .mb-16 {
+        margin-bottom: 1.5rem !important;
+      }
+      #success .mb-12 {
+        margin-bottom: 1rem !important;
+      }
+      #success-map-wrapper {
+        height: 440px !important;
+      }
+      #success-map-wrapper #hologram-map {
+        transform: rotateX(55deg) rotateZ(-22deg) scale(0.85) !important;
+      }
+      #auctions .mb-16 {
+        margin-bottom: 2rem !important;
+      }
+    }
+
+    /* ══ MOBILE FALLBACK ═════════════════════════════════════════ */
+    @media (max-width: 768px) {
+      #horizontal-scroll-container {
+        height: auto !important;
+      }
+
+      #horizontal-sticky {
+        position: relative !important;
+        height: auto !important;
+        overflow: visible !important;
+        top: auto !important;
+      }
+
+      #horizontal-track {
+        display: block !important;
+        width: 100% !important;
+        height: auto !important;
+        transform: none !important;
+      }
+
+      .horizontal-panel {
+        width: 100% !important;
+        height: auto !important;
+      }
+    }
   </style>
 </head>
 
@@ -1706,34 +1791,39 @@
      FEATURES SECTION
 ═══════════════════════════════════════════ -->
   <!-- ═══ ShaderBackground — WebGL plasma waves ═══ -->
-  <div id="features-auctions-wrapper" class="section-fade" style="position:relative;">
+  <!-- ═══ Horizontal Scroll Wrapper — Sticky 400vh on Desktop ═══ -->
+  <div id="horizontal-scroll-container" class="section-fade">
+    <div id="horizontal-sticky">
+      <!-- WebGL canvas — sticky so always fills viewport while both sections scroll -->
+      <canvas id="shader-canvas" style="
+      position: sticky;
+      top: 0;
+      width: 100%;
+      height: 100vh;
+      display: block;
+      z-index: 0;
+      margin-bottom: -100vh;
+    " aria-hidden="true"></canvas>
 
-    <!-- WebGL canvas — sticky so always fills viewport while both sections scroll -->
-    <canvas id="shader-canvas" style="
-    position: sticky;
-    top: 0;
-    width: 100%;
-    height: 100vh;
-    display: block;
-    z-index: 0;
-    margin-bottom: -100vh;
-  " aria-hidden="true"></canvas>
+      <!-- Dark overlay to keep text readable -->
+      <div id="shader-overlay" style="
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(
+        to bottom,
+        rgba(9,9,15,0.55) 0%,
+        rgba(9,9,15,0.30) 50%,
+        rgba(9,9,15,0.55) 100%
+      );
+      z-index: 1;
+      pointer-events: none;
+    "></div>
 
-    <!-- Dark overlay to keep text readable -->
-    <div style="
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(
-      to bottom,
-      rgba(9,9,15,0.55) 0%,
-      rgba(9,9,15,0.30) 50%,
-      rgba(9,9,15,0.55) 100%
-    );
-    z-index: 1;
-    pointer-events: none;
-  "></div>
-
-  <section id="features" style="position:relative; padding-top:5rem; padding-bottom:5rem; z-index:10;">
+      <div id="horizontal-track">
+        
+        <!-- Panel 1: Features -->
+        <div class="horizontal-panel">
+          <section id="features" style="position:relative; padding-top:5rem; padding-bottom:5rem; z-index:10;">
 
     <!-- Content sits above shader -->
     <div class="max-w-7xl mx-auto px-4" style="position:relative; z-index:10;">
@@ -1951,12 +2041,15 @@
 
     })();
   </script>
+        </div><!-- /panel 1 -->
 
-  <!-- ═══════════════════════════════════════════
-     AUCTIONS + COST CALCULATOR
-═══════════════════════════════════════════ -->
-  <!-- ═══ BackgroundGradientAnimation — Auctions + Calculator ═══ -->
-  <section id="auctions" style="position:relative; padding:5rem 0; z-index:10;">
+        <!-- Panel 2: Auctions -->
+        <div class="horizontal-panel">
+          <!-- ═══════════════════════════════════════════
+             AUCTIONS + COST CALCULATOR
+          ═══════════════════════════════════════════ -->
+          <!-- ═══ BackgroundGradientAnimation — Auctions + Calculator ═══ -->
+          <section id="auctions" style="position:relative; padding:5rem 0; z-index:10;">
 
     <!-- ② Content sits above sticky gradient -->
     <div class="max-w-7xl mx-auto px-4" style="position:relative;z-index:10;">
@@ -2091,10 +2184,16 @@
           </div>
         </div>
       </div>
+    </section>
+        </div><!-- /panel 2 -->
 
-      <!-- ══ INTERACTIVE SAVINGS CALCULATOR — Slider Edition ══ -->
-      <!-- ══ INTERACTIVE SAVINGS CALCULATOR — Dashboard Edition ══ -->
-      <div class="calculator-container">
+        <!-- Panel 3: Calculator -->
+        <div class="horizontal-panel">
+          <section id="calculator-section" style="position:relative; width:100%; z-index:10;">
+            <div class="max-w-7xl mx-auto px-4" style="position:relative;z-index:10;">
+              <!-- ══ INTERACTIVE SAVINGS CALCULATOR — Slider Edition ══ -->
+              <!-- ══ INTERACTIVE SAVINGS CALCULATOR — Dashboard Edition ══ -->
+              <div class="calculator-container">
         <!-- Header -->
         <div class="text-center mb-8">
           <div
@@ -2241,13 +2340,11 @@
               </a>
             </div>
           </div>
+        </section>
+      </div><!-- /panel 3 -->
 
-        </div><!-- /content -->
-  </section>
-  </div>
-
-  <!-- Gradient animation + Calculator JS -->
-  <script>
+      <!-- Gradient animation + Calculator JS -->
+      <script>
     (function () {
       // ── BackgroundGradientAnimation — mouse interactive ──
       var section = document.getElementById('auctions');
@@ -2961,6 +3058,12 @@
       initTilt();
     })();
   </script>
+        </section>
+      </div><!-- /panel 4 -->
+
+    </div><!-- /horizontal-track -->
+  </div><!-- /horizontal-sticky -->
+</div><!-- /horizontal-scroll-container -->
 
 
   <!-- ═══════════════════════════════════════════
@@ -3091,7 +3194,7 @@
       /* ── 2. Pause/resume CSS animations for off-screen sections ─
          Gradient blobs in #auctions and ticker pause when not visible
          — saves GPU/CPU when user is elsewhere on the page           */
-      var pauseTargets = ['auctions', 'features', 'faq', 'footer-section'];
+      var pauseTargets = ['auctions', 'features', 'calculator-section', 'success', 'faq', 'footer-section'];
 
       var pauseObs = new IntersectionObserver(function (entries) {
         entries.forEach(function (e) {
@@ -3609,6 +3712,29 @@
       currentScroll = Math.max(0, window.pageYOffset - wrapOffsetTop);
       updateContent(currentScroll);
 
+      // ── Horizontal scroll animation variables ──────────────────
+      var hzContainer = document.getElementById('horizontal-scroll-container');
+      var hzTrack = document.getElementById('horizontal-track');
+      var hzTargetX = 0;
+      var hzCurrentX = 0;
+      var hzOffsetTop = 0;
+      var hzScrollRange = 0;
+
+      function updateHzScrollBounds() {
+        if (hzContainer) {
+          var rect = hzContainer.getBoundingClientRect();
+          var scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+          hzOffsetTop = rect.top + scrollTop;
+          hzScrollRange = rect.height - window.innerHeight;
+        }
+      }
+
+      // Initial call
+      updateHzScrollBounds();
+      window.addEventListener('resize', function () {
+        updateHzScrollBounds();
+      }, { passive: true });
+
       // ── RAF loop ─────────────────────────────────────────────
       var lerpIdx = 0;
       function raf() {
@@ -3625,6 +3751,13 @@
             : (lerpIdx - S1_COUNT) / (S2_COUNT - 1) * 100;
           bar.style.width = Math.max(0, Math.min(100, pct)) + '%';
         }
+
+        // Apply smooth horizontal translation on desktop
+        if (window.innerWidth > 768 && hzTrack) {
+          hzCurrentX += (hzTargetX - hzCurrentX) * 0.12;
+          var translateX = Math.round(hzCurrentX * 100) / 100;
+          hzTrack.style.transform = 'translate3d(' + translateX + 'vw, 0px, 0px)';
+        }
       }
       requestAnimationFrame(raf);
 
@@ -3640,6 +3773,15 @@
           }
         }
         updateContent(currentScroll);
+
+        // Update horizontal scroll target
+        if (hzContainer && hzTrack && window.innerWidth > 768) {
+          var scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+          var relativeScroll = scrollTop - hzOffsetTop;
+          var progress = Math.max(0, Math.min(1, relativeScroll / hzScrollRange));
+          hzTargetX = progress * 300; // 4 panels -> 0 to 300vw translation
+        }
+
         /* Keep header completely transparent */
         navbar.style.background = 'transparent';
         navbar.style.backdropFilter = 'none';
