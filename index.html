@@ -45,12 +45,24 @@
 
     html {
       scroll-behavior: smooth;
+      scrollbar-width: none; /* Firefox */
+      -ms-overflow-style: none; /* IE and Edge */
+    }
+
+    html::-webkit-scrollbar {
+      display: none; /* Chrome, Safari, Opera */
     }
 
     body {
       font-family: 'Tajawal', sans-serif;
       background-color: #09090F;
       color: #C8D8F0;
+      scrollbar-width: none; /* Firefox */
+      -ms-overflow-style: none; /* IE and Edge */
+    }
+
+    body::-webkit-scrollbar {
+      display: none; /* Chrome, Safari, Opera */
     }
 
     h1,
