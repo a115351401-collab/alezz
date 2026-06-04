@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://alezz-fleet.vercel.app/sitemap.xml
