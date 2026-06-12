@@ -21,13 +21,27 @@ const ALLOWED_PARAMS = [
 
 export default async function handler(req, res) {
   const apiKey = process.env.AUTO_API_KEY;
+  const baseUrl = process.env.AUTO_API_URL || 'https://api1.auto-api.com';
+
+  // Safe diagnostics: /api/cars?diag=1 — never reveals the key itself
+  if (req.query.diag === '1') {
+    return res.status(200).json({
+      key_present: Boolean(apiKey),
+      key_length: apiKey ? apiKey.length : 0,
+      key_prefix: apiKey ? apiKey.slice(0, 2) + '…' : null,
+      key_has_whitespace: apiKey ? /\s/.test(apiKey) : null,
+      key_trimmed_differs: apiKey ? apiKey !== apiKey.trim() : null,
+      base_url: baseUrl,
+    });
+  }
+
   if (!apiKey) {
     return res.status(500).json({
       error: 'AUTO_API_KEY is not configured. Add it in Vercel → Settings → Environment Variables.',
     });
   }
 
-  const client = new Client(apiKey, process.env.AUTO_API_URL || 'https://api1.auto-api.com');
+  const client = new Client(apiKey.trim(), baseUrl);
 
   const params = { page: 1 };
   for (const key of ALLOWED_PARAMS) {
