@@ -19,7 +19,7 @@ const ALLOWED_PARAMS = [
   'min_year', 'max_year', 'min_price', 'max_price',
   'min_mileage', 'max_mileage', 'min_engine_cc', 'max_engine_cc',
   'has_accident', 'inspection_passed', 'is_new_vehicle', 'is_undervalued',
-  'features', 'source', 'source_code', 'sources', 'country',
+  'features', 'source',
 ];
 
 export default async function handler(req, res) {

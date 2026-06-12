@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" content="#09090F" />
+  <title>تفاصيل السيارة — العز العالمي</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;900&family=Tajawal:wght@300;400;500;700&display=swap" rel="stylesheet" />
+  <style>
+    * { box-sizing: border-box; }
+    body { font-family: 'Tajawal', sans-serif; background: #09090F; color: #C8D8F0; }
+    h1,h2,h3,h4 { font-family: 'Cairo', sans-serif; }
+    .text-gold-gradient { background: linear-gradient(135deg,#C9A84C,#F0D98A,#A0802A); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
+    .navbar-glass { background: rgba(9,9,15,0.55); backdrop-filter: blur(20px) saturate(180%); -webkit-backdrop-filter: blur(20px) saturate(180%); border-bottom: 1px solid rgba(255,255,255,0.07); }
+    .btn-gold { background: linear-gradient(135deg,#C9A84C,#F0D98A,#A0802A); color:#fff; font-family:'Cairo',sans-serif; font-weight:700; cursor:pointer; transition:transform 0.2s, box-shadow 0.2s; }
+    .btn-gold:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(201,168,76,0.45); }
+    .panel { background: rgba(12,13,26,0.85); border: 1px solid rgba(255,255,255,0.08); border-radius: 18px; }
+    /* Gallery */
+    #g-main { aspect-ratio: 16/10; border-radius: 18px; overflow: hidden; background: #131426; position: relative; }
+    #g-main img { width: 100%; height: 100%; object-fit: cover; }
+    #g-thumbs { display: flex; gap: 8px; overflow-x: auto; padding: 10px 2px; }
+    .g-th { width: 88px; height: 60px; flex: 0 0 auto; border-radius: 10px; overflow: hidden; cursor: pointer; border: 2px solid transparent; opacity: 0.65; transition: all 0.2s; }
+    .g-th.on { border-color: #C9A84C; opacity: 1; }
+    .g-th img { width: 100%; height: 100%; object-fit: cover; }
+    /* Spec rows */
+    .spec-item { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.07); border-radius: 12px; padding: 0.7rem 0.85rem; }
+    .spec-item p:first-child { font-size: 0.68rem; color: rgba(200,216,240,0.5); margin-bottom: 2px; }
+    .spec-item p:last-child { font-family: 'Cairo', sans-serif; font-weight: 700; font-size: 0.85rem; color: #fff; }
+    /* Report rows */
+    .rep-row { display: flex; align-items: center; justify-content: space-between; padding: 0.7rem 0; border-bottom: 1px solid rgba(255,255,255,0.06); font-size: 0.85rem; }
+    .rep-row:last-child { border-bottom: none; }
+    .rep-ok  { color: #34d399; font-weight: 700; }
+    .rep-bad { color: #f87171; font-weight: 700; }
+    .rep-na  { color: rgba(200,216,240,0.4); }
+    /* Price analysis bar */
+    .pa-bar { height: 8px; border-radius: 999px; background: linear-gradient(90deg, #34d399, #F0D98A, #f87171); position: relative; }
+    .pa-marker { position: absolute; top: -5px; width: 18px; height: 18px; border-radius: 50%; background: #fff; border: 3px solid #1A4DB8; transform: translateX(50%); box-shadow: 0 2px 8px rgba(0,0,0,0.5); }
+    .desc-body h3 { color: #F0D98A; font-size: 1rem; margin: 1rem 0 0.4rem; }
+    .desc-body p { font-size: 0.85rem; line-height: 1.8; color: rgba(200,216,240,0.8); margin-bottom: 0.5rem; }
+    .desc-body li { font-size: 0.83rem; line-height: 1.7; color: rgba(200,216,240,0.75); margin-right: 1rem; list-style: disc inside; }
+    .skel { position: relative; overflow: hidden; background: rgba(255,255,255,0.05); border-radius: 12px; }
+    .skel::after { content:''; position:absolute; inset:0; background:linear-gradient(90deg,transparent,rgba(255,255,255,0.08),transparent); animation:sh 1.4s infinite; }
+    @keyframes sh { 0%{transform:translateX(100%);} 100%{transform:translateX(-100%);} }
+    ::-webkit-scrollbar { width: 8px; height: 8px; }
+    ::-webkit-scrollbar-thumb { background: rgba(201,168,76,0.35); border-radius: 4px; }
+  </style>
+</head>
+<body>
+
+<nav class="navbar-glass fixed top-0 right-0 left-0 z-50 px-4 py-3">
+  <div class="max-w-7xl mx-auto flex items-center justify-between">
+    <a href="index.html" class="flex items-center gap-2">
+      <div class="w-10 h-10 rounded-full flex items-center justify-center shadow-lg" style="background:#1A4DB8;">
+        <svg viewBox="0 0 24 24" fill="#C9A84C" width="22" height="22"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14H9V8h2v8zm4 0h-2V8h2v8z"/></svg>
+      </div>
+      <div>
+        <p class="font-cairo font-black leading-none text-lg" style="color:#5B9BF5;">العز العالمي</p>
+        <p class="text-xs" style="color:#C9A84C;">استيراد سيارات كورية فاخرة</p>
+      </div>
+    </a>
+    <div class="flex items-center gap-3">
+      <a href="cars.html" class="font-cairo font-bold text-sm hidden sm:block" style="color:#C8D8F0;">← جميع السيارات</a>
+      <a href="https://wa.me/966550112411" class="btn-gold inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-sm"><span>تواصل معنا</span></a>
+    </div>
+  </div>
+</nav>
+
+<main class="max-w-6xl mx-auto px-4 sm:px-6 pt-24 pb-16">
+
+  <!-- Loading skeleton -->
+  <div id="loading">
+    <div class="skel" style="aspect-ratio:16/9;margin-bottom:1rem;"></div>
+    <div class="skel" style="height:28px;width:50%;margin-bottom:0.6rem;"></div>
+    <div class="skel" style="height:18px;width:30%;"></div>
+  </div>
+
+  <!-- Error -->
+  <div id="error" style="display:none;" class="text-center py-20">
+    <p class="text-5xl mb-4">🚗</p>
+    <p class="font-cairo font-bold text-white text-xl mb-2">تعذّر العثور على هذه السيارة</p>
+    <p class="text-sm mb-6" style="color:rgba(200,216,240,0.55);">ربما بِيعت أو أُزيلت من الكتالوج</p>
+    <a href="cars.html" class="btn-gold inline-block px-8 py-3 rounded-full text-sm">تصفح سيارات أخرى</a>
+  </div>
+
+  <!-- Content -->
+  <div id="content" style="display:none;">
+
+    <div class="grid grid-cols-1 lg:grid-cols-5 gap-6 items-start">
+
+      <!-- Gallery -->
+      <div class="lg:col-span-3">
+        <div id="g-main"><img id="g-img" src="" alt="" /></div>
+        <div id="g-thumbs"></div>
+      </div>
+
+      <!-- Summary -->
+      <div class="lg:col-span-2">
+        <div id="badges" class="flex flex-wrap gap-2 mb-3"></div>
+        <h1 id="t-title" class="font-black text-white leading-tight mb-1" style="font-size:clamp(1.3rem,3vw,1.9rem);"></h1>
+        <p id="t-trim" class="text-sm mb-4" style="color:rgba(200,216,240,0.55);"></p>
+
+        <div class="panel p-5 mb-4">
+          <p class="text-xs mb-1" style="color:rgba(200,216,240,0.5);">السعر في كوريا</p>
+          <p class="font-cairo font-black" style="font-size:2rem;color:#F0D98A;line-height:1.1;">
+            <span id="t-price"></span> <span style="font-size:0.95rem;">ريال سعودي</span>
+          </p>
+          <p class="text-xs mt-2" style="color:rgba(200,216,240,0.45);">* السعر لا يشمل الشحن والجمارك — تواصل معنا لحساب التكلفة النهائية</p>
+        </div>
+
+        <a id="t-wa" href="#" target="_blank" rel="noopener"
+           class="btn-gold w-full flex items-center justify-center gap-2 py-4 rounded-2xl text-base mb-3">
+          <svg viewBox="0 0 24 24" fill="white" width="20" height="20"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+          <span>اطلب هذه السيارة الآن</span>
+        </a>
+        <p class="text-center text-xs" style="color:rgba(200,216,240,0.45);">
+          الرقم المرجعي: <span id="t-ref" style="color:#F0D98A;font-weight:700;"></span>
+        </p>
+      </div>
+    </div>
+
+    <!-- Specs grid -->
+    <div class="panel p-5 mt-6">
+      <h2 class="font-black text-white text-lg mb-4">المواصفات</h2>
+      <div id="specs" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3"></div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
+      <!-- Condition report -->
+      <div class="panel p-5">
+        <h2 class="font-black text-white text-lg mb-2">تقرير الحالة</h2>
+        <div id="report"></div>
+      </div>
+
+      <!-- Price analysis -->
+      <div class="panel p-5" id="pa-panel">
+        <h2 class="font-black text-white text-lg mb-2">تحليل السعر مقابل السوق</h2>
+        <div id="pa-body"></div>
+      </div>
+    </div>
+
+    <!-- Description -->
+    <div class="panel p-5 mt-6" id="desc-panel" style="display:none;">
+      <h2 class="font-black text-white text-lg mb-3">وصف السيارة</h2>
+      <div id="desc" class="desc-body"></div>
+    </div>
+
+    <!-- Features -->
+    <div class="panel p-5 mt-6" id="feat-panel" style="display:none;">
+      <h2 class="font-black text-white text-lg mb-3">التجهيزات</h2>
+      <div id="features" class="flex flex-wrap gap-2"></div>
+    </div>
+
+  </div>
+</main>
+
+<script>
+(function () {
+  'use strict';
+
+  var API = (location.hostname === 'localhost' || location.hostname === '127.0.0.1')
+    ? 'https://alezz-zeta.vercel.app/api' : '/api';
+  var SAR = 3.75, WA = '966550112411';
+
+  var id = new URLSearchParams(location.search).get('id') || '';
+
+  function fmt(n) { return Number(n || 0).toLocaleString('en-US'); }
+  function el(i) { return document.getElementById(i); }
+
+  var FUEL_AR = { diesel:'ديزل', gasoline:'بنزين', hybrid:'هايبرد', plug_hybrid:'بلج-إن هايبرد', electric:'كهربائية', lpg:'غاز' };
+  var TRANS_AR = { auto:'أوتوماتيك', manual:'يدوي', cvt:'CVT', dct:'DCT' };
+  var BODY_AR = { suv:'SUV', sedan:'سيدان', hatchback:'هاتشباك', van:'فان', coupe:'كوبيه', pickup:'بيك أب', wagon:'واغن', convertible:'كشف', minivan:'ميني فان' };
+  var COLOR_AR = { white:'أبيض', black:'أسود', gray:'رمادي', silver:'فضي', blue:'أزرق', red:'أحمر', brown:'بني', green:'أخضر', gold:'ذهبي', yellow:'أصفر', other:'آخر', unknown:'غير محدد' };
+  var DRIVE_AR = { fwd:'دفع أمامي', rwd:'دفع خلفي', awd:'دفع رباعي AWD', '4wd':'دفع رباعي 4WD' };
+  var SELLER_AR = { dealer:'معرض', private:'مالك خاص' };
+
+  if (!/^[0-9a-f-]{32,36}$/i.test(id)) { showError(); }
+  else {
+    fetch(API + '/meta?path=vehicles/' + id)
+      .then(function (r) { if (!r.ok) throw 0; return r.json(); })
+      .then(render)
+      .catch(showError);
+  }
+
+  function showError() {
+    el('loading').style.display = 'none';
+    el('error').style.display = '';
+  }
+
+  function photoSrc(p) {
+    var u = p.original_url || p.url || p.thumb_url || '';
+    if (u.indexOf('/') === 0) u = 'https://api.carapis.com' + u;
+    return u;
+  }
+
+  function render(v) {
+    if (!v || v.error || !v.id) return showError();
+
+    document.title = (v.brand_name||'') + ' ' + (v.model_name||'') + ' ' + (v.year||'') + ' — العز العالمي';
+
+    /* Gallery */
+    var photos = (v.photos || []).slice(0, 20);
+    if (photos.length) {
+      el('g-img').src = photoSrc(photos[0]);
+      el('g-thumbs').innerHTML = photos.map(function (p, i) {
+        return '<div class="g-th' + (i===0?' on':'') + '" data-i="'+i+'"><img src="'+photoSrc(p)+'" loading="lazy" onerror="this.parentNode.style.display=\'none\'"></div>';
+      }).join('');
+      el('g-thumbs').addEventListener('click', function (e) {
+        var th = e.target.closest('.g-th'); if (!th) return;
+        document.querySelectorAll('.g-th').forEach(function(x){ x.classList.remove('on'); });
+        th.classList.add('on');
+        el('g-img').src = photoSrc(photos[+th.getAttribute('data-i')]);
+      });
+    }
+
+    /* Badges */
+    var badges = [];
+    if (v.is_new_vehicle) badges.push(['جديد', '#10b981']);
+    if (v.is_undervalued) badges.push(['🔥 صفقة أقل من السوق', '#C9A84C']);
+    if (v.has_accident === false) badges.push(['بدون حوادث', '#10b981']);
+    if (v.inspection_passed) badges.push(['مجتاز الفحص الرسمي', '#5B9BF5']);
+    el('badges').innerHTML = badges.map(function (b) {
+      return '<span class="font-cairo font-bold text-xs px-3 py-1 rounded-full" style="background:'+b[1]+'22;color:'+b[1]+';border:1px solid '+b[1]+'55;">'+b[0]+'</span>';
+    }).join('');
+
+    /* Title + price + WA */
+    el('t-title').textContent = (v.brand_name||'') + ' ' + (v.model_name||'') + ' ' + (v.year||'');
+    el('t-trim').textContent = [v.trim, v.generation].filter(Boolean).join(' · ');
+    var priceSar = Math.round((v.price_usd || 0) * SAR);
+    el('t-price').textContent = fmt(priceSar);
+    var ref = (v.vehicle_no || v.listing_id || v.id.slice(0, 8));
+    el('t-ref').textContent = ref;
+
+    var msg = 'مرحباً، أرغب بطلب هذه السيارة من موقعكم:\n'
+      + '🚗 ' + (v.brand_name||'') + ' ' + (v.model_name||'') + ' ' + (v.year||'') + (v.trim ? ' — ' + v.trim : '') + '\n'
+      + '💰 السعر في كوريا: ' + fmt(priceSar) + ' ريال\n'
+      + '🔖 الرقم المرجعي: ' + ref + '\n'
+      + '🔗 ' + location.href;
+    el('t-wa').href = 'https://wa.me/' + WA + '?text=' + encodeURIComponent(msg);
+
+    /* Specs */
+    var specs = [
+      ['السنة', v.year],
+      ['الممشى', v.mileage != null ? fmt(v.mileage) + ' كم' : null],
+      ['الوقود', FUEL_AR[v.fuel_type] || v.fuel_type],
+      ['ناقل الحركة', TRANS_AR[v.transmission] || v.transmission],
+      ['نوع الهيكل', BODY_AR[v.body_type] || v.body_type],
+      ['اللون', COLOR_AR[v.color] || v.color],
+      ['حجم المحرك', v.engine_cc ? fmt(v.engine_cc) + ' سي سي' : null],
+      ['نظام الدفع', DRIVE_AR[(v.drive_type||'').toLowerCase()] || v.drive_type],
+      ['عدد المقاعد', v.seat_count ? v.seat_count + ' مقاعد' : null],
+      ['عدد المُلّاك السابقين', v.owner_count != null ? v.owner_count : null],
+      ['البائع', SELLER_AR[v.seller_type] || v.seller_type],
+      ['المنطقة', v.region],
+    ];
+    el('specs').innerHTML = specs
+      .filter(function (s) { return s[1] !== null && s[1] !== undefined && s[1] !== ''; })
+      .map(function (s) { return '<div class="spec-item"><p>'+s[0]+'</p><p>'+s[1]+'</p></div>'; })
+      .join('');
+
+    /* Condition report */
+    function repRow(label, val, okWhen) {
+      var cls, txt;
+      if (val === null || val === undefined) { cls = 'rep-na'; txt = 'غير متوفر'; }
+      else if (val === okWhen) { cls = 'rep-ok'; txt = okWhen === false ? 'لا ✓' : 'نعم ✓'; }
+      else { cls = 'rep-bad'; txt = okWhen === false ? 'نعم ✗' : 'لا ✗'; }
+      return '<div class="rep-row"><span>'+label+'</span><span class="'+cls+'">'+txt+'</span></div>';
+    }
+    var rep = '';
+    rep += repRow('حوادث مسجلة', v.has_accident, false);
+    rep += repRow('إصلاحات بسيطة', v.has_simple_repair, false);
+    rep += repRow('استدعاء مصنعي', v.has_recall, false);
+    if (v.has_recall) rep += repRow('تمت معالجة الاستدعاء', v.recall_fulfilled, true);
+    rep += repRow('مجتاز الفحص الرسمي', v.inspection_passed, true);
+    if (v.warranty_type) rep += '<div class="rep-row"><span>الضمان</span><span style="color:#F0D98A;font-weight:700;">' + v.warranty_type + '</span></div>';
+    if (v.vin) rep += '<div class="rep-row"><span>رقم الهيكل (VIN)</span><span style="direction:ltr;font-size:0.75rem;color:rgba(200,216,240,0.7);">' + v.vin + '</span></div>';
+    el('report').innerHTML = rep;
+
+    /* Price analysis */
+    var a = v.analysis;
+    if (a && (a.estimated_price || a.cohort_median_price || a.price_status)) {
+      var statusAr = { undervalued:'أقل من سعر السوق 🔥', fair:'سعر عادل ✓', overvalued:'أعلى من سعر السوق' }[a.price_status] || a.price_status || '—';
+      var html = '<div class="rep-row"><span>تقييم السعر</span><span style="color:#F0D98A;font-weight:700;">' + statusAr + '</span></div>';
+      if (a.estimated_price) html += '<div class="rep-row"><span>السعر التقديري العادل</span><span class="rep-ok">' + fmt(Math.round(a.estimated_price * SAR)) + ' ريال</span></div>';
+      if (a.price_difference_pct != null) {
+        var pd = Math.round(a.price_difference_pct);
+        html += '<div class="rep-row"><span>الفرق عن السوق</span><span class="' + (pd <= 0 ? 'rep-ok' : 'rep-bad') + '">' + (pd > 0 ? '+' : '') + pd + '%</span></div>';
+      }
+      if (a.comparable_count) html += '<div class="rep-row"><span>سيارات مشابهة قورنت</span><span style="color:#fff;">' + fmt(a.comparable_count) + '</span></div>';
+      if (a.cohort_min_price && a.cohort_max_price) {
+        var lo = a.cohort_min_price, hi = a.cohort_max_price, cur = a.actual_price || v.price_usd;
+        var pos = Math.max(0, Math.min(100, ((cur - lo) / (hi - lo)) * 100));
+        html += '<div style="margin-top:1.1rem;">'
+          + '<div class="pa-bar"><div class="pa-marker" style="right:' + pos.toFixed(1) + '%;"></div></div>'
+          + '<div class="flex justify-between mt-2" style="font-size:0.68rem;color:rgba(200,216,240,0.5);">'
+          + '<span>الأرخص: ' + fmt(Math.round(lo * SAR)) + ' ر.س</span>'
+          + '<span>الأغلى: ' + fmt(Math.round(hi * SAR)) + ' ر.س</span>'
+          + '</div></div>';
+      }
+      el('pa-body').innerHTML = html;
+    } else {
+      el('pa-body').innerHTML = '<p style="color:rgba(200,216,240,0.45);font-size:0.85rem;padding:1rem 0;">لا يتوفر تحليل سعري لهذه السيارة بعد</p>';
+    }
+
+    /* Description (light markdown) */
+    if (v.description) {
+      var md = String(v.description)
+        .replace(/&/g,'&amp;').replace(/</g,'&lt;')
+        .replace(/^### (.*)$/gm, '<h3>$1</h3>')
+        .replace(/^## (.*)$/gm, '<h3>$1</h3>')
+        .replace(/\*\*(.+?)\*\*/g, '<strong style="color:#fff;">$1</strong>')
+        .replace(/^- (.*)$/gm, '<li>$1</li>')
+        .split(/\n{2,}/).map(function (b) {
+          return /<h3>|<li>/.test(b) ? b.replace(/\n/g, '') : '<p>' + b.replace(/\n/g, '<br>') + '</p>';
+        }).join('');
+      el('desc').innerHTML = md;
+      el('desc-panel').style.display = '';
+    }
+
+    /* Features */
+    if (Array.isArray(v.features) && v.features.length) {
+      el('features').innerHTML = v.features.slice(0, 40).map(function (f) {
+        var name = typeof f === 'string' ? f : (f.name || f.title || '');
+        return name ? '<span class="font-cairo text-xs px-3 py-1.5 rounded-full" style="background:rgba(91,155,245,0.1);color:#5B9BF5;border:1px solid rgba(91,155,245,0.25);">' + name + '</span>' : '';
+      }).join('');
+      el('feat-panel').style.display = '';
+    }
+
+    el('loading').style.display = 'none';
+    el('content').style.display = '';
+  }
+})();
+</script>
+</body>
+</html>

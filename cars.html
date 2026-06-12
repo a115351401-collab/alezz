@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" content="#09090F" />
+  <title>تصفح السيارات — العز العالمي | استيراد من كوريا</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;900&family=Tajawal:wght@300;400;500;700&display=swap" rel="stylesheet" />
+  <style>
+    * { box-sizing: border-box; }
+    body { font-family: 'Tajawal', sans-serif; background: #09090F; color: #C8D8F0; }
+    h1,h2,h3,h4 { font-family: 'Cairo', sans-serif; }
+    .text-gold-gradient {
+      background: linear-gradient(135deg, #C9A84C 0%, #F0D98A 50%, #A0802A 100%);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+    }
+    .navbar-glass {
+      background: rgba(9,9,15,0.55); backdrop-filter: blur(20px) saturate(180%);
+      -webkit-backdrop-filter: blur(20px) saturate(180%);
+      border-bottom: 1px solid rgba(255,255,255,0.07);
+    }
+    .btn-gold {
+      background: linear-gradient(135deg, #C9A84C 0%, #F0D98A 50%, #A0802A 100%);
+      color: #fff; font-family: 'Cairo', sans-serif; font-weight: 700;
+      cursor: pointer; transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .btn-gold:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(201,168,76,0.45); }
+    /* Filter panel */
+    .f-panel {
+      background: rgba(12,13,26,0.85); border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 18px; backdrop-filter: blur(12px);
+    }
+    .f-label { font-family:'Cairo',sans-serif; font-weight:700; font-size:0.8rem; color:#F0D98A; margin-bottom:0.45rem; display:block; }
+    .f-input, .f-select {
+      width: 100%; background: rgba(255,255,255,0.05); color: #fff;
+      border: 1px solid rgba(255,255,255,0.10); border-radius: 10px;
+      padding: 0.55rem 0.75rem; font-family: 'Tajawal', sans-serif; font-size: 0.85rem;
+      outline: none; transition: border-color 0.2s;
+    }
+    .f-input:focus, .f-select:focus { border-color: rgba(201,168,76,0.55); }
+    .f-select option { background: #12132a; color: #fff; }
+    .f-group { margin-bottom: 1.15rem; }
+    /* Choice chips */
+    .f-chips { display: flex; flex-wrap: wrap; gap: 0.4rem; }
+    .f-chip {
+      font-family:'Cairo',sans-serif; font-weight:600; font-size:0.74rem;
+      color:#C8D8F0; background:rgba(255,255,255,0.05);
+      border:1px solid rgba(255,255,255,0.10); border-radius:999px;
+      padding:0.35rem 0.8rem; cursor:pointer; transition:all 0.2s; user-select:none;
+    }
+    .f-chip:hover { border-color: rgba(201,168,76,0.5); }
+    .f-chip.on {
+      background: linear-gradient(135deg,#C9A84C,#F0D98A,#A0802A);
+      color:#fff; border-color:transparent;
+    }
+    .f-check { display:flex; align-items:center; gap:0.5rem; cursor:pointer; font-size:0.82rem; padding:0.25rem 0; }
+    .f-check input { accent-color:#C9A84C; width:16px; height:16px; }
+    .color-dot { width:13px; height:13px; border-radius:50%; display:inline-block; border:1px solid rgba(255,255,255,0.35); }
+    /* Brand dropdown */
+    .brand-wrap { position: relative; }
+    .brand-list {
+      position:absolute; top:calc(100% + 4px); right:0; left:0; z-index:30;
+      background:#12132a; border:1px solid rgba(255,255,255,0.12); border-radius:10px;
+      max-height:230px; overflow-y:auto; display:none;
+    }
+    .brand-list.open { display:block; }
+    .brand-item { padding:0.5rem 0.85rem; font-size:0.83rem; cursor:pointer; }
+    .brand-item:hover { background:rgba(201,168,76,0.15); color:#F0D98A; }
+    /* Cards */
+    .lc-card {
+      background: rgba(10,10,20,0.75); border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 18px; overflow: hidden; cursor: pointer;
+      transition: transform 0.3s, box-shadow 0.3s, border-color 0.3s;
+      opacity:0; transform:translateY(22px);
+      animation: fadeUp 0.5s cubic-bezier(0.22,1,0.36,1) forwards;
+    }
+    @keyframes fadeUp { to { opacity:1; transform:none; } }
+    .lc-card:hover {
+      transform: translateY(-6px);
+      box-shadow: 0 20px 50px rgba(26,75,184,0.30), 0 4px 16px rgba(201,168,76,0.18);
+      border-color: rgba(201,168,76,0.35);
+    }
+    .lc-photo { position:relative; aspect-ratio:16/10; overflow:hidden; background:#131426; }
+    .lc-photo img { width:100%; height:100%; object-fit:cover; transition:transform 0.5s; }
+    .lc-card:hover .lc-photo img { transform: scale(1.07); }
+    .lc-photo::after { content:''; position:absolute; inset:0; background:linear-gradient(to top, rgba(8,8,16,0.72), transparent 45%); pointer-events:none; }
+    .lc-badge { position:absolute; top:10px; z-index:2; font-family:'Cairo',sans-serif; font-weight:700; font-size:0.68rem; padding:0.22rem 0.65rem; border-radius:999px; backdrop-filter:blur(8px); }
+    .lc-badge-new { right:10px; background:rgba(16,185,129,0.85); color:#fff; }
+    .lc-badge-deal { right:10px; background:rgba(201,168,76,0.9); color:#fff; }
+    .lc-spec { display:inline-flex; align-items:center; gap:0.3rem; font-size:0.72rem; color:rgba(200,216,240,0.75); background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.07); border-radius:8px; padding:0.28rem 0.5rem; }
+    .lc-skel { border-radius:18px; overflow:hidden; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.06); }
+    .lc-skel .sk { position:relative; overflow:hidden; background:rgba(255,255,255,0.05); }
+    .lc-skel .sk::after { content:''; position:absolute; inset:0; background:linear-gradient(90deg,transparent,rgba(255,255,255,0.08),transparent); animation:shimmer 1.4s infinite; }
+    @keyframes shimmer { 0%{transform:translateX(100%);} 100%{transform:translateX(-100%);} }
+    /* Mobile filter drawer */
+    #f-aside { transition: transform 0.3s ease; }
+    @media (max-width: 1023px) {
+      #f-aside {
+        position: fixed; inset: 0; z-index: 90; transform: translateX(100%);
+        background: rgba(9,9,15,0.97); overflow-y: auto; padding: 1.25rem;
+      }
+      #f-aside.open { transform: none; }
+    }
+    ::-webkit-scrollbar { width: 8px; height: 8px; }
+    ::-webkit-scrollbar-thumb { background: rgba(201,168,76,0.35); border-radius: 4px; }
+  </style>
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav class="navbar-glass fixed top-0 right-0 left-0 z-50 px-4 py-3">
+  <div class="max-w-7xl mx-auto flex items-center justify-between">
+    <a href="index.html" class="flex items-center gap-2">
+      <div class="w-10 h-10 rounded-full flex items-center justify-center shadow-lg" style="background:#1A4DB8;">
+        <svg viewBox="0 0 24 24" fill="#C9A84C" width="22" height="22"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14H9V8h2v8zm4 0h-2V8h2v8z"/></svg>
+      </div>
+      <div>
+        <p class="font-cairo font-black leading-none text-lg" style="color:#5B9BF5;">العز العالمي</p>
+        <p class="text-xs" style="color:#C9A84C;">استيراد سيارات كورية فاخرة</p>
+      </div>
+    </a>
+    <div class="flex items-center gap-3">
+      <a href="index.html" class="font-cairo font-bold text-sm hidden sm:block" style="color:#C8D8F0;">← الرئيسية</a>
+      <a href="https://wa.me/966550112411" class="btn-gold inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-sm">
+        <span>تواصل معنا</span>
+      </a>
+    </div>
+  </div>
+</nav>
+
+<main class="max-w-7xl mx-auto px-4 sm:px-6 pt-24 pb-16">
+
+  <!-- Page header -->
+  <div class="text-center mb-8">
+    <div class="inline-flex items-center gap-2 rounded-full px-4 py-1.5 mb-4" style="background:rgba(255,255,255,0.08);border:1px solid rgba(201,168,76,0.3);">
+      <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse inline-block"></span>
+      <span class="font-cairo font-bold text-sm" style="color:#F0D98A;">مباشر من مزادات كوريا</span>
+    </div>
+    <h1 class="font-black leading-tight mb-2" style="font-size:clamp(1.7rem,4vw,2.6rem);color:#fff;">
+      تصفح <span class="text-gold-gradient">جميع السيارات</span>
+    </h1>
+    <p id="pg-count" class="text-sm" style="color:rgba(200,216,240,0.6);">جارٍ التحميل…</p>
+  </div>
+
+  <!-- Mobile filter toggle -->
+  <div class="lg:hidden mb-4 flex gap-2">
+    <button id="f-open" class="btn-gold flex-1 py-3 rounded-xl text-sm">⚙️ الفلاتر والبحث</button>
+  </div>
+
+  <div class="grid grid-cols-1 lg:grid-cols-4 gap-6 items-start">
+
+    <!-- ════ FILTERS ════ -->
+    <aside id="f-aside" class="f-panel p-5 lg:sticky lg:top-24">
+      <div class="flex items-center justify-between mb-4 lg:hidden">
+        <p class="font-cairo font-black text-white text-lg">الفلاتر</p>
+        <button id="f-close" class="text-2xl px-3" style="color:#F0D98A;">✕</button>
+      </div>
+
+      <div class="f-group brand-wrap">
+        <label class="f-label">الشركة المصنعة</label>
+        <input id="f-brand" class="f-input" placeholder="ابحث: Genesis، Kia، BMW…" autocomplete="off" />
+        <div id="brand-list" class="brand-list"></div>
+      </div>
+
+      <div class="f-group">
+        <label class="f-label">الموديل</label>
+        <input id="f-model" class="f-input" placeholder="مثال: G80، Sorento، Carnival" />
+      </div>
+
+      <div class="f-group">
+        <label class="f-label">سنة الصنع</label>
+        <div class="flex gap-2">
+          <select id="f-ymin" class="f-select"><option value="">من سنة</option></select>
+          <select id="f-ymax" class="f-select"><option value="">إلى سنة</option></select>
+        </div>
+      </div>
+
+      <div class="f-group">
+        <label class="f-label">الحالة</label>
+        <div class="f-chips" id="f-cond">
+          <span class="f-chip on" data-v="">الكل</span>
+          <span class="f-chip" data-v="true">جديد</span>
+          <span class="f-chip" data-v="false">مستعمل</span>
+        </div>
+      </div>
+
+      <div class="f-group">
+        <label class="f-label">ناقل الحركة</label>
+        <div class="f-chips" id="f-trans">
+          <span class="f-chip on" data-v="">الكل</span>
+          <span class="f-chip" data-v="auto">أوتوماتيك</span>
+          <span class="f-chip" data-v="manual">يدوي</span>
+          <span class="f-chip" data-v="cvt">CVT</span>
+          <span class="f-chip" data-v="dct">DCT</span>
+        </div>
+      </div>
+
+      <div class="f-group">
+        <label class="f-label">نوع الوقود</label>
+        <div class="f-chips" id="f-fuel">
+          <span class="f-chip on" data-v="">الكل</span>
+          <span class="f-chip" data-v="gasoline">بنزين</span>
+          <span class="f-chip" data-v="diesel">ديزل</span>
+          <span class="f-chip" data-v="hybrid">هايبرد</span>
+          <span class="f-chip" data-v="plug_hybrid">بلج-إن</span>
+          <span class="f-chip" data-v="electric">كهربائي</span>
+          <span class="f-chip" data-v="lpg">غاز</span>
+        </div>
+      </div>
+
+      <div class="f-group">
+        <label class="f-label">نوع المركبة</label>
+        <div class="f-chips" id="f-body">
+          <span class="f-chip on" data-v="">الكل</span>
+          <span class="f-chip" data-v="suv">SUV</span>
+          <span class="f-chip" data-v="sedan">سيدان</span>
+          <span class="f-chip" data-v="hatchback">هاتشباك</span>
+          <span class="f-chip" data-v="van">فان</span>
+          <span class="f-chip" data-v="coupe">كوبيه</span>
+          <span class="f-chip" data-v="pickup">بيك أب</span>
+          <span class="f-chip" data-v="wagon">واغن</span>
+          <span class="f-chip" data-v="convertible">كشف</span>
+        </div>
+      </div>
+
+      <div class="f-group">
+        <label class="f-label">نطاق السعر (ريال سعودي)</label>
+        <div class="flex gap-2">
+          <input id="f-pmin" class="f-input" type="number" min="0" max="1500000" placeholder="من 0" />
+          <input id="f-pmax" class="f-input" type="number" min="0" max="1500000" placeholder="إلى 1,500,000" />
+        </div>
+      </div>
+
+      <div class="f-group">
+        <label class="f-label">الكيلومترات</label>
+        <div class="flex gap-2">
+          <input id="f-mmin" class="f-input" type="number" min="0" max="999999" placeholder="من 0" />
+          <input id="f-mmax" class="f-input" type="number" min="0" max="999999" placeholder="إلى 999,999" />
+        </div>
+      </div>
+
+      <div class="f-group">
+        <label class="f-label">اللون</label>
+        <div class="f-chips" id="f-color">
+          <span class="f-chip on" data-v="">الكل</span>
+          <span class="f-chip" data-v="white"><span class="color-dot" style="background:#fff;"></span> أبيض</span>
+          <span class="f-chip" data-v="black"><span class="color-dot" style="background:#111;"></span> أسود</span>
+          <span class="f-chip" data-v="gray"><span class="color-dot" style="background:#777;"></span> رمادي</span>
+          <span class="f-chip" data-v="silver"><span class="color-dot" style="background:#cfd4dc;"></span> فضي</span>
+          <span class="f-chip" data-v="blue"><span class="color-dot" style="background:#2563eb;"></span> أزرق</span>
+          <span class="f-chip" data-v="red"><span class="color-dot" style="background:#dc2626;"></span> أحمر</span>
+          <span class="f-chip" data-v="brown"><span class="color-dot" style="background:#7c4a21;"></span> بني</span>
+          <span class="f-chip" data-v="green"><span class="color-dot" style="background:#16a34a;"></span> أخضر</span>
+          <span class="f-chip" data-v="gold"><span class="color-dot" style="background:#C9A84C;"></span> ذهبي</span>
+          <span class="f-chip" data-v="yellow"><span class="color-dot" style="background:#eab308;"></span> أصفر</span>
+          <span class="f-chip" data-v="other">آخر</span>
+        </div>
+      </div>
+
+      <div class="f-group">
+        <label class="f-label">مزايا إضافية</label>
+        <label class="f-check"><input type="checkbox" id="f-noacc" /> بدون حوادث مسجلة</label>
+        <label class="f-check"><input type="checkbox" id="f-insp" /> مجتاز الفحص الرسمي</label>
+        <label class="f-check"><input type="checkbox" id="f-deal" /> صفقات أقل من سعر السوق 🔥</label>
+      </div>
+
+      <div class="f-group">
+        <label class="f-label">رقم الإعلان / مرجع</label>
+        <input id="f-ref" class="f-input" placeholder="أدخل الرقم المرجعي" />
+      </div>
+
+      <button id="f-apply" class="btn-gold w-full py-3 rounded-xl text-sm mb-2">🔍 بحث</button>
+      <button id="f-reset" class="w-full py-2.5 rounded-xl text-sm font-cairo font-bold" style="background:rgba(255,255,255,0.06);color:#C8D8F0;border:1px solid rgba(255,255,255,0.12);">إعادة تعيين</button>
+    </aside>
+
+    <!-- ════ RESULTS ════ -->
+    <div class="lg:col-span-3">
+      <div id="grid" class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5"></div>
+      <div class="text-center mt-9">
+        <button id="more" class="btn-gold inline-flex items-center gap-2 px-8 py-3.5 rounded-full text-sm" style="display:none;">
+          <span>عرض المزيد من السيارات</span>
+        </button>
+      </div>
+    </div>
+
+  </div>
+</main>
+
+<script>
+(function () {
+  'use strict';
+
+  var API = (location.hostname === 'localhost' || location.hostname === '127.0.0.1')
+    ? 'https://alezz-zeta.vercel.app/api' : '/api';
+  var SAR = 3.75, PAGE_SIZE = 12, WA = '966550112411';
+
+  var grid = document.getElementById('grid');
+  var moreBtn = document.getElementById('more');
+  var countEl = document.getElementById('pg-count');
+  var state = { page: 1, loading: false };
+
+  var FUEL_AR = { diesel:'ديزل', gasoline:'بنزين', hybrid:'هايبرد', plug_hybrid:'بلج-إن هايبرد', electric:'كهربائية', lpg:'غاز' };
+  var TRANS_AR = { auto:'أوتوماتيك', manual:'يدوي', cvt:'CVT', dct:'DCT' };
+
+  function fmt(n) { return Number(n || 0).toLocaleString('en-US'); }
+  function sar(usd) { return Math.round((usd || 0) * SAR); }
+
+  /* ── Year selects 1990 → current+1 ── */
+  (function fillYears() {
+    var now = new Date().getFullYear() + 1;
+    var mn = document.getElementById('f-ymin'), mx = document.getElementById('f-ymax');
+    for (var y = now; y >= 1990; y--) {
+      mn.insertAdjacentHTML('beforeend', '<option value="'+y+'">'+y+'</option>');
+      mx.insertAdjacentHTML('beforeend', '<option value="'+y+'">'+y+'</option>');
+    }
+  })();
+
+  /* ── Brands dropdown (from /api/meta) ── */
+  var BRANDS = [];
+  var brandInput = document.getElementById('f-brand');
+  var brandList = document.getElementById('brand-list');
+  var brandSlug = '';
+
+  fetch(API + '/meta?path=brands')
+    .then(function(r){ return r.json(); })
+    .then(function(d){ if (Array.isArray(d)) BRANDS = d; })
+    .catch(function(){});
+
+  function renderBrandList(q) {
+    var ql = (q || '').toLowerCase();
+    var items = BRANDS.filter(function(b){ return !ql || b.name.toLowerCase().indexOf(ql) > -1; }).slice(0, 40);
+    brandList.innerHTML = items.map(function(b){
+      return '<div class="brand-item" data-slug="'+b.slug+'" data-name="'+b.name+'">'+b.name+'</div>';
+    }).join('') || '<div class="brand-item" style="color:rgba(200,216,240,0.4);">لا نتائج</div>';
+    brandList.classList.add('open');
+  }
+  brandInput.addEventListener('input', function(){ brandSlug=''; renderBrandList(this.value); });
+  brandInput.addEventListener('focus', function(){ renderBrandList(this.value); });
+  document.addEventListener('click', function(e){
+    if (e.target.closest('.brand-item')) {
+      brandSlug = e.target.closest('.brand-item').getAttribute('data-slug') || '';
+      brandInput.value = e.target.closest('.brand-item').getAttribute('data-name') || '';
+      brandList.classList.remove('open');
+    } else if (!e.target.closest('.brand-wrap')) {
+      brandList.classList.remove('open');
+    }
+  });
+
+  /* ── Chip groups ── */
+  function chipGroup(id) {
+    var el = document.getElementById(id);
+    el.addEventListener('click', function(e){
+      var c = e.target.closest('.f-chip'); if (!c) return;
+      el.querySelectorAll('.f-chip').forEach(function(x){ x.classList.remove('on'); });
+      c.classList.add('on');
+    });
+    return function(){ var on = el.querySelector('.f-chip.on'); return on ? on.getAttribute('data-v') : ''; };
+  }
+  var getCond = chipGroup('f-cond');
+  var getTrans = chipGroup('f-trans');
+  var getFuel = chipGroup('f-fuel');
+  var getBody = chipGroup('f-body');
+  var getColor = chipGroup('f-color');
+
+  /* ── Build query from UI state ── */
+  function buildParams() {
+    var p = new URLSearchParams();
+    p.set('source', 'encar');
+    p.set('page_size', PAGE_SIZE);
+    p.set('page', state.page);
+
+    if (brandSlug) p.set('brand', brandSlug);
+    else if (brandInput.value.trim()) p.set('search', brandInput.value.trim());
+
+    var model = document.getElementById('f-model').value.trim();
+    if (model) p.set('model', model.toLowerCase().replace(/\s+/g, '-'));
+
+    var ymin = document.getElementById('f-ymin').value, ymax = document.getElementById('f-ymax').value;
+    if (ymin) p.set('min_year', ymin);
+    if (ymax) p.set('max_year', ymax);
+
+    var cond = getCond(); if (cond) p.set('is_new_vehicle', cond);
+    var tr = getTrans(); if (tr) p.set('transmission', tr);
+    var fu = getFuel(); if (fu) p.set('fuel_type', fu);
+    var bd = getBody(); if (bd) p.set('body_type', bd);
+    var co = getColor(); if (co) p.set('color', co);
+
+    var pmin = +document.getElementById('f-pmin').value || 0;
+    var pmax = +document.getElementById('f-pmax').value || 0;
+    if (pmin > 0) p.set('min_price', Math.floor(pmin / SAR));
+    if (pmax > 0) p.set('max_price', Math.ceil(pmax / SAR));
+
+    var mmin = +document.getElementById('f-mmin').value || 0;
+    var mmax = +document.getElementById('f-mmax').value || 0;
+    if (mmin > 0) p.set('min_mileage', mmin);
+    if (mmax > 0) p.set('max_mileage', mmax);
+
+    if (document.getElementById('f-noacc').checked) p.set('has_accident', 'false');
+    if (document.getElementById('f-insp').checked) p.set('inspection_passed', 'true');
+    if (document.getElementById('f-deal').checked) p.set('is_undervalued', 'true');
+
+    return p;
+  }
+
+  /* ── Card ── */
+  function photoUrl(v) {
+    var t = v.thumb || (v.photos && v.photos[0]);
+    if (!t) return '';
+    var u = t.original_url || t.thumb_url || t.url || '';
+    if (u.indexOf('/') === 0) u = 'https://api.carapis.com' + u;
+    return u;
+  }
+  function isNew7d(v) {
+    return v.first_seen_at && (Date.now() - new Date(v.first_seen_at).getTime()) < 7*24*3600*1000;
+  }
+  function cardHTML(v, idx) {
+    var img = photoUrl(v);
+    var fuel = FUEL_AR[(v.fuel_type||'').toLowerCase()] || v.fuel_type || '—';
+    var tr = TRANS_AR[(v.transmission||'').toLowerCase()] || v.transmission || '—';
+    return '<div class="lc-card" style="animation-delay:'+(idx % PAGE_SIZE)*0.05+'s;" onclick="location.href=\'car.html?id='+v.id+'\'">'
+      + '<div class="lc-photo">'
+      +   (v.is_undervalued ? '<span class="lc-badge lc-badge-deal">🔥 صفقة</span>'
+          : (isNew7d(v) ? '<span class="lc-badge lc-badge-new">وصل حديثاً</span>' : ''))
+      +   (img ? '<img src="'+img+'" alt="'+(v.brand_name||'')+' '+(v.model_name||'')+'" loading="lazy" onerror="this.style.display=\'none\'">' : '')
+      +   '<div style="position:absolute;bottom:10px;right:12px;left:12px;z-index:2;display:flex;align-items:flex-end;justify-content:space-between;">'
+      +     '<p class="font-cairo font-black text-white" style="font-size:1.2rem;line-height:1;">'+fmt(sar(v.price_usd))+' <span style="font-size:0.7rem;font-weight:700;color:#F0D98A;">ريال</span></p>'
+      +     '<span class="font-cairo font-bold" style="font-size:0.8rem;color:#fff;background:rgba(26,77,184,0.65);padding:0.2rem 0.6rem;border-radius:8px;">'+(v.year||'')+'</span>'
+      +   '</div>'
+      + '</div>'
+      + '<div style="padding:0.85rem 1rem 1rem;">'
+      +   '<p class="font-cairo font-extrabold text-white" style="font-size:0.98rem;margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+(v.brand_name||'')+' '+(v.model_name||'')+'</p>'
+      +   '<p style="font-size:0.72rem;color:rgba(200,216,240,0.5);margin-bottom:0.65rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+(v.trim||'&nbsp;')+'</p>'
+      +   '<div class="flex flex-wrap gap-1.5">'
+      +     '<span class="lc-spec">⚙️ '+tr+'</span>'
+      +     '<span class="lc-spec">⛽ '+fuel+'</span>'
+      +     '<span class="lc-spec">🛣️ '+fmt(v.mileage)+' كم</span>'
+      +   '</div>'
+      + '</div>'
+      + '</div>';
+  }
+  function skeletons(n) {
+    var s = '';
+    for (var i=0;i<n;i++) s += '<div class="lc-skel"><div class="sk" style="aspect-ratio:16/10;"></div><div style="padding:1rem;"><div class="sk" style="height:13px;width:60%;border-radius:6px;margin-bottom:8px;"></div><div class="sk" style="height:10px;width:40%;border-radius:6px;"></div></div></div>';
+    return s;
+  }
+
+  /* ── Load ── */
+  function load(reset) {
+    if (state.loading) return;
+    state.loading = true;
+    moreBtn.style.display = 'none';
+    if (reset) { state.page = 1; grid.innerHTML = skeletons(6); }
+
+    fetch(API + '/cars?' + buildParams().toString())
+      .then(function(r){ return r.json(); })
+      .then(function(d){
+        if (d.error) throw new Error(d.error);
+        var items = d.results || [];
+        var html = items.map(cardHTML).join('');
+        if (reset) grid.innerHTML = html;
+        else grid.insertAdjacentHTML('beforeend', html);
+
+        if (reset && !items.length) {
+          grid.innerHTML = '<p class="text-center" style="grid-column:1/-1;color:rgba(200,216,240,0.5);padding:3rem 0;">لا توجد سيارات مطابقة لبحثك — جرّب تعديل الفلاتر</p>';
+        }
+        countEl.innerHTML = 'وجدنا <strong style="color:#F0D98A;">' + fmt(d.count) + '</strong> سيارة مطابقة';
+        moreBtn.style.display = d.has_next ? '' : 'none';
+        state.page++;
+      })
+      .catch(function(){
+        if (reset) grid.innerHTML = '<p class="text-center" style="grid-column:1/-1;color:rgba(200,216,240,0.5);padding:3rem 0;">تعذّر التحميل مؤقتاً — <button onclick="location.reload()" style="color:#F0D98A;text-decoration:underline;background:none;border:none;cursor:pointer;font-family:Tajawal;">أعد المحاولة</button></p>';
+        countEl.textContent = '';
+      })
+      .finally(function(){ state.loading = false; });
+  }
+
+  /* ── Events ── */
+  document.getElementById('f-apply').addEventListener('click', function(){
+    var ref = document.getElementById('f-ref').value.trim();
+    if (/^[0-9a-f-]{32,36}$/i.test(ref)) { location.href = 'car.html?id=' + ref; return; }
+    document.getElementById('f-aside').classList.remove('open');
+    load(true);
+  });
+  document.getElementById('f-reset').addEventListener('click', function(){ location.href = 'cars.html'; });
+  moreBtn.addEventListener('click', function(){ load(false); });
+  document.getElementById('f-open').addEventListener('click', function(){ document.getElementById('f-aside').classList.add('open'); });
+  document.getElementById('f-close').addEventListener('click', function(){ document.getElementById('f-aside').classList.remove('open'); });
+
+  load(true);
+})();
+</script>
+</body>
+</html>

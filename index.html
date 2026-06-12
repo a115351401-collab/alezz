@@ -1658,12 +1658,12 @@
       <!-- Cards grid -->
       <div id="lc-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5"></div>
 
-      <!-- Load more -->
+      <!-- Browse-all CTA -->
       <div class="text-center mt-10">
-        <button id="lc-more" class="btn-gold inline-flex items-center gap-2 px-8 py-3.5 rounded-full text-sm shadow-xl" style="display:none;">
-          <span>عرض المزيد من السيارات</span>
-          <svg viewBox="0 0 24 24" fill="white" width="16" height="16"><path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z"/></svg>
-        </button>
+        <a href="cars.html" class="btn-gold inline-flex items-center gap-2 px-9 py-4 rounded-full text-base shadow-xl">
+          <span>تصفح جميع السيارات</span>
+          <svg viewBox="0 0 24 24" fill="white" width="18" height="18"><path d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z" transform="scale(-1,1) translate(-24,0)"/></svg>
+        </a>
       </div>
 
     </div>
@@ -1677,12 +1677,11 @@
         ? 'https://alezz-zeta.vercel.app/api/cars'   // local dev page → prod API (CORS enabled)
         : '/api/cars';
 
-      var PAGE_SIZE = 9;
+      var PAGE_SIZE = 6;
       var SAR_RATE  = 3.75;
       var WA_PHONE  = '966550112411';
 
       var grid    = document.getElementById('lc-grid');
-      var moreBtn = document.getElementById('lc-more');
       var subEl   = document.getElementById('lc-subtitle');
 
       var state = { page: 1, q: '', loading: false, done: false };
@@ -1725,15 +1724,14 @@
         var trans = TRANS_AR[(v.transmission || '').toLowerCase()] || v.transmission || '—';
         var src = SRC_LABEL[v.source_code] || 'كوريا';
 
-        return '<div class="lc-card" style="animation-delay:' + (idx % PAGE_SIZE) * 0.06 + 's;">'
+        return '<div class="lc-card" style="animation-delay:' + (idx % PAGE_SIZE) * 0.06 + 's;cursor:pointer;" onclick="location.href=\'car.html?id=' + v.id + '\'">'
           + '<div class="lc-photo">'
           +   (isNew(v) ? '<span class="lc-badge lc-badge-new">وصل حديثاً</span>' : '')
           +   '<span class="lc-badge lc-badge-src">' + src + '</span>'
           +   (img ? '<img src="' + img + '" alt="' + (v.brand_name || '') + ' ' + (v.model_name || '') + '" loading="lazy" onerror="this.style.display=\'none\'">' : '')
           +   '<div class="lc-price-row">'
           +     '<div>'
-          +       '<p class="font-cairo font-900 text-white" style="font-size:1.25rem;line-height:1;">$' + fmt(v.price_usd || 0) + '</p>'
-          +       '<p class="font-tajawal" style="font-size:0.7rem;color:rgba(240,217,138,0.9);margin-top:2px;">≈ ' + fmt(priceSar) + ' ريال</p>'
+          +       '<p class="font-cairo font-900 text-white" style="font-size:1.25rem;line-height:1;">' + fmt(priceSar) + ' <span style="font-size:0.72rem;color:#F0D98A;">ريال</span></p>'
           +     '</div>'
           +     '<span class="font-cairo font-700" style="font-size:0.8rem;color:#fff;background:rgba(26,77,184,0.65);padding:0.2rem 0.6rem;border-radius:8px;backdrop-filter:blur(6px);">' + (v.year || '') + '</span>'
           +   '</div>'
@@ -1751,7 +1749,7 @@
           +     '<span class="lc-spec">🛣️ ' + fmt(v.mileage || 0) + ' كم</span>'
           +     (v.region ? '<span class="lc-spec">📍 ' + v.region + '</span>' : '')
           +   '</div>'
-          +   '<a href="' + waLink(v, priceSar) + '" target="_blank" rel="noopener" class="lc-wa">'
+          +   '<a href="' + waLink(v, priceSar) + '" target="_blank" rel="noopener" class="lc-wa" onclick="event.stopPropagation()">'
           +     '<svg viewBox="0 0 24 24" fill="currentColor" width="15" height="15"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>'
           +     '<span>اسأل عن هذه السيارة</span>'
           +   '</a>'
@@ -1774,21 +1772,12 @@
         return s;
       }
 
-      function load(reset) {
+      function load() {
         if (state.loading) return;
         state.loading = true;
-        moreBtn.style.display = 'none';
+        grid.innerHTML = skeletons(6);
 
-        if (reset) {
-          state.page = 1;
-          state.done = false;
-          grid.innerHTML = skeletons(6);
-        } else {
-          moreBtn.querySelector('span').textContent = 'جاري التحميل…';
-          moreBtn.style.display = '';
-        }
-
-        var url = API_BASE + '?page=' + state.page + '&page_size=' + PAGE_SIZE
+        var url = API_BASE + '?source=encar&page=1&page_size=' + PAGE_SIZE
           + (state.q ? '&search=' + encodeURIComponent(state.q) : '');
 
         fetch(url)
@@ -1797,11 +1786,9 @@
             var items = data.results || [];
             var html = '';
             items.forEach(function (v, i) { html += cardHTML(v, i); });
+            grid.innerHTML = html;
 
-            if (reset) grid.innerHTML = html;
-            else grid.insertAdjacentHTML('beforeend', html);
-
-            if (reset && !items.length) {
+            if (!items.length) {
               grid.innerHTML = '<p class="font-tajawal text-center" style="grid-column:1/-1;color:rgba(200,216,240,0.5);padding:2rem 0;">لا توجد نتائج لهذا البحث حالياً</p>';
             }
 
@@ -1809,22 +1796,15 @@
               subEl.innerHTML = 'تصفح <strong style="color:#F0D98A;">' + fmt(data.count)
                 + '</strong> سيارة بأسعار وصور حقيقية — محدّثة لحظياً من كوريا';
             }
-
-            state.done = !data.has_next;
-            moreBtn.style.display = state.done ? 'none' : '';
-            moreBtn.querySelector('span').textContent = 'عرض المزيد من السيارات';
-            state.page++;
           })
           .catch(function () {
-            if (reset) {
-              grid.innerHTML = '<p class="font-tajawal text-center" style="grid-column:1/-1;color:rgba(200,216,240,0.5);padding:2rem 0;">'
-                + 'تعذّر تحميل السيارات مؤقتاً — <button onclick="window.lcReload()" style="color:#F0D98A;text-decoration:underline;cursor:pointer;background:none;border:none;font-family:Tajawal,sans-serif;">أعد المحاولة</button></p>';
-            }
+            grid.innerHTML = '<p class="font-tajawal text-center" style="grid-column:1/-1;color:rgba(200,216,240,0.5);padding:2rem 0;">'
+              + 'تعذّر تحميل السيارات مؤقتاً — <button onclick="window.lcReload()" style="color:#F0D98A;text-decoration:underline;cursor:pointer;background:none;border:none;font-family:Tajawal,sans-serif;">أعد المحاولة</button></p>';
           })
           .finally(function () { state.loading = false; });
       }
 
-      window.lcReload = function () { load(true); };
+      window.lcReload = function () { load(); };
 
       // Filter chips
       document.querySelectorAll('#lc-filters .lc-chip').forEach(function (chip) {
@@ -1832,11 +1812,9 @@
           document.querySelectorAll('#lc-filters .lc-chip').forEach(function (c) { c.classList.remove('active'); });
           chip.classList.add('active');
           state.q = chip.getAttribute('data-q') || '';
-          load(true);
+          load();
         });
       });
-
-      moreBtn.addEventListener('click', function () { load(false); });
 
       // Lazy init: fetch when the section approaches the viewport.
       // Multiple triggers (IO + first scroll + timeout) — whichever fires
@@ -1845,7 +1823,7 @@
       function ensureLoaded() {
         if (started) return;
         started = true;
-        load(true);
+        load();
       }
 
       if ('IntersectionObserver' in window) {
