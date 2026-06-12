@@ -11,15 +11,15 @@
 
 const BASE_URL = process.env.CARAPIS_URL || 'https://api.carapis.com/apix/catalog_api';
 
-// Whitelist — only these query params are forwarded upstream.
+// Whitelist — mirrors catalog_api's documented valid_parameters
+// (server's own 400 response enumerates them).
 const ALLOWED_PARAMS = [
-  'page', 'page_size', 'available_only', 'search', 'ordering',
-  'brand', 'brand_slug', 'model', 'model_slug',
-  'year_min', 'year_max', 'price_min', 'price_max',
-  'price_usd_min', 'price_usd_max', 'mileage_min', 'mileage_max',
-  'transmission', 'fuel_type', 'body_type', 'color', 'interior_color',
-  'seats', 'seats_min', 'seats_max', 'is_new_vehicle', 'condition',
-  'source_code', 'region', 'id', 'listing_id', 'source_id',
+  'page', 'page_size', 'search', 'ordering', 'available_only',
+  'brand', 'model', 'color', 'body_type', 'fuel_type', 'transmission',
+  'min_year', 'max_year', 'min_price', 'max_price',
+  'min_mileage', 'max_mileage', 'min_engine_cc', 'max_engine_cc',
+  'has_accident', 'inspection_passed', 'is_new_vehicle', 'is_undervalued',
+  'features',
 ];
 
 export default async function handler(req, res) {
@@ -63,7 +63,7 @@ export default async function handler(req, res) {
       return res.status(502).json({
         error: 'Upstream API request failed.',
         upstream_status: upstream.status,
-        detail: body.slice(0, 300),
+        detail: body.slice(0, 1000),
       });
     }
 
