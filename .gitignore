@@ -27,3 +27,8 @@ npm-debug.log*
 node_modules/
 .vercel/
 dist/
+
+# Secrets — API keys must NEVER be committed
+.env
+.env.local
+.env*.local

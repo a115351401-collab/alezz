@@ -10,5 +10,8 @@
   },
   "devDependencies": {
     "vite": "^5.2.11"
+  },
+  "dependencies": {
+    "@autoapicom/client": "^1.0.5"
   }
 }
