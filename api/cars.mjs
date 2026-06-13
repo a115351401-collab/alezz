@@ -9,9 +9,9 @@
 // ═══════════════════════════════════════════════════════════
 
 // Supports both v1 (legacy) and v2 — set CARAPIS_URL env var to override.
-// v1 default: https://api.carapis.com/apix/catalog_api  (X-API-Key header)
-// v2 opt-in:  https://api.carapis.com/v2                (Authorization: Bearer)
-const BASE_URL = process.env.CARAPIS_URL || 'https://api.carapis.com/apix/catalog_api';
+// v2 default: https://api.carapis.com/v2                (Authorization: Bearer, keys start with car_)
+// v1 legacy:  https://api.carapis.com/apix/catalog_api  (X-API-Key header)
+const BASE_URL = process.env.CARAPIS_URL || 'https://api.carapis.com/v2';
 const IS_V2 = BASE_URL.includes('/v2');
 
 const ALLOWED_PARAMS = IS_V2 ? [
@@ -85,12 +85,16 @@ export default async function handler(req, res) {
       });
     }
 
-    // Parse and add has_next for frontend compatibility
+    // Parse and normalise for frontend compatibility
     let data;
     try {
       data = JSON.parse(body);
-      const page = Number(data.page || 1);
-      const limit = Number(data.limit || 12);
+      // Normalise array key: v2 uses "results", v1 may use "vehicles" or "data"
+      if (!Array.isArray(data.results)) {
+        data.results = data.vehicles || data.data || data.listings || [];
+      }
+      const page = Number(data.page || qs.get('page') || 1);
+      const limit = Number(data.limit || qs.get('limit') || qs.get('page_size') || 12);
       data.has_next = (page * limit) < Number(data.count || 0);
     } catch (e) {
       // If parse fails, send raw body

@@ -5,7 +5,7 @@
 //   /api/meta?path=listings/<id>
 // ═══════════════════════════════════════════════════════════
 
-const BASE_URL = process.env.CARAPIS_URL || 'https://api.carapis.com/apix/catalog_api';
+const BASE_URL = process.env.CARAPIS_URL || 'https://api.carapis.com/v2';
 const IS_V2 = BASE_URL.includes('/v2');
 
 // v1: brands, models, vehicles/{uuid}
