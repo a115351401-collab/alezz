@@ -1,17 +1,16 @@
 // ═══════════════════════════════════════════════════════════
-// Secure proxy for Carapis catalog metadata (brands, colors,
-// vehicle details, …). Path is strictly whitelisted by regex.
+// Secure proxy for Carapis v2 metadata (makes, listing detail).
 //
-//   /api/meta?path=brands
-//   /api/meta?path=models&brand_slug=kia
-//   /api/meta?path=vehicles/<uuid>
+//   /api/meta?path=makes
+//   /api/meta?path=listings/<id>
 // ═══════════════════════════════════════════════════════════
 
-const BASE_URL = process.env.CARAPIS_URL || 'https://api.carapis.com/apix/catalog_api';
+const BASE_URL = process.env.CARAPIS_URL || 'https://api.carapis.com/v2';
 
-const SAFE_PATH = /^(brands|models|colors|interior_colors|body_types|fuel_types|transmissions|filters|facets|stats|sources|vehicles\/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})$/;
+// Allow: makes list  OR  single listing by id (alphanumeric + hyphens)
+const SAFE_PATH = /^(makes|listings\/[0-9a-zA-Z_-]{4,64})$/;
 
-const ALLOWED_PARAMS = ['page', 'page_size', 'search', 'brand', 'brand_slug', 'source_code', 'ordering'];
+const ALLOWED_PARAMS = ['page', 'limit', 'search', 'source'];
 
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -32,8 +31,8 @@ export default async function handler(req, res) {
   const query = qs.toString();
 
   try {
-    const upstream = await fetch(`${BASE_URL}/${path}/${query ? '?' + query : ''}`, {
-      headers: { 'X-API-Key': apiKey },
+    const upstream = await fetch(`${BASE_URL}/${path}${query ? '?' + query : ''}`, {
+      headers: { 'Authorization': `Bearer ${apiKey}` },
       signal: AbortSignal.timeout(25000),
     });
     const body = await upstream.text();
@@ -46,12 +45,11 @@ export default async function handler(req, res) {
       });
     }
 
-    // Metadata changes rarely — cache hard at the edge (1h + 1 day stale)
     res.setHeader('Cache-Control', 's-maxage=3600, stale-while-revalidate=86400');
     res.setHeader('Content-Type', 'application/json; charset=utf-8');
     return res.status(200).send(body);
   } catch (err) {
-    console.error('meta fetch failed:', err && err.message);
+    console.error('meta v2 fetch failed:', err && err.message);
     return res.status(502).json({ error: 'Upstream request timed out or failed.' });
   }
 }

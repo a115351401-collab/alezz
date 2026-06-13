@@ -70,6 +70,13 @@
     var r = rates[state.code] || FALLBACK[state.code] || 1;
     return (Number(amount) || 0) / r;
   }
+  // Convert amount from a specific currency code → USD.
+  function fromCode(amount, code) {
+    var r = rates[code] || FALLBACK[code] || 1;
+    return (Number(amount) || 0) / r;
+  }
+  // Return the exchange rate for any currency code (units per 1 USD).
+  function rateOf(code) { return rates[code] || FALLBACK[code] || 1; }
 
   function symbolHTML(code) {
     var c = BY_CODE[code] || BY_CODE.SAR;
@@ -154,6 +161,8 @@
     symbolHTML: symbolHTML,
     convert: convert,
     toUsd: toUsd,
+    fromCode: fromCode,
+    rateOf: rateOf,
     refreshDom: refreshDom,
     onChange: function (fn) { listeners.push(fn); }
   };

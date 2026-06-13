@@ -180,6 +180,12 @@
   var T = function (k, vars) { return window.I18N ? I18N.t(k, vars) : k; };
   var money = function (usd) { return window.CUR ? CUR.format(usd) : Math.round(usd * 3.75) + ' ريال'; };
   var moneyText = function (usd) { return window.CUR ? CUR.formatText(usd) : Math.round(usd * 3.75) + ' SAR'; };
+  // v2: price is in listing currency (KRW for encar); convert to USD for display
+  function priceUsd(v) {
+    if (v.price_usd != null) return Number(v.price_usd);
+    var cur = (v.currency || 'KRW').toUpperCase();
+    return window.CUR ? CUR.fromCode(Number(v.price || 0), cur) : Number(v.price || 0) / 1360;
+  }
   // code → {ar,en,ko} lookups; L() returns the value in the active language
   function L(map, code) { var e = map[(code || '').toLowerCase()]; return e ? (e[lang()] || e.en || e.ar) : (code || ''); }
   var FUEL = { diesel:{ar:'ديزل',en:'Diesel',ko:'디젤'}, gasoline:{ar:'بنزين',en:'Gasoline',ko:'가솔린'}, hybrid:{ar:'هايبرد',en:'Hybrid',ko:'하이브리드'}, plug_hybrid:{ar:'بلج-إن هايبرد',en:'Plug-in Hybrid',ko:'플러그인 하이브리드'}, electric:{ar:'كهربائية',en:'Electric',ko:'전기'}, lpg:{ar:'غاز',en:'LPG',ko:'LPG'} };
@@ -191,9 +197,9 @@
 
   var current = null; // last loaded vehicle (for re-render on lang/currency change)
 
-  if (!/^[0-9a-f-]{32,36}$/i.test(id)) { showError(); }
+  if (!/^[0-9a-zA-Z_-]{4,64}$/.test(id)) { showError(); }
   else {
-    fetch(API + '/meta?path=vehicles/' + id)
+    fetch(API + '/meta?path=listings/' + id)
       .then(function (r) { if (!r.ok) throw 0; return r.json(); })
       .then(render)
       .catch(showError);
@@ -217,6 +223,15 @@
     if (!v || v.error || !v.id) return showError();
     current = v;
 
+    // v2 field aliases: make/model (was brand_name/model_name)
+    if (!v.brand_name && v.make) v.brand_name = v.make;
+    if (!v.model_name && v.model) v.model_name = v.model;
+    // v2 accident: accident_history object → boolean flag
+    if (v.has_accident == null && v.accident_history != null) v.has_accident = Boolean(v.accident_history);
+    // v2 location → region
+    if (!v.region && v.location) v.region = typeof v.location === 'string' ? v.location : (v.location.city || v.location.country || '');
+    // v2 dealer string → seller display
+    if (!v.seller_type && v.dealer) v.seller_type = 'dealer';
     document.title = (v.brand_name||'') + ' ' + (v.model_name||'') + ' ' + (v.year||'') + ' — العز العالمي';
 
     /* Gallery */
@@ -247,13 +262,13 @@
     /* Title + price + WA */
     el('t-title').textContent = (v.brand_name||'') + ' ' + (v.model_name||'') + ' ' + (v.year||'');
     el('t-trim').textContent = [v.trim, v.generation].filter(Boolean).join(' · ');
-    el('t-price').innerHTML = money(v.price_usd || 0);
-    var ref = (v.vehicle_no || v.listing_id || v.id.slice(0, 8));
+    el('t-price').innerHTML = money(priceUsd(v));
+    var ref = (v.vehicle_no || v.source_id || v.listing_id || (v.id && v.id.slice(0, 8)) || v.id || '');
     el('t-ref').textContent = ref;
 
     var msg = T('wa_greeting') + '\n'
       + '🚗 ' + (v.brand_name||'') + ' ' + (v.model_name||'') + ' ' + (v.year||'') + (v.trim ? ' — ' + v.trim : '') + '\n'
-      + '💰 ' + T('wa_price') + ': ' + moneyText(v.price_usd || 0) + '\n'
+      + '💰 ' + T('wa_price') + ': ' + moneyText(priceUsd(v)) + '\n'
       + '🔖 ' + T('wa_ref') + ': ' + ref + '\n'
       + '🔗 ' + location.href;
     el('t-wa').href = 'https://wa.me/' + WA + '?text=' + encodeURIComponent(msg);
@@ -308,7 +323,7 @@
       }
       if (a.comparable_count) html += '<div class="rep-row"><span>'+T('mk_compared')+'</span><span style="color:#fff;">' + fmt(a.comparable_count) + '</span></div>';
       if (a.cohort_min_price && a.cohort_max_price) {
-        var lo = a.cohort_min_price, hi = a.cohort_max_price, cur = a.actual_price || v.price_usd;
+        var lo = a.cohort_min_price, hi = a.cohort_max_price, cur = a.actual_price || priceUsd(v);
         var pos = Math.max(0, Math.min(100, ((cur - lo) / (hi - lo)) * 100));
         var edge = (lang() === 'ar') ? 'right' : 'left';
         html += '<div style="margin-top:1.1rem;">'

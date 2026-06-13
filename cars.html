@@ -485,6 +485,12 @@
 
   function fmt(n) { return Number(n || 0).toLocaleString('en-US'); }
   function sar(usd) { return Math.round((usd || 0) * SAR); }
+  // Convert a listing's price to USD regardless of currency (v2 uses KRW for encar)
+  function priceUsd(v) {
+    if (v.price_usd != null) return Number(v.price_usd);
+    var cur = (v.currency || 'KRW').toUpperCase();
+    return window.CUR ? CUR.fromCode(Number(v.price || 0), cur) : Number(v.price || 0) / 1360;
+  }
 
   /* ── Year selects 1990 → current+1 ── */
   (function fillYears() {
@@ -502,9 +508,12 @@
   var brandList = document.getElementById('brand-list');
   var brandSlug = '';
 
-  fetch(API + '/meta?path=brands')
+  fetch(API + '/meta?path=makes')
     .then(function(r){ return r.json(); })
-    .then(function(d){ if (Array.isArray(d)) BRANDS = d; })
+    .then(function(d){
+      var list = d.results || d;
+      if (Array.isArray(list)) BRANDS = list.map(function(b){ return { name: b.name || b.make || b, slug: b.slug || b.name || b }; });
+    })
     .catch(function(){});
 
   function renderBrandList(q) {
@@ -547,40 +556,38 @@
   function buildParams() {
     var p = new URLSearchParams();
     p.set('source', 'encar');
-    p.set('page_size', PAGE_SIZE);
+    p.set('limit', PAGE_SIZE);
     p.set('page', state.page);
 
-    if (brandSlug) p.set('brand', brandSlug);
-    else if (brandInput.value.trim()) p.set('search', brandInput.value.trim());
+    // v2: make (was brand), exact name or search text
+    var brandVal = brandInput.value.trim();
+    if (brandVal) p.set('make', brandVal);
 
     var model = document.getElementById('f-model').value.trim();
-    if (model) p.set('model', model.toLowerCase().replace(/\s+/g, '-'));
+    if (model) p.set('model', model);
 
     var ymin = document.getElementById('f-ymin').value, ymax = document.getElementById('f-ymax').value;
-    if (ymin) p.set('min_year', ymin);
-    if (ymax) p.set('max_year', ymax);
+    if (ymin) p.set('year_min', ymin);
+    if (ymax) p.set('year_max', ymax);
 
-    var cond = getCond(); if (cond) p.set('is_new_vehicle', cond);
     var tr = getTrans(); if (tr) p.set('transmission', tr);
     var fu = getFuel(); if (fu) p.set('fuel_type', fu);
-    var bd = getBody(); if (bd) p.set('body_type', bd);
     var co = getColor(); if (co) p.set('color', co);
 
-    // Price inputs are typed in the chosen currency → convert to USD for the API.
+    // Price: user types in chosen currency → convert to KRW (encar listing currency)
     var pmin = +document.getElementById('f-pmin').value || 0;
     var pmax = +document.getElementById('f-pmax').value || 0;
-    var toUsd = window.CUR ? function (a) { return CUR.toUsd(a); } : function (a) { return a / SAR; };
-    if (pmin > 0) p.set('min_price', Math.floor(toUsd(pmin)));
-    if (pmax > 0) p.set('max_price', Math.ceil(toUsd(pmax)));
+    var toKrw = function(a) {
+      var usd = window.CUR ? CUR.toUsd(a) : a / SAR;
+      return Math.round(usd * (window.CUR ? CUR.rateOf('KRW') : 1360));
+    };
+    if (pmin > 0) p.set('price_min', toKrw(pmin));
+    if (pmax > 0) p.set('price_max', toKrw(pmax));
 
     var mmin = +document.getElementById('f-mmin').value || 0;
     var mmax = +document.getElementById('f-mmax').value || 0;
-    if (mmin > 0) p.set('min_mileage', mmin);
-    if (mmax > 0) p.set('max_mileage', mmax);
-
-    if (document.getElementById('f-noacc').checked) p.set('has_accident', 'false');
-    if (document.getElementById('f-insp').checked) p.set('inspection_passed', 'true');
-    if (document.getElementById('f-deal').checked) p.set('is_undervalued', 'true');
+    if (mmin > 0) p.set('mileage_min', mmin);
+    if (mmax > 0) p.set('mileage_max', mmax);
 
     return p;
   }
@@ -602,16 +609,15 @@
     var tr = TRANS_KEY[(v.transmission||'').toLowerCase()] ? T(TRANS_KEY[(v.transmission||'').toLowerCase()]) : (v.transmission || '—');
     return '<div class="lc-card" style="animation-delay:'+(idx % PAGE_SIZE)*0.05+'s;" onclick="location.href=\'car.html?id='+v.id+'\'">'
       + '<div class="lc-photo">'
-      +   (v.is_undervalued ? '<span class="lc-badge lc-badge-deal">'+T('cars_deal')+'</span>'
-          : (isNew7d(v) ? '<span class="lc-badge lc-badge-new">'+T('lc_new')+'</span>' : ''))
-      +   (img ? '<img src="'+img+'" alt="'+(v.brand_name||'')+' '+(v.model_name||'')+'" loading="lazy" onerror="this.style.display=\'none\'">' : '')
+      +   (isNew7d(v) ? '<span class="lc-badge lc-badge-new">'+T('lc_new')+'</span>' : '')
+      +   (img ? '<img src="'+img+'" alt="'+(v.make||'')+' '+(v.model||'')+'" loading="lazy" onerror="this.style.display=\'none\'">' : '')
       +   '<div style="position:absolute;bottom:10px;right:12px;left:12px;z-index:2;display:flex;align-items:flex-end;justify-content:space-between;">'
-      +     '<p class="font-cairo font-black text-white" style="font-size:1.2rem;line-height:1;">'+money(v.price_usd)+'</p>'
+      +     '<p class="font-cairo font-black text-white" style="font-size:1.2rem;line-height:1;">'+money(priceUsd(v))+'</p>'
       +     '<span class="font-cairo font-bold" style="font-size:0.8rem;color:#fff;background:rgba(26,77,184,0.65);padding:0.2rem 0.6rem;border-radius:8px;">'+(v.year||'')+'</span>'
       +   '</div>'
       + '</div>'
       + '<div style="padding:0.85rem 1rem 1rem;">'
-      +   '<p class="font-cairo font-extrabold text-white" style="font-size:0.98rem;margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+(v.brand_name||'')+' '+(v.model_name||'')+'</p>'
+      +   '<p class="font-cairo font-extrabold text-white" style="font-size:0.98rem;margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+(v.make||'')+' '+(v.model||'')+'</p>'
       +   '<p style="font-size:0.72rem;color:rgba(200,216,240,0.5);margin-bottom:0.65rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+(v.trim||'&nbsp;')+'</p>'
       +   '<div class="flex flex-wrap gap-1.5">'
       +     '<span class="lc-spec">⚙️ '+tr+'</span>'
@@ -662,7 +668,8 @@
         }
         lastCount = d.count || 0;
         renderCount();
-        moreBtn.style.display = d.has_next ? '' : 'none';
+        var hasNext = d.has_next != null ? d.has_next : ((d.page * (d.limit || PAGE_SIZE)) < (d.count || 0));
+        moreBtn.style.display = hasNext ? '' : 'none';
         state.page++;
       })
       .catch(function(){
