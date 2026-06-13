@@ -58,12 +58,11 @@ export default async function handler(req, res) {
   }
 
   // Build query string with v1 param names
-  // Note: do NOT pass source=encar — v1 endpoint doesn't support it and returns 404
-  const qs = new URLSearchParams({ page: '1', page_size: '12' });
+  // Default source=encar to get Korean auction cars with working images
+  const qs = new URLSearchParams({ page: '1', page_size: '12', source: 'encar' });
   for (const key of ALLOWED_PARAMS) {
     const value = req.query[key];
     if (value === undefined || value === '') continue;
-    if (key === 'source') continue; // v1 ignores source; all results are from encar
     const mapped = PARAM_MAP[key] || key;
     qs.set(mapped, String(value));
   }

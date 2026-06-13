@@ -612,19 +612,21 @@
   }
   function cardHTML(v, idx) {
     var img = photoUrl(v);
+    var make = v.make || v.brand_name || '';
+    var model = v.model || v.model_name || '';
     var fuel = FUEL_KEY[(v.fuel_type||'').toLowerCase()] ? T(FUEL_KEY[(v.fuel_type||'').toLowerCase()]) : (v.fuel_type || '—');
     var tr = TRANS_KEY[(v.transmission||'').toLowerCase()] ? T(TRANS_KEY[(v.transmission||'').toLowerCase()]) : (v.transmission || '—');
     return '<div class="lc-card" style="animation-delay:'+(idx % PAGE_SIZE)*0.05+'s;" onclick="location.href=\'car.html?id='+v.id+'\'">'
       + '<div class="lc-photo">'
       +   (isNew7d(v) ? '<span class="lc-badge lc-badge-new">'+T('lc_new')+'</span>' : '')
-      +   (img ? '<img src="'+img+'" alt="'+(v.make||'')+' '+(v.model||'')+'" loading="lazy" onerror="this.style.display=\'none\'">' : '')
+      +   (img ? '<img src="'+img+'" alt="'+make+' '+model+'" loading="lazy" onerror="this.style.display=\'none\'">' : '')
       +   '<div style="position:absolute;bottom:10px;right:12px;left:12px;z-index:2;display:flex;align-items:flex-end;justify-content:space-between;">'
       +     '<p class="font-cairo font-black text-white" style="font-size:1.2rem;line-height:1;">'+money(priceUsd(v))+'</p>'
       +     '<span class="font-cairo font-bold" style="font-size:0.8rem;color:#fff;background:rgba(26,77,184,0.65);padding:0.2rem 0.6rem;border-radius:8px;">'+(v.year||'')+'</span>'
       +   '</div>'
       + '</div>'
       + '<div style="padding:0.85rem 1rem 1rem;">'
-      +   '<p class="font-cairo font-extrabold text-white" style="font-size:0.98rem;margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+(v.make||'')+' '+(v.model||'')+'</p>'
+      +   '<p class="font-cairo font-extrabold text-white" style="font-size:0.98rem;margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+make+' '+model+'</p>'
       +   '<p style="font-size:0.72rem;color:rgba(200,216,240,0.5);margin-bottom:0.65rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+(v.trim||'&nbsp;')+'</p>'
       +   '<div class="flex flex-wrap gap-1.5">'
       +     '<span class="lc-spec">⚙️ '+tr+'</span>'
