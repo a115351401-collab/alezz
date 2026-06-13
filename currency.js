@@ -65,6 +65,11 @@
     var r = rates[state.code] || FALLBACK[state.code] || 1;
     return (Number(usd) || 0) * r;
   }
+  // Inverse: an amount typed in the chosen currency → USD (for price filters).
+  function toUsd(amount) {
+    var r = rates[state.code] || FALLBACK[state.code] || 1;
+    return (Number(amount) || 0) / r;
+  }
 
   function symbolHTML(code) {
     var c = BY_CODE[code] || BY_CODE.SAR;
@@ -148,6 +153,7 @@
     formatSarText: formatSarText,
     symbolHTML: symbolHTML,
     convert: convert,
+    toUsd: toUsd,
     refreshDom: refreshDom,
     onChange: function (fn) { listeners.push(fn); }
   };

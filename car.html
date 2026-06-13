@@ -51,6 +51,10 @@
     ::-webkit-scrollbar { width: 8px; height: 8px; }
     ::-webkit-scrollbar-thumb { background: rgba(201,168,76,0.35); border-radius: 4px; }
   </style>
+
+  <!-- Trilingual + multi-currency engines (shared; honour saved choice) -->
+  <script src="i18n.js"></script>
+  <script src="currency.js"></script>
 </head>
 <body>
 
@@ -109,7 +113,7 @@
         <div class="panel p-5 mb-4">
           <p class="text-xs mb-1" style="color:rgba(200,216,240,0.5);">السعر في كوريا</p>
           <p class="font-cairo font-black" style="font-size:2rem;color:#F0D98A;line-height:1.1;">
-            <span id="t-price"></span> <span style="font-size:0.95rem;">ريال سعودي</span>
+            <span id="t-price" data-no-i18n></span>
           </p>
           <p class="text-xs mt-2" style="color:rgba(200,216,240,0.45);">* السعر لا يشمل الشحن والجمارك — تواصل معنا لحساب التكلفة النهائية</p>
         </div>
@@ -172,13 +176,20 @@
 
   function fmt(n) { return Number(n || 0).toLocaleString('en-US'); }
   function el(i) { return document.getElementById(i); }
+  var lang = function () { return window.I18N ? I18N.lang : 'ar'; };
+  var T = function (k, vars) { return window.I18N ? I18N.t(k, vars) : k; };
+  var money = function (usd) { return window.CUR ? CUR.format(usd) : Math.round(usd * 3.75) + ' ريال'; };
+  var moneyText = function (usd) { return window.CUR ? CUR.formatText(usd) : Math.round(usd * 3.75) + ' SAR'; };
+  // code → {ar,en,ko} lookups; L() returns the value in the active language
+  function L(map, code) { var e = map[(code || '').toLowerCase()]; return e ? (e[lang()] || e.en || e.ar) : (code || ''); }
+  var FUEL = { diesel:{ar:'ديزل',en:'Diesel',ko:'디젤'}, gasoline:{ar:'بنزين',en:'Gasoline',ko:'가솔린'}, hybrid:{ar:'هايبرد',en:'Hybrid',ko:'하이브리드'}, plug_hybrid:{ar:'بلج-إن هايبرد',en:'Plug-in Hybrid',ko:'플러그인 하이브리드'}, electric:{ar:'كهربائية',en:'Electric',ko:'전기'}, lpg:{ar:'غاز',en:'LPG',ko:'LPG'} };
+  var TRANS = { auto:{ar:'أوتوماتيك',en:'Automatic',ko:'자동'}, automatic:{ar:'أوتوماتيك',en:'Automatic',ko:'자동'}, manual:{ar:'يدوي',en:'Manual',ko:'수동'}, cvt:{ar:'CVT',en:'CVT',ko:'CVT'}, dct:{ar:'DCT',en:'DCT',ko:'DCT'} };
+  var BODY = { suv:{ar:'SUV',en:'SUV',ko:'SUV'}, sedan:{ar:'سيدان',en:'Sedan',ko:'세단'}, hatchback:{ar:'هاتشباك',en:'Hatchback',ko:'해치백'}, van:{ar:'فان',en:'Van',ko:'밴'}, coupe:{ar:'كوبيه',en:'Coupe',ko:'쿠페'}, pickup:{ar:'بيك أب',en:'Pickup',ko:'픽업'}, wagon:{ar:'واغن',en:'Wagon',ko:'왜건'}, convertible:{ar:'كشف',en:'Convertible',ko:'컨버터블'}, minivan:{ar:'ميني فان',en:'Minivan',ko:'미니밴'} };
+  var COLOR = { white:{ar:'أبيض',en:'White',ko:'흰색'}, black:{ar:'أسود',en:'Black',ko:'검정'}, gray:{ar:'رمادي',en:'Gray',ko:'회색'}, silver:{ar:'فضي',en:'Silver',ko:'은색'}, blue:{ar:'أزرق',en:'Blue',ko:'파랑'}, red:{ar:'أحمر',en:'Red',ko:'빨강'}, brown:{ar:'بني',en:'Brown',ko:'갈색'}, green:{ar:'أخضر',en:'Green',ko:'초록'}, gold:{ar:'ذهبي',en:'Gold',ko:'금색'}, yellow:{ar:'أصفر',en:'Yellow',ko:'노랑'}, other:{ar:'آخر',en:'Other',ko:'기타'}, unknown:{ar:'غير محدد',en:'Unspecified',ko:'미지정'} };
+  var DRIVE = { fwd:{ar:'دفع أمامي',en:'FWD',ko:'전륜구동'}, rwd:{ar:'دفع خلفي',en:'RWD',ko:'후륜구동'}, awd:{ar:'دفع رباعي AWD',en:'AWD',ko:'AWD'}, '4wd':{ar:'دفع رباعي 4WD',en:'4WD',ko:'4WD'} };
+  var SELLER = { dealer:{ar:'معرض',en:'Dealer',ko:'딜러'}, private:{ar:'مالك خاص',en:'Private owner',ko:'개인'} };
 
-  var FUEL_AR = { diesel:'ديزل', gasoline:'بنزين', hybrid:'هايبرد', plug_hybrid:'بلج-إن هايبرد', electric:'كهربائية', lpg:'غاز' };
-  var TRANS_AR = { auto:'أوتوماتيك', manual:'يدوي', cvt:'CVT', dct:'DCT' };
-  var BODY_AR = { suv:'SUV', sedan:'سيدان', hatchback:'هاتشباك', van:'فان', coupe:'كوبيه', pickup:'بيك أب', wagon:'واغن', convertible:'كشف', minivan:'ميني فان' };
-  var COLOR_AR = { white:'أبيض', black:'أسود', gray:'رمادي', silver:'فضي', blue:'أزرق', red:'أحمر', brown:'بني', green:'أخضر', gold:'ذهبي', yellow:'أصفر', other:'آخر', unknown:'غير محدد' };
-  var DRIVE_AR = { fwd:'دفع أمامي', rwd:'دفع خلفي', awd:'دفع رباعي AWD', '4wd':'دفع رباعي 4WD' };
-  var SELLER_AR = { dealer:'معرض', private:'مالك خاص' };
+  var current = null; // last loaded vehicle (for re-render on lang/currency change)
 
   if (!/^[0-9a-f-]{32,36}$/i.test(id)) { showError(); }
   else {
@@ -187,6 +198,9 @@
       .then(render)
       .catch(showError);
   }
+  // Re-render the whole detail view (no re-fetch) when language or currency changes
+  window.addEventListener('langchange', function () { if (current) render(current); });
+  window.addEventListener('currencychange', function () { if (current) render(current); });
 
   function showError() {
     el('loading').style.display = 'none';
@@ -201,6 +215,7 @@
 
   function render(v) {
     if (!v || v.error || !v.id) return showError();
+    current = v;
 
     document.title = (v.brand_name||'') + ' ' + (v.model_name||'') + ' ' + (v.year||'') + ' — العز العالمي';
 
@@ -221,10 +236,10 @@
 
     /* Badges */
     var badges = [];
-    if (v.is_new_vehicle) badges.push(['جديد', '#10b981']);
-    if (v.is_undervalued) badges.push(['🔥 صفقة أقل من السوق', '#C9A84C']);
-    if (v.has_accident === false) badges.push(['بدون حوادث', '#10b981']);
-    if (v.inspection_passed) badges.push(['مجتاز الفحص الرسمي', '#5B9BF5']);
+    if (v.is_new_vehicle) badges.push([T('cars_new_badge'), '#10b981']);
+    if (v.is_undervalued) badges.push([T('cars_deal'), '#C9A84C']);
+    if (v.has_accident === false) badges.push([T('badge_noacc'), '#10b981']);
+    if (v.inspection_passed) badges.push([T('rp_inspect'), '#5B9BF5']);
     el('badges').innerHTML = badges.map(function (b) {
       return '<span class="font-cairo font-bold text-xs px-3 py-1 rounded-full" style="background:'+b[1]+'22;color:'+b[1]+';border:1px solid '+b[1]+'55;">'+b[0]+'</span>';
     }).join('');
@@ -232,32 +247,31 @@
     /* Title + price + WA */
     el('t-title').textContent = (v.brand_name||'') + ' ' + (v.model_name||'') + ' ' + (v.year||'');
     el('t-trim').textContent = [v.trim, v.generation].filter(Boolean).join(' · ');
-    var priceSar = Math.round((v.price_usd || 0) * SAR);
-    el('t-price').textContent = fmt(priceSar);
+    el('t-price').innerHTML = money(v.price_usd || 0);
     var ref = (v.vehicle_no || v.listing_id || v.id.slice(0, 8));
     el('t-ref').textContent = ref;
 
-    var msg = 'مرحباً، أرغب بطلب هذه السيارة من موقعكم:\n'
+    var msg = T('wa_greeting') + '\n'
       + '🚗 ' + (v.brand_name||'') + ' ' + (v.model_name||'') + ' ' + (v.year||'') + (v.trim ? ' — ' + v.trim : '') + '\n'
-      + '💰 السعر في كوريا: ' + fmt(priceSar) + ' ريال\n'
-      + '🔖 الرقم المرجعي: ' + ref + '\n'
+      + '💰 ' + T('wa_price') + ': ' + moneyText(v.price_usd || 0) + '\n'
+      + '🔖 ' + T('wa_ref') + ': ' + ref + '\n'
       + '🔗 ' + location.href;
     el('t-wa').href = 'https://wa.me/' + WA + '?text=' + encodeURIComponent(msg);
 
     /* Specs */
     var specs = [
-      ['السنة', v.year],
-      ['الممشى', v.mileage != null ? fmt(v.mileage) + ' كم' : null],
-      ['الوقود', FUEL_AR[v.fuel_type] || v.fuel_type],
-      ['ناقل الحركة', TRANS_AR[v.transmission] || v.transmission],
-      ['نوع الهيكل', BODY_AR[v.body_type] || v.body_type],
-      ['اللون', COLOR_AR[v.color] || v.color],
-      ['حجم المحرك', v.engine_cc ? fmt(v.engine_cc) + ' سي سي' : null],
-      ['نظام الدفع', DRIVE_AR[(v.drive_type||'').toLowerCase()] || v.drive_type],
-      ['عدد المقاعد', v.seat_count ? v.seat_count + ' مقاعد' : null],
-      ['عدد المُلّاك السابقين', v.owner_count != null ? v.owner_count : null],
-      ['البائع', SELLER_AR[v.seller_type] || v.seller_type],
-      ['المنطقة', v.region],
+      [T('sp_year'), v.year],
+      [T('sp_mileage'), v.mileage != null ? fmt(v.mileage) + ' ' + T('unit_km') : null],
+      [T('sp_fuel'), v.fuel_type ? L(FUEL, v.fuel_type) : null],
+      [T('sp_trans'), v.transmission ? L(TRANS, v.transmission) : null],
+      [T('sp_body'), v.body_type ? L(BODY, v.body_type) : null],
+      [T('sp_color'), v.color ? L(COLOR, v.color) : null],
+      [T('sp_engine'), v.engine_cc ? fmt(v.engine_cc) + ' ' + T('unit_cc') : null],
+      [T('sp_drive'), v.drive_type ? L(DRIVE, v.drive_type) : null],
+      [T('sp_seats'), v.seat_count ? v.seat_count + ' ' + T('unit_seats') : null],
+      [T('sp_owners'), v.owner_count != null ? v.owner_count : null],
+      [T('sp_seller'), v.seller_type ? L(SELLER, v.seller_type) : null],
+      [T('sp_region'), v.region],
     ];
     el('specs').innerHTML = specs
       .filter(function (s) { return s[1] !== null && s[1] !== undefined && s[1] !== ''; })
@@ -267,45 +281,46 @@
     /* Condition report */
     function repRow(label, val, okWhen) {
       var cls, txt;
-      if (val === null || val === undefined) { cls = 'rep-na'; txt = 'غير متوفر'; }
-      else if (val === okWhen) { cls = 'rep-ok'; txt = okWhen === false ? 'لا ✓' : 'نعم ✓'; }
-      else { cls = 'rep-bad'; txt = okWhen === false ? 'نعم ✗' : 'لا ✗'; }
+      if (val === null || val === undefined) { cls = 'rep-na'; txt = T('val_none'); }
+      else if (val === okWhen) { cls = 'rep-ok'; txt = (okWhen === false ? T('val_no') : T('val_yes')) + ' ✓'; }
+      else { cls = 'rep-bad'; txt = (okWhen === false ? T('val_yes') : T('val_no')) + ' ✗'; }
       return '<div class="rep-row"><span>'+label+'</span><span class="'+cls+'">'+txt+'</span></div>';
     }
     var rep = '';
-    rep += repRow('حوادث مسجلة', v.has_accident, false);
-    rep += repRow('إصلاحات بسيطة', v.has_simple_repair, false);
-    rep += repRow('استدعاء مصنعي', v.has_recall, false);
-    if (v.has_recall) rep += repRow('تمت معالجة الاستدعاء', v.recall_fulfilled, true);
-    rep += repRow('مجتاز الفحص الرسمي', v.inspection_passed, true);
-    if (v.warranty_type) rep += '<div class="rep-row"><span>الضمان</span><span style="color:#F0D98A;font-weight:700;">' + v.warranty_type + '</span></div>';
-    if (v.vin) rep += '<div class="rep-row"><span>رقم الهيكل (VIN)</span><span style="direction:ltr;font-size:0.75rem;color:rgba(200,216,240,0.7);">' + v.vin + '</span></div>';
+    rep += repRow(T('rp_accident'), v.has_accident, false);
+    rep += repRow(T('rp_repair'), v.has_simple_repair, false);
+    rep += repRow(T('rp_recall'), v.has_recall, false);
+    if (v.has_recall) rep += repRow(T('rp_recall_ok'), v.recall_fulfilled, true);
+    rep += repRow(T('rp_inspect'), v.inspection_passed, true);
+    if (v.warranty_type) rep += '<div class="rep-row"><span>'+T('rp_warranty')+'</span><span style="color:#F0D98A;font-weight:700;">' + v.warranty_type + '</span></div>';
+    if (v.vin) rep += '<div class="rep-row"><span>'+T('rp_vin')+'</span><span style="direction:ltr;font-size:0.75rem;color:rgba(200,216,240,0.7);">' + v.vin + '</span></div>';
     el('report').innerHTML = rep;
 
     /* Price analysis */
     var a = v.analysis;
     if (a && (a.estimated_price || a.cohort_median_price || a.price_status)) {
-      var statusAr = { undervalued:'أقل من سعر السوق 🔥', fair:'سعر عادل ✓', overvalued:'أعلى من سعر السوق' }[a.price_status] || a.price_status || '—';
-      var html = '<div class="rep-row"><span>تقييم السعر</span><span style="color:#F0D98A;font-weight:700;">' + statusAr + '</span></div>';
-      if (a.estimated_price) html += '<div class="rep-row"><span>السعر التقديري العادل</span><span class="rep-ok">' + fmt(Math.round(a.estimated_price * SAR)) + ' ريال</span></div>';
+      var statusTxt = { undervalued: T('mk_great') + ' 🔥', fair: T('mk_fair') + ' ✓', overvalued: T('mk_high') }[a.price_status] || a.price_status || '—';
+      var html = '<div class="rep-row"><span>'+T('mk_status')+'</span><span style="color:#F0D98A;font-weight:700;">' + statusTxt + '</span></div>';
+      if (a.estimated_price) html += '<div class="rep-row"><span>'+T('mk_estimate')+'</span><span class="rep-ok">' + money(a.estimated_price) + '</span></div>';
       if (a.price_difference_pct != null) {
         var pd = Math.round(a.price_difference_pct);
-        html += '<div class="rep-row"><span>الفرق عن السوق</span><span class="' + (pd <= 0 ? 'rep-ok' : 'rep-bad') + '">' + (pd > 0 ? '+' : '') + pd + '%</span></div>';
+        html += '<div class="rep-row"><span>'+T('mk_diff')+'</span><span class="' + (pd <= 0 ? 'rep-ok' : 'rep-bad') + '">' + (pd > 0 ? '+' : '') + pd + '%</span></div>';
       }
-      if (a.comparable_count) html += '<div class="rep-row"><span>سيارات مشابهة قورنت</span><span style="color:#fff;">' + fmt(a.comparable_count) + '</span></div>';
+      if (a.comparable_count) html += '<div class="rep-row"><span>'+T('mk_compared')+'</span><span style="color:#fff;">' + fmt(a.comparable_count) + '</span></div>';
       if (a.cohort_min_price && a.cohort_max_price) {
         var lo = a.cohort_min_price, hi = a.cohort_max_price, cur = a.actual_price || v.price_usd;
         var pos = Math.max(0, Math.min(100, ((cur - lo) / (hi - lo)) * 100));
+        var edge = (lang() === 'ar') ? 'right' : 'left';
         html += '<div style="margin-top:1.1rem;">'
-          + '<div class="pa-bar"><div class="pa-marker" style="right:' + pos.toFixed(1) + '%;"></div></div>'
+          + '<div class="pa-bar"><div class="pa-marker" style="' + edge + ':' + pos.toFixed(1) + '%;"></div></div>'
           + '<div class="flex justify-between mt-2" style="font-size:0.68rem;color:rgba(200,216,240,0.5);">'
-          + '<span>الأرخص: ' + fmt(Math.round(lo * SAR)) + ' ر.س</span>'
-          + '<span>الأغلى: ' + fmt(Math.round(hi * SAR)) + ' ر.س</span>'
+          + '<span>'+T('mk_lowest')+': ' + moneyText(lo) + '</span>'
+          + '<span>'+T('mk_highest')+': ' + moneyText(hi) + '</span>'
           + '</div></div>';
       }
       el('pa-body').innerHTML = html;
     } else {
-      el('pa-body').innerHTML = '<p style="color:rgba(200,216,240,0.45);font-size:0.85rem;padding:1rem 0;">لا يتوفر تحليل سعري لهذه السيارة بعد</p>';
+      el('pa-body').innerHTML = '<p style="color:rgba(200,216,240,0.45);font-size:0.85rem;padding:1rem 0;">' + T('mk_none') + '</p>';
     }
 
     /* Description (light markdown) */

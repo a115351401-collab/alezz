@@ -111,6 +111,10 @@
     ::-webkit-scrollbar { width: 8px; height: 8px; }
     ::-webkit-scrollbar-thumb { background: rgba(201,168,76,0.35); border-radius: 4px; }
   </style>
+
+  <!-- Trilingual + multi-currency engines (shared with homepage; honour saved choice) -->
+  <script src="i18n.js"></script>
+  <script src="currency.js"></script>
 </head>
 <body>
 
@@ -231,7 +235,7 @@
       </div>
 
       <div class="f-group">
-        <label class="f-label">نطاق السعر (ريال سعودي)</label>
+        <label id="lbl-price" class="f-label" data-no-i18n>نطاق السعر (ريال سعودي)</label>
         <div class="flex gap-2">
           <input id="f-pmin" class="f-input" type="number" min="0" max="1500000" placeholder="من 0" />
           <input id="f-pmax" class="f-input" type="number" min="0" max="1500000" placeholder="إلى 1,500,000" />
@@ -306,8 +310,11 @@
   var countEl = document.getElementById('pg-count');
   var state = { page: 1, loading: false };
 
-  var FUEL_AR = { diesel:'ديزل', gasoline:'بنزين', hybrid:'هايبرد', plug_hybrid:'بلج-إن هايبرد', electric:'كهربائية', lpg:'غاز' };
-  var TRANS_AR = { auto:'أوتوماتيك', manual:'يدوي', cvt:'CVT', dct:'DCT' };
+  var FUEL_KEY = { diesel:'fuel_diesel', gasoline:'fuel_gasoline', hybrid:'fuel_hybrid', plug_hybrid:'fuel_hybrid', electric:'fuel_electric', lpg:'fuel_lpg' };
+  var TRANS_KEY = { auto:'trans_auto', manual:'trans_manual' };
+
+  var T = function (k, vars) { return window.I18N ? I18N.t(k, vars) : k; };
+  var money = function (usd) { return window.CUR ? CUR.format(usd) : Math.round(usd * 3.75) + ' ريال'; };
 
   function fmt(n) { return Number(n || 0).toLocaleString('en-US'); }
   function sar(usd) { return Math.round((usd || 0) * SAR); }
@@ -338,7 +345,7 @@
     var items = BRANDS.filter(function(b){ return !ql || b.name.toLowerCase().indexOf(ql) > -1; }).slice(0, 40);
     brandList.innerHTML = items.map(function(b){
       return '<div class="brand-item" data-slug="'+b.slug+'" data-name="'+b.name+'">'+b.name+'</div>';
-    }).join('') || '<div class="brand-item" style="color:rgba(200,216,240,0.4);">لا نتائج</div>';
+    }).join('') || '<div class="brand-item" style="color:rgba(200,216,240,0.4);">' + T('cars_no_brand') + '</div>';
     brandList.classList.add('open');
   }
   brandInput.addEventListener('input', function(){ brandSlug=''; renderBrandList(this.value); });
@@ -392,10 +399,12 @@
     var bd = getBody(); if (bd) p.set('body_type', bd);
     var co = getColor(); if (co) p.set('color', co);
 
+    // Price inputs are typed in the chosen currency → convert to USD for the API.
     var pmin = +document.getElementById('f-pmin').value || 0;
     var pmax = +document.getElementById('f-pmax').value || 0;
-    if (pmin > 0) p.set('min_price', Math.floor(pmin / SAR));
-    if (pmax > 0) p.set('max_price', Math.ceil(pmax / SAR));
+    var toUsd = window.CUR ? function (a) { return CUR.toUsd(a); } : function (a) { return a / SAR; };
+    if (pmin > 0) p.set('min_price', Math.floor(toUsd(pmin)));
+    if (pmax > 0) p.set('max_price', Math.ceil(toUsd(pmax)));
 
     var mmin = +document.getElementById('f-mmin').value || 0;
     var mmax = +document.getElementById('f-mmax').value || 0;
@@ -422,15 +431,15 @@
   }
   function cardHTML(v, idx) {
     var img = photoUrl(v);
-    var fuel = FUEL_AR[(v.fuel_type||'').toLowerCase()] || v.fuel_type || '—';
-    var tr = TRANS_AR[(v.transmission||'').toLowerCase()] || v.transmission || '—';
+    var fuel = FUEL_KEY[(v.fuel_type||'').toLowerCase()] ? T(FUEL_KEY[(v.fuel_type||'').toLowerCase()]) : (v.fuel_type || '—');
+    var tr = TRANS_KEY[(v.transmission||'').toLowerCase()] ? T(TRANS_KEY[(v.transmission||'').toLowerCase()]) : (v.transmission || '—');
     return '<div class="lc-card" style="animation-delay:'+(idx % PAGE_SIZE)*0.05+'s;" onclick="location.href=\'car.html?id='+v.id+'\'">'
       + '<div class="lc-photo">'
-      +   (v.is_undervalued ? '<span class="lc-badge lc-badge-deal">🔥 صفقة</span>'
-          : (isNew7d(v) ? '<span class="lc-badge lc-badge-new">وصل حديثاً</span>' : ''))
+      +   (v.is_undervalued ? '<span class="lc-badge lc-badge-deal">'+T('cars_deal')+'</span>'
+          : (isNew7d(v) ? '<span class="lc-badge lc-badge-new">'+T('lc_new')+'</span>' : ''))
       +   (img ? '<img src="'+img+'" alt="'+(v.brand_name||'')+' '+(v.model_name||'')+'" loading="lazy" onerror="this.style.display=\'none\'">' : '')
       +   '<div style="position:absolute;bottom:10px;right:12px;left:12px;z-index:2;display:flex;align-items:flex-end;justify-content:space-between;">'
-      +     '<p class="font-cairo font-black text-white" style="font-size:1.2rem;line-height:1;">'+fmt(sar(v.price_usd))+' <span style="font-size:0.7rem;font-weight:700;color:#F0D98A;">ريال</span></p>'
+      +     '<p class="font-cairo font-black text-white" style="font-size:1.2rem;line-height:1;">'+money(v.price_usd)+'</p>'
       +     '<span class="font-cairo font-bold" style="font-size:0.8rem;color:#fff;background:rgba(26,77,184,0.65);padding:0.2rem 0.6rem;border-radius:8px;">'+(v.year||'')+'</span>'
       +   '</div>'
       + '</div>'
@@ -440,7 +449,7 @@
       +   '<div class="flex flex-wrap gap-1.5">'
       +     '<span class="lc-spec">⚙️ '+tr+'</span>'
       +     '<span class="lc-spec">⛽ '+fuel+'</span>'
-      +     '<span class="lc-spec">🛣️ '+fmt(v.mileage)+' كم</span>'
+      +     '<span class="lc-spec">🛣️ '+fmt(v.mileage)+' '+T('unit_km')+'</span>'
       +   '</div>'
       + '</div>'
       + '</div>';
@@ -452,34 +461,53 @@
   }
 
   /* ── Load ── */
+  var allItems = [], lastCount = 0;
+
+  function renderCount() {
+    if (!countEl) return;
+    countEl.innerHTML = T('cars_count', { n: '<strong style="color:#F0D98A;">' + fmt(lastCount) + '</strong>' });
+  }
+  // Rebuild the whole grid from loaded items (used on language / currency change)
+  function renderAll() {
+    if (!allItems.length) return;
+    grid.innerHTML = allItems.map(cardHTML).join('');
+    renderCount();
+  }
+
   function load(reset) {
     if (state.loading) return;
     state.loading = true;
     moreBtn.style.display = 'none';
-    if (reset) { state.page = 1; grid.innerHTML = skeletons(6); }
+    if (reset) { state.page = 1; allItems = []; grid.innerHTML = skeletons(6); }
 
     fetch(API + '/cars?' + buildParams().toString())
       .then(function(r){ return r.json(); })
       .then(function(d){
         if (d.error) throw new Error(d.error);
         var items = d.results || [];
+        allItems = reset ? items.slice() : allItems.concat(items);
         var html = items.map(cardHTML).join('');
         if (reset) grid.innerHTML = html;
         else grid.insertAdjacentHTML('beforeend', html);
 
         if (reset && !items.length) {
-          grid.innerHTML = '<p class="text-center" style="grid-column:1/-1;color:rgba(200,216,240,0.5);padding:3rem 0;">لا توجد سيارات مطابقة لبحثك — جرّب تعديل الفلاتر</p>';
+          grid.innerHTML = '<p class="text-center" style="grid-column:1/-1;color:rgba(200,216,240,0.5);padding:3rem 0;">' + T('cars_none') + '</p>';
         }
-        countEl.innerHTML = 'وجدنا <strong style="color:#F0D98A;">' + fmt(d.count) + '</strong> سيارة مطابقة';
+        lastCount = d.count || 0;
+        renderCount();
         moreBtn.style.display = d.has_next ? '' : 'none';
         state.page++;
       })
       .catch(function(){
-        if (reset) grid.innerHTML = '<p class="text-center" style="grid-column:1/-1;color:rgba(200,216,240,0.5);padding:3rem 0;">تعذّر التحميل مؤقتاً — <button onclick="location.reload()" style="color:#F0D98A;text-decoration:underline;background:none;border:none;cursor:pointer;font-family:Tajawal;">أعد المحاولة</button></p>';
+        if (reset) grid.innerHTML = '<p class="text-center" style="grid-column:1/-1;color:rgba(200,216,240,0.5);padding:3rem 0;">' + T('cars_fail') + ' <button onclick="location.reload()" style="color:#F0D98A;text-decoration:underline;background:none;border:none;cursor:pointer;font-family:Tajawal;">' + T('lc_retry') + '</button></p>';
         countEl.textContent = '';
       })
       .finally(function(){ state.loading = false; });
   }
+
+  // Re-render loaded cards (no re-fetch) + dynamic labels on language/currency change
+  window.addEventListener('langchange', function () { renderAll(); syncDynamicLabels(); });
+  window.addEventListener('currencychange', function () { renderAll(); syncDynamicLabels(); });
 
   /* ── Events ── */
   document.getElementById('f-apply').addEventListener('click', function(){
@@ -492,6 +520,17 @@
   moreBtn.addEventListener('click', function(){ load(false); });
   document.getElementById('f-open').addEventListener('click', function(){ document.getElementById('f-aside').classList.add('open'); });
   document.getElementById('f-close').addEventListener('click', function(){ document.getElementById('f-aside').classList.remove('open'); });
+
+  // Placeholders + currency-aware price label (kept in sync with language/currency)
+  function syncDynamicLabels() {
+    var set = function (id, ph) { var el = document.getElementById(id); if (el) el.placeholder = ph; };
+    set('f-brand', T('ph_brand')); set('f-model', T('ph_model')); set('f-ref', T('ph_ref'));
+    set('f-pmin', T('ph_from')); set('f-pmax', T('ph_to'));
+    set('f-mmin', T('ph_from')); set('f-mmax', T('ph_to'));
+    var lbl = document.getElementById('lbl-price');
+    if (lbl) lbl.textContent = T('price_range') + ' (' + (window.CUR ? CUR.code : 'SAR') + ')';
+  }
+  syncDynamicLabels();
 
   load(true);
 })();
