@@ -1,22 +1,19 @@
 // ═══════════════════════════════════════════════════════════
-// Secure proxy for Carapis v2 metadata (makes, listing detail).
+// Secure proxy for Carapis metadata (brands, vehicle detail).
 //
-//   /api/meta?path=makes
-//   /api/meta?path=listings/<id>
+//   /api/meta?path=brands
+//   /api/meta?path=vehicles/<uuid>
 // ═══════════════════════════════════════════════════════════
 
-const BASE_URL = process.env.CARAPIS_URL || 'https://api.carapis.com/v2';
-const IS_V2 = BASE_URL.includes('/v2');
+const BASE_URL = process.env.CARAPIS_URL || 'https://api.carapis.com/apix/catalog_api';
 
-// v1: brands, models, vehicles/{uuid}
-// v2: makes, listings/{id}
-const SAFE_PATH = IS_V2
-  ? /^(makes|listings\/[0-9a-zA-Z_-]{4,64})$/
-  : /^(brands|models|colors|interior_colors|body_types|fuel_types|transmissions|filters|facets|stats|sources|vehicles\/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})$/;
+// Safe allowed paths for v1
+const SAFE_PATH = /^(brands|models|colors|body_types|fuel_types|transmissions|sources|vehicles\/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})$/;
 
-const ALLOWED_PARAMS = IS_V2
-  ? ['page', 'limit', 'search', 'source']
-  : ['page', 'page_size', 'search', 'brand', 'brand_slug', 'source_code', 'ordering'];
+// Also accept "makes" as an alias for "brands" (frontend may call either)
+const PATH_ALIAS = { makes: 'brands' };
+
+const ALLOWED_PARAMS = ['page', 'page_size', 'search', 'brand', 'brand_slug', 'source_code', 'ordering'];
 
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -24,9 +21,12 @@ export default async function handler(req, res) {
   const apiKey = (process.env.CARAPIS_API_KEY || process.env.AUTO_API_KEY || '').trim();
   if (!apiKey) return res.status(500).json({ error: 'API key is not configured.' });
 
-  const path = String(req.query.path || '').replace(/\/+$/, '');
+  let path = String(req.query.path || '').replace(/\/+$/, '');
+  // Resolve alias (e.g. "makes" → "brands")
+  path = PATH_ALIAS[path] || path;
+
   if (!SAFE_PATH.test(path)) {
-    return res.status(400).json({ error: 'Path not allowed.' });
+    return res.status(400).json({ error: 'Path not allowed: ' + path });
   }
 
   const qs = new URLSearchParams();
@@ -36,12 +36,13 @@ export default async function handler(req, res) {
   }
   const query = qs.toString();
 
+  const authHeader = apiKey.startsWith('car_')
+    ? { 'Authorization': `Bearer ${apiKey}` }
+    : { 'X-API-Key': apiKey };
+
   try {
-    const authHeader = IS_V2
-      ? { 'Authorization': `Bearer ${apiKey}` }
-      : { 'X-API-Key': apiKey };
     const upstream = await fetch(`${BASE_URL}/${path}/${query ? '?' + query : ''}`, {
-      headers: authHeader,
+      headers: { ...authHeader, 'Accept': 'application/json' },
       signal: AbortSignal.timeout(25000),
     });
     const body = await upstream.text();
@@ -58,7 +59,7 @@ export default async function handler(req, res) {
     res.setHeader('Content-Type', 'application/json; charset=utf-8');
     return res.status(200).send(body);
   } catch (err) {
-    console.error('meta v2 fetch failed:', err && err.message);
+    console.error('meta fetch failed:', err && err.message);
     return res.status(502).json({ error: 'Upstream request timed out or failed.' });
   }
 }

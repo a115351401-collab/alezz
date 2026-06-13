@@ -1,35 +1,39 @@
 // ═══════════════════════════════════════════════════════════
-// Secure proxy for Carapis v2 — vehicle listings
-// Key lives ONLY in Vercel Environment Variables.
+// Secure proxy for Carapis — vehicle listings
+// Key lives ONLY in Vercel Environment Variables (AUTO_API_KEY).
 //
 // Usage from the frontend:
 //   /api/cars                          → first page (12 vehicles)
-//   /api/cars?page=2&limit=20
+//   /api/cars?page=2&limit=12
 //   /api/cars?make=genesis&source=encar
+//   /api/cars?diag=1                   → safe diagnostics (no key exposed)
 // ═══════════════════════════════════════════════════════════
 
-// Supports both v1 (legacy) and v2 — set CARAPIS_URL env var to override.
-// v2 default: https://api.carapis.com/v2                (Authorization: Bearer, keys start with car_)
-// v1 legacy:  https://api.carapis.com/apix/catalog_api  (X-API-Key header)
-const BASE_URL = process.env.CARAPIS_URL || 'https://api.carapis.com/v2';
-const IS_V2 = BASE_URL.includes('/v2');
+// v1 endpoint — confirmed working (returns 401, not 404)
+// Auth: keys starting with "car_" use Bearer; legacy keys use X-API-Key
+const BASE_URL = process.env.CARAPIS_URL || 'https://api.carapis.com/apix/catalog_api';
 
-const ALLOWED_PARAMS = IS_V2 ? [
-  'page', 'limit', 'source',
-  'make', 'model',
-  'year_min', 'year_max',
-  'price_min', 'price_max',
-  'fuel_type', 'transmission', 'color',
-  'search', 'ordering',
-  'mileage_min', 'mileage_max',
-] : [
+const ALLOWED_PARAMS = [
   'page', 'page_size', 'search', 'ordering', 'available_only',
   'brand', 'model', 'color', 'body_type', 'fuel_type', 'transmission',
   'min_year', 'max_year', 'min_price', 'max_price',
-  'min_mileage', 'max_mileage', 'min_engine_cc', 'max_engine_cc',
-  'has_accident', 'inspection_passed', 'is_new_vehicle', 'is_undervalued',
-  'features', 'source',
+  'min_mileage', 'max_mileage', 'source',
+  // also accept frontend v2-style names and map them below
+  'make', 'limit', 'year_min', 'year_max', 'price_min', 'price_max',
+  'mileage_min', 'mileage_max',
 ];
+
+// Map frontend param names → v1 API param names
+const PARAM_MAP = {
+  make: 'brand',
+  limit: 'page_size',
+  year_min: 'min_year',
+  year_max: 'max_year',
+  price_min: 'min_price',
+  price_max: 'max_price',
+  mileage_min: 'min_mileage',
+  mileage_max: 'max_mileage',
+};
 
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -41,73 +45,73 @@ export default async function handler(req, res) {
     return res.status(200).json({
       key_present: Boolean(apiKey),
       key_length: apiKey.length,
-      key_prefix: apiKey ? apiKey.slice(0, 4) + '…' : null,
+      key_prefix: apiKey ? apiKey.slice(0, 6) + '…' : null,
       base_url: BASE_URL,
-      mode: IS_V2 ? 'v2' : 'v1',
-      provider: 'carapis',
+      key_type: apiKey.startsWith('car_') ? 'bearer (car_ prefix)' : 'x-api-key',
     });
   }
 
   if (!apiKey) {
     return res.status(500).json({
-      error: 'API key is not configured. Add AUTO_API_KEY in Vercel → Settings → Environment Variables.',
+      error: 'API key not configured. Add AUTO_API_KEY in Vercel → Settings → Environment Variables.',
     });
   }
 
-  // Defaults
-  const defaults = IS_V2
-    ? { source: 'encar', page: '1', limit: '12' }
-    : { page: '1', page_size: '12' };
-  const qs = new URLSearchParams(defaults);
+  // Build query string with v1 param names
+  const qs = new URLSearchParams({ page: '1', page_size: '12', source: 'encar' });
   for (const key of ALLOWED_PARAMS) {
     const value = req.query[key];
-    if (value !== undefined && value !== '') qs.set(key, String(value));
+    if (value === undefined || value === '') continue;
+    const mapped = PARAM_MAP[key] || key;
+    qs.set(mapped, String(value));
   }
 
-  const endpoint = IS_V2 ? `${BASE_URL}/listings?${qs}` : `${BASE_URL}/vehicles/?${qs}`;
-  const authHeader = IS_V2
+  const endpoint = `${BASE_URL}/vehicles/?${qs}`;
+
+  // keys starting with "car_" use Bearer; older keys use X-API-Key
+  const authHeader = apiKey.startsWith('car_')
     ? { 'Authorization': `Bearer ${apiKey}` }
     : { 'X-API-Key': apiKey };
 
   try {
     const upstream = await fetch(endpoint, {
-      headers: authHeader,
+      headers: { ...authHeader, 'Accept': 'application/json' },
       signal: AbortSignal.timeout(25000),
     });
     const body = await upstream.text();
 
     if (!upstream.ok) {
-      console.error('carapis v2 error:', upstream.status, body.slice(0, 300));
+      console.error('carapis error:', upstream.status, body.slice(0, 300));
       return res.status(502).json({
         error: 'Upstream API request failed.',
         upstream_status: upstream.status,
-        detail: body.slice(0, 1000),
+        endpoint,
+        detail: body.slice(0, 500),
       });
     }
 
-    // Parse and normalise for frontend compatibility
+    // Parse and normalise for frontend
     let data;
     try {
       data = JSON.parse(body);
-      // Normalise array key: v2 uses "results", v1 may use "vehicles" or "data"
-      if (!Array.isArray(data.results)) {
-        data.results = data.vehicles || data.data || data.listings || [];
-      }
-      const page = Number(data.page || qs.get('page') || 1);
-      const limit = Number(data.limit || qs.get('limit') || qs.get('page_size') || 12);
-      data.has_next = (page * limit) < Number(data.count || 0);
     } catch (e) {
-      // If parse fails, send raw body
-      res.setHeader('Cache-Control', 's-maxage=21600, stale-while-revalidate=86400');
       res.setHeader('Content-Type', 'application/json; charset=utf-8');
       return res.status(200).send(body);
     }
+
+    // Normalise array key (v1 uses "results", but just in case)
+    if (!Array.isArray(data.results)) {
+      data.results = data.vehicles || data.data || data.listings || [];
+    }
+    const page = Number(data.page || qs.get('page') || 1);
+    const pageSize = Number(data.page_size || data.limit || qs.get('page_size') || 12);
+    data.has_next = (page * pageSize) < Number(data.count || 0);
 
     res.setHeader('Cache-Control', 's-maxage=21600, stale-while-revalidate=86400');
     res.setHeader('Content-Type', 'application/json; charset=utf-8');
     return res.status(200).json(data);
   } catch (err) {
-    console.error('carapis v2 fetch failed:', err && err.message);
+    console.error('carapis fetch failed:', err && err.message);
     return res.status(502).json({ error: 'Upstream request timed out or failed. Try again shortly.' });
   }
 }
