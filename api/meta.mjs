@@ -5,12 +5,18 @@
 //   /api/meta?path=listings/<id>
 // ═══════════════════════════════════════════════════════════
 
-const BASE_URL = process.env.CARAPIS_URL || 'https://api.carapis.com/v2';
+const BASE_URL = process.env.CARAPIS_URL || 'https://api.carapis.com/apix/catalog_api';
+const IS_V2 = BASE_URL.includes('/v2');
 
-// Allow: makes list  OR  single listing by id (alphanumeric + hyphens)
-const SAFE_PATH = /^(makes|listings\/[0-9a-zA-Z_-]{4,64})$/;
+// v1: brands, models, vehicles/{uuid}
+// v2: makes, listings/{id}
+const SAFE_PATH = IS_V2
+  ? /^(makes|listings\/[0-9a-zA-Z_-]{4,64})$/
+  : /^(brands|models|colors|interior_colors|body_types|fuel_types|transmissions|filters|facets|stats|sources|vehicles\/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})$/;
 
-const ALLOWED_PARAMS = ['page', 'limit', 'search', 'source'];
+const ALLOWED_PARAMS = IS_V2
+  ? ['page', 'limit', 'search', 'source']
+  : ['page', 'page_size', 'search', 'brand', 'brand_slug', 'source_code', 'ordering'];
 
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -31,8 +37,11 @@ export default async function handler(req, res) {
   const query = qs.toString();
 
   try {
-    const upstream = await fetch(`${BASE_URL}/${path}${query ? '?' + query : ''}`, {
-      headers: { 'Authorization': `Bearer ${apiKey}` },
+    const authHeader = IS_V2
+      ? { 'Authorization': `Bearer ${apiKey}` }
+      : { 'X-API-Key': apiKey };
+    const upstream = await fetch(`${BASE_URL}/${path}/${query ? '?' + query : ''}`, {
+      headers: authHeader,
       signal: AbortSignal.timeout(25000),
     });
     const body = await upstream.text();

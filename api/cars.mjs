@@ -8,9 +8,13 @@
 //   /api/cars?make=genesis&source=encar
 // ═══════════════════════════════════════════════════════════
 
-const BASE_URL = process.env.CARAPIS_URL || 'https://api.carapis.com/v2';
+// Supports both v1 (legacy) and v2 — set CARAPIS_URL env var to override.
+// v1 default: https://api.carapis.com/apix/catalog_api  (X-API-Key header)
+// v2 opt-in:  https://api.carapis.com/v2                (Authorization: Bearer)
+const BASE_URL = process.env.CARAPIS_URL || 'https://api.carapis.com/apix/catalog_api';
+const IS_V2 = BASE_URL.includes('/v2');
 
-const ALLOWED_PARAMS = [
+const ALLOWED_PARAMS = IS_V2 ? [
   'page', 'limit', 'source',
   'make', 'model',
   'year_min', 'year_max',
@@ -18,6 +22,13 @@ const ALLOWED_PARAMS = [
   'fuel_type', 'transmission', 'color',
   'search', 'ordering',
   'mileage_min', 'mileage_max',
+] : [
+  'page', 'page_size', 'search', 'ordering', 'available_only',
+  'brand', 'model', 'color', 'body_type', 'fuel_type', 'transmission',
+  'min_year', 'max_year', 'min_price', 'max_price',
+  'min_mileage', 'max_mileage', 'min_engine_cc', 'max_engine_cc',
+  'has_accident', 'inspection_passed', 'is_new_vehicle', 'is_undervalued',
+  'features', 'source',
 ];
 
 export default async function handler(req, res) {
@@ -32,7 +43,8 @@ export default async function handler(req, res) {
       key_length: apiKey.length,
       key_prefix: apiKey ? apiKey.slice(0, 4) + '…' : null,
       base_url: BASE_URL,
-      provider: 'carapis-v2',
+      mode: IS_V2 ? 'v2' : 'v1',
+      provider: 'carapis',
     });
   }
 
@@ -42,16 +54,24 @@ export default async function handler(req, res) {
     });
   }
 
-  // Defaults: encar source, page 1, 12 results
-  const qs = new URLSearchParams({ source: 'encar', page: '1', limit: '12' });
+  // Defaults
+  const defaults = IS_V2
+    ? { source: 'encar', page: '1', limit: '12' }
+    : { page: '1', page_size: '12' };
+  const qs = new URLSearchParams(defaults);
   for (const key of ALLOWED_PARAMS) {
     const value = req.query[key];
     if (value !== undefined && value !== '') qs.set(key, String(value));
   }
 
+  const endpoint = IS_V2 ? `${BASE_URL}/listings?${qs}` : `${BASE_URL}/vehicles/?${qs}`;
+  const authHeader = IS_V2
+    ? { 'Authorization': `Bearer ${apiKey}` }
+    : { 'X-API-Key': apiKey };
+
   try {
-    const upstream = await fetch(`${BASE_URL}/listings?${qs}`, {
-      headers: { 'Authorization': `Bearer ${apiKey}` },
+    const upstream = await fetch(endpoint, {
+      headers: authHeader,
       signal: AbortSignal.timeout(25000),
     });
     const body = await upstream.text();

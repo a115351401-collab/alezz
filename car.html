@@ -199,7 +199,10 @@
 
   if (!/^[0-9a-zA-Z_-]{4,64}$/.test(id)) { showError(); }
   else {
-    fetch(API + '/meta?path=listings/' + id)
+    // Try v2 /listings/{id} first, fall back to v1 /vehicles/{id}
+    var metaPath = /^[0-9a-f-]{32,36}$/i.test(id) ? 'vehicles/' : 'listings/';
+    fetch(API + '/meta?path=' + metaPath + id)
+      .then(function(r){ return r.ok ? r : fetch(API + '/meta?path=' + (metaPath === 'listings/' ? 'vehicles/' : 'listings/') + id); })
       .then(function (r) { if (!r.ok) throw 0; return r.json(); })
       .then(render)
       .catch(showError);

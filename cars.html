@@ -508,13 +508,18 @@
   var brandList = document.getElementById('brand-list');
   var brandSlug = '';
 
-  fetch(API + '/meta?path=makes')
-    .then(function(r){ return r.json(); })
-    .then(function(d){
-      var list = d.results || d;
-      if (Array.isArray(list)) BRANDS = list.map(function(b){ return { name: b.name || b.make || b, slug: b.slug || b.name || b }; });
-    })
-    .catch(function(){});
+  // Fetch brands: try v2 /makes, fall back to v1 /brands
+  function loadBrands(path) {
+    fetch(API + '/meta?path=' + path)
+      .then(function(r){ return r.ok ? r.json() : (path === 'makes' ? loadBrands('brands') : null); })
+      .then(function(d){
+        if (!d) return;
+        var list = d.results || d;
+        if (Array.isArray(list)) BRANDS = list.map(function(b){ return { name: b.name || b.make || String(b), slug: b.slug || b.name || String(b) }; });
+      })
+      .catch(function(){});
+  }
+  loadBrands('makes');
 
   function renderBrandList(q) {
     var ql = (q || '').toLowerCase();
@@ -559,16 +564,16 @@
     p.set('limit', PAGE_SIZE);
     p.set('page', state.page);
 
-    // v2: make (was brand), exact name or search text
+    // brand: send as both make (v2) and brand/search (v1) — proxy keeps only supported params
     var brandVal = brandInput.value.trim();
-    if (brandVal) p.set('make', brandVal);
+    if (brandVal) { p.set('make', brandVal); p.set('brand', brandVal); p.set('search', brandVal); }
 
     var model = document.getElementById('f-model').value.trim();
     if (model) p.set('model', model);
 
     var ymin = document.getElementById('f-ymin').value, ymax = document.getElementById('f-ymax').value;
-    if (ymin) p.set('year_min', ymin);
-    if (ymax) p.set('year_max', ymax);
+    if (ymin) { p.set('year_min', ymin); p.set('min_year', ymin); }
+    if (ymax) { p.set('year_max', ymax); p.set('max_year', ymax); }
 
     var tr = getTrans(); if (tr) p.set('transmission', tr);
     var fu = getFuel(); if (fu) p.set('fuel_type', fu);
@@ -581,8 +586,10 @@
       var usd = window.CUR ? CUR.toUsd(a) : a / SAR;
       return Math.round(usd * (window.CUR ? CUR.rateOf('KRW') : 1360));
     };
-    if (pmin > 0) p.set('price_min', toKrw(pmin));
-    if (pmax > 0) p.set('price_max', toKrw(pmax));
+    // v2: price in KRW  |  v1: price in USD
+    var toUsd = window.CUR ? function(a){ return CUR.toUsd(a); } : function(a){ return a / SAR; };
+    if (pmin > 0) { p.set('price_min', toKrw(pmin)); p.set('min_price', Math.floor(toUsd(pmin))); }
+    if (pmax > 0) { p.set('price_max', toKrw(pmax)); p.set('max_price', Math.ceil(toUsd(pmax))); }
 
     var mmin = +document.getElementById('f-mmin').value || 0;
     var mmax = +document.getElementById('f-mmax').value || 0;
